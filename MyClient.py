@@ -417,7 +417,7 @@ class MyClient(discord.Client):
             await message.reply("Hello!")
         
         if message.content.startswith(prefix + "rules"):
-            rules = """
+            rules_part1 = """
             The golden rule: don't be a dick. You never know what someone else is going through —— patience and empathy go a long way.
             General rules:
                 - Use the correct channels. Keep things organized; ask if you're unsure or if there is a want for additional channels.
@@ -427,6 +427,8 @@ class MyClient(discord.Client):
                 - Protect your privacy. Do not share Personally Identifiable Information (i.e phone number, snapchat, etc.).
                 - Outside issues stay outside. Shark & the mods cannot moderate what happens beyond the server —— report or block as needed.
                 - Be an adult (18+). Act with maturity and respect.
+            """
+            rules_part2 = """
                 - No racism, bigorty or "jokes" about them. Dark humor is fine but read the room - do not use dark humor to hide racism or hatefulness.
                 - Respect others' space. You'll get the same in return.
                 - No trauma Dumping. Venting is fine in the <#1313754697152073789> channel —— let other chats stay light and welcoming.
@@ -441,7 +443,8 @@ class MyClient(discord.Client):
 
             """
 
-            await message.reply(rules)
+            await message.reply(rules_part1)
+            await message.send(rules_part2)
 
         if message.content.startswith(prefix + "describe game"):
             send = f"The shark catch game is a game where once every {TIME_PER_LOOP / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"
