@@ -121,7 +121,7 @@ class SharkLoops:
                 if net != "rope net":
                     available_nets, about_to_break, broken_nets, net_uses = sg.get_net_availability(user)
                     if net in available_nets:
-                        # print("found it")
+                        print(net_uses)
                         if net in about_to_break and net_uses == 21:
                             await channel.send(f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left")
                         elif net in about_to_break and net_uses == 16:
