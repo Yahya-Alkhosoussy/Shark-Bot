@@ -49,7 +49,7 @@ def get_something(name:str, thing: str):
         full.append(row)
     return full
 
-def create_dex(username: str, shark_name: str, when_caught: str, net_used: str, rarity: str):
+def create_dex(username: str, shark_name: str, when_caught: str, net_used: str, rarity: str, net_uses: int):
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS '{username} dex' 
                                 (shark text, time text, fact text, weight real, net text, coins real, rarity text, level INTEGER, net_uses INTEGER)""")
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS '{username} nets'
@@ -60,8 +60,8 @@ def create_dex(username: str, shark_name: str, when_caught: str, net_used: str, 
     coins = check_currency(username)
     coins = 0 if coins is None else coins
     level = 0
-    row: tuple = (shark_name, when_caught, fact[0][0], weight[0][0], net_type, coins, rarity, level)
-    cursor.execute(f"INSERT OR IGNORE INTO '{username} dex' VALUES (?, ?, ?, ?, ?, ?, ?, ?)", row)
+    row: tuple = (shark_name, when_caught, fact[0][0], weight[0][0], net_type, coins, rarity, level, net_uses)
+    cursor.execute(f"INSERT OR IGNORE INTO '{username} dex' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
     cursor.execute(f"INSERT OR IGNORE INTO '{username} nets' VALUES (?, ?, ?, ?, ?)", (True, False, False, False, False))
     connection.commit()
 
