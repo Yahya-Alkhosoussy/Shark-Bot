@@ -283,7 +283,7 @@ def get_net_availability(username: str):
     all_nets = []
     available_nets = ["rope net"]
     all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets'"))
-    net_uses: int
+    net_uses: int = 0
     
     about_to_break = []
     broken = []
@@ -345,6 +345,7 @@ def get_net_availability(username: str):
 
                     case net_to_num.NET_OF_DOOM.value:
                         for row in cursor.execute(f"SELECT net_uses FROM '{username} dex' WHERE net='net of doom' ORDER BY time DESC LIMIT 1"):
+                            print("net of doom is used")
                             net_uses = row[0]
                         if (net_uses <= 25 and net_uses > 21) or (net_uses <= 19 and net_uses > 16) or (net_uses <= 14 and net_uses > 11) or (net_uses <= 9 and net_uses > 6) or (net_uses <= 4 and net_uses > 1):
                             available_nets.append("net of doom")
