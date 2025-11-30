@@ -416,6 +416,33 @@ class MyClient(discord.Client):
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")
         
+        if message.content.startswith(prefix + "rules"):
+            rules = """
+            The golden rule: don't be a dick. You never know what someone else is going through —— patience and empathy go a long way.
+            General rules:
+                - Use the correct channels. Keep things organized; ask if you're unsure or if there is a want for additional channels.
+                - Respect stream spaces. Streaming Voice Channels are for streaming —— do not interrupt or demand to join. If you see others already in a space, do not come in and take it over. Do not talk over others or take up all the oxygen. The room is to be shared.
+                - The rule above also applies to general Voice Channels, the public ones are free for anyone to use, just be respectful and ask, but do not demand.
+                - Absolutely NO AI ART ~ AI is a wonderful tool for those who may have unexpected gaps as they are still learning or due to other issues, but that is never a justified reason to use someone else's art without permision. Any art posted needs to be your own. Theft of art is an instant ban from the both twitch and discord.
+                - Protect your privacy. Do not share Personally Identifiable Information (i.e phone number, snapchat, etc.).
+                - Outside issues stay outside. Shark & the mods cannot moderate what happens beyond the server —— report or block as needed.
+                - Be an adult (18+). Act with maturity and respect.
+                - No racism, bigorty or "jokes" about them. Dark humor is fine but read the room - do not use dark humor to hide racism or hatefulness.
+                - Respect others' space. You'll get the same in return.
+                - No trauma Dumping. Venting is fine in the <#1313754697152073789> channel —— let other chats stay light and welcoming.
+                - No spam or unsolicited DMs. Always ask first.
+                - No backseating or spoilers. Let others explore and play at their own pace unless help is requested.
+                - Politics are allowed in tge server for a few reasons — the first being that many of our lives were made political without our consent. Creating a safe environment means that topics will occasionally come up that impact our every day lives, including politics. If you are not comfortable having a mature conversation where you can recognize when to walk away when it comes to politics, do not engage with these discussions. Politics that promote hate will not be tolerated. While shark is certainly one to point out hateful politics and correct the behavior, remember that your education is your responsibility. You are not required to all have the same political beliefs, but be open to growth and actually listen to those affected if you are going to be a part of these topics. 
+                - For any issues, questions, concerns, etc. you can reach out to any mod. Shark's DMs are also open. Shark has an open door policy - just know it may take me a bit to respond, but shark will for sure get back to you.
+            ---------
+            A few notes:
+                - Tag requests: If you want updates, select the Shark Update options <#1336429573608574986> — that's how I make sure no one's left out.
+                - If shark ever misremembers something about you, it is never intentional. She cares deeply about this community —— thank you for your understanding as we keep improving it together.
+
+            """
+
+            await message.reply(rules)
+
         if message.content.startswith(prefix + "describe game"):
             send = f"The shark catch game is a game where once every {TIME_PER_LOOP / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"
             await message.reply(send)
