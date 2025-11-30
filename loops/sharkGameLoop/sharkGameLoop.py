@@ -59,7 +59,7 @@ class SharkLoops:
                 list_of_names = sg.get_shark_names("very common")
 
             name_index = random.randint(0, len(list_of_names) - 1)
-            name_to_drop: str = names[rand_int]
+            name_to_drop: str = names[name_index] # use name index and not rand_int next time idiot.
             # print(name_to_drop)
             random_number_2 = random.randint(0, 100)
             
