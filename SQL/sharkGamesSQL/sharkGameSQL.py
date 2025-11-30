@@ -375,6 +375,7 @@ def remove_net_use(username: str, net: str, net_uses: int):
         rowid = row[0]
         cursor.execute(f"UPDATE '{username} dex' SET net_uses={net_uses} WHERE rowid = {rowid}")
         print("removed 1 net use")
+        connection.commit()
 
 def is_net_available(username: str, net: str):
 
