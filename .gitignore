@@ -63,9 +63,6 @@ db.sqlite3-journal
 
 # Databases and configs
 *.db
-*.YAML
-*.yml
-*.yaml
 
 # Flask stuff:
 instance/

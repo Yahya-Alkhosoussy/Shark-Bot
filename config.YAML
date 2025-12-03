@@ -1,0 +1,76 @@
+guilds:
+  test server: 1066090135839580231
+  shark squad: 1273776575266951268
+roles:
+  colour:
+    cyan: 1422681663342903438
+  general:
+    shark update: 1335425471810375750
+    shark games: 1398962532244520992
+    discord bot update: 1433791804893040743
+    red: 1428757018792956085
+  test:
+    green: 1428757052993437767
+  birthdays:
+    January babies: 1335413563627409429
+    February babies: 1335415340049371188
+    March babies: 1335416311089463378
+    April babies: 1335416850615504957
+    May babies: 1335417252270571560
+    June babies: 1335417579832873072
+    July babies: 1335417607825784864
+    August babies: 1335417655309369375
+    September babies: 1335417694228316172
+    October babies: 1335417733281480774
+    November babies: 1335417768404848640
+    December babies: 1335417794799341670
+  backpacks and sherpas:
+    marvel rivals backpack: 1432332559731130520
+    marvel rivals sherpa: 1432333018365689926
+    TFD backpack: 1432333228408307802
+    TFD sherpa: 1432333345567805450
+    monster hunter backpack: 1432333412118691881
+    monster hunter sherpa: 1432333501717413949
+    warframe backpack: 1432333502883303567
+    warframe sherpa: 1432333639361888256
+    elden ring backpack: 1432425438688575570
+    elden ring sherpa: 1432425574181113856
+    nightreign backpack: 1432425674315927582
+    nightreign sherpa: 1432425787927298329
+channels:
+  announcement:
+    test server: 1423015091686735912
+  roles:
+    test server: 1246466929762238625
+    shark squad: 1336429573608574986
+  welcome:
+    test server: 1246466929762238625
+    shark squad: 1400757251278508032
+  game:
+    test server: 1428887560427409589
+    shark squad: 1432337887818682469
+  chatting:
+    shark squad: 1273780642303180852
+guild role messages:
+  test server:
+    colour: 1432539446829387777
+    general: 1432539451657289881
+    test: 1432539456522682380
+  shark squad:
+    general: 1432537821352296580
+    birthdays: 1432539470334394408
+    backpack: 1432541906721837076
+    sherpa: 1432541922387562529
+birthday message:
+  January: false
+  February: false
+  March: false
+  April: false
+  May: false
+  June: false
+  July: false
+  August: false
+  September: false
+  October: false
+  November: true
+  December: false
