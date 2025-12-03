@@ -137,13 +137,13 @@ class SharkLoops:
                         if net in broken_nets and net_uses == 20:
                             await channel.send(f"WARNING @{user}: Net broken, don't worry through because you have 4 more of the same net left")
                         elif net in broken_nets and net_uses == 15:
-                            await channel.reply(f"WARNING @{user}: Net broken, don't worry through because you have 3 more of the same net left")
+                            await channel.send(f"WARNING @{user}: Net broken, don't worry through because you have 3 more of the same net left")
                         elif net in broken_nets and net_uses == 10:
-                            await channel.reply(f"WARNING @{user}: Net broken, don't worry through because you have 2 more of the same net left")
+                            await channel.send(f"WARNING @{user}: Net broken, don't worry through because you have 2 more of the same net left")
                         elif net in broken_nets and net_uses == 5:
-                            await channel.reply(f"WARNING @{user}: Net broken, don't worry through because you have 1 more of the same net left")
+                            await channel.send(f"WARNING @{user}: Net broken, don't worry through because you have 1 more of the same net left")
                         elif net in broken_nets and net_uses == 0:
-                            await channel.reply(f"WARNING @{user}: Net broken. You have no more uses of the same net left")
+                            await channel.send(f"WARNING @{user}: Net broken. You have no more uses of the same net left")
                             
                 if num <= odds(str(user), net):
 
