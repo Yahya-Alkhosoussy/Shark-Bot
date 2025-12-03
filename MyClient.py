@@ -552,7 +552,7 @@ Shark Catch Game:
                     rand_idx = random.randint(0, len(names) - 1) 
                     current_time = dt.datetime.now()
                     time_caught: str = f"{current_time.date()} {current_time.hour}"
-                    sg.create_dex(user, names[rand_idx], time_caught, net, "normal")
+                    sg.create_dex(user, names[rand_idx], time_caught, net, "normal", net_uses)
                     coin = sg.reward_coins(user, shark=True, rare="normal", shark_name=names[rand_idx])
                     await message.reply(f"Oh lord, you have caught a shark that has randomly stumbled it's way here! 🦈 Congratulations on the {names[rand_idx]}. You have been given {coin} coins.")
                 elif catch_type <= 25: # large fish 20% chance
