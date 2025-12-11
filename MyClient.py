@@ -155,7 +155,7 @@ class MyClient(discord.Client):
     @levels_loop.error
     async def levels_loop_error(self, error):
         # catch unhandelled exceptions inside the Loop
-        logging.exception("levels loop error: %s", error)\
+        logging.exception("levels loop error: %s", error)
         
     # ======= ON RUN =======
     async def on_ready(self):
@@ -165,9 +165,9 @@ class MyClient(discord.Client):
         
         id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
 
-        # if not self._ticket_setup_done:
-        #     await self.ticket_system.setup()
-        #     self._ticket_setup_done = True
+        if not self._ticket_setup_done:
+            await self.ticket_system.setup()
+            self._ticket_setup_done = True
 
         for guild in self.guilds:
             await self.ensure_react_roles_message(guild)
