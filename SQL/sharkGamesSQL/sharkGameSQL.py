@@ -432,23 +432,54 @@ def check_currency(username: str):
 
     return None if not rows else rows[len(rows) - 1]
 
-def buy_net(username: str, net: str):
+class num_to_net(Enum):
+    leather_net     = 1
+    gold_net        = 2
+    titanium_net    = 3
+    net_of_doom     = 4
+    leather_net_5   = 5
+    gold_net_5      = 6
+    titanium_net_5  = 7
+    net_of_doom_5   = 8
+
+def buy_net(username: str, net: int):
 
     coins = check_currency(username)
 
     price: list = []
+    
+    net_to_buy: str
+    bundle: bool = False
 
-    for prices in cursor.execute(f"SELECT price FROM 'nets shop' WHERE net='{net}'"):
+    match net:
+        case num_to_net.leather_net.value():
+            net_to_buy = "leather net"
+        case num_to_net.leather_net_5.value():
+            net_to_buy = "leather net"
+            bundle = True
+        case num_to_net.gold_net.value():
+            net_to_buy = "gold net"
+        case num_to_net.gold_net_5.value():
+            net_to_buy = "gold net"
+            bundle = True
+        case num_to_net.titanium_net.value():
+            net_to_buy = "titanium net"
+        case num_to_net.titanium_net_5.value():
+            net_to_buy = "titanium net"
+            bundle = True
+        case num_to_net.net_of_doom.value():
+            net_to_buy = "net of doom"
+        case num_to_net.net_of_doom_5.value():
+            net_to_buy = "net of doom"
+            bundle = True
+        case _:
+            return False
+
+    for prices in cursor.execute(f"SELECT price FROM 'nets shop' WHERE net='{net_to_buy}'"):
         price.extend(prices)
 
     if coins is None:
         return False
-    
-    bundle = False
-
-    if "x 5" in net:
-        net = net[: -4]
-        bundle = True
     
     catches = []
     latest_catch = ""
@@ -459,14 +490,14 @@ def buy_net(username: str, net: str):
     if coins >= price[-1]:
 
         if not is_net_available(username, net) and not bundle:
-            cursor.execute(f"UPDATE '{username} nets' SET '{net}'=TRUE")
-            cursor.execute(f"UPDATE '{username} dex' SET net_use=5 WHERE net='{net}' WHERE time=?", (latest_catch))
+            cursor.execute(f"UPDATE '{username} nets' SET '{net_to_buy}'=TRUE")
+            cursor.execute(f"UPDATE '{username} dex' SET net_use=5 WHERE net='{net_to_buy}' WHERE time=?", (latest_catch))
             cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins - price[-1], latest_catch))
             connection.commit()
             return True
         elif not is_net_available(username, net) and bundle:
-            cursor.execute(f"UPDATE '{username} nets' SET '{net}'=TRUE")
-            cursor.execute(f"UPDATE '{username} dex' SET net_use=25 WHERE net='{net}' WHERE time=?", (latest_catch))
+            cursor.execute(f"UPDATE '{username} nets' SET '{net_to_buy}'=TRUE")
+            cursor.execute(f"UPDATE '{username} dex' SET net_use=25 WHERE net='{net_to_buy}' WHERE time=?", (latest_catch))
             cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins - price[-1], latest_catch))
             return True
         elif is_net_available(username, net):
