@@ -393,7 +393,7 @@ def is_net_available(username: str, net: str):
     nets_available: dict = {}
     all_nets = []
     try:
-        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets'"))
+        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets' DESC LIMIT 1"))
     except sqlite3.OperationalError:
         return False
     i = 0
@@ -540,7 +540,7 @@ def buy_net(username: str, net: int):
         elif is_net_available(username, net_to_buy):
             reason = "You already have the net"
             logging.info("[SHARK GAME SQL] Could not buy net, user already had it")
-            return success, net_to_buy, reason
+            return fail, net_to_buy, reason
     else:
         reason = "You cannot afford the net"
         return fail, net_to_buy, reason
