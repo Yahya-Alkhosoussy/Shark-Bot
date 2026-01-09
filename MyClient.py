@@ -100,6 +100,8 @@ ROLES_PER_GUILD: dict[int, dict[str, dict[discord.PartialEmoji, int]]] = {
             discord.PartialEmoji(name='🏰'): ROLES["backpacks and sherpas"]["elden ring backpack"],
             discord.PartialEmoji(name='🤺'): ROLES["backpacks and sherpas"]["nightreign backpack"],
             discord.PartialEmoji(name='🔫'): ROLES["backpacks and sherpas"]["Destiney Backpack"],
+            discord.PartialEmoji(name='<:animateduwu:1279478093278609491>'): ROLES["backpacks and sherpas"]["DNA backpack"],
+            discord.PartialEmoji(name='<:Zerotwosurprisedbyliliiet112:1318361087833538631>'): ROLES["backpacks and sherpas"]["ZZZ backpack"],
         },
         "sherpa": {
             discord.PartialEmoji(name='🦸'): ROLES["backpacks and sherpas"]["marvel rivals sherpa"],
@@ -109,6 +111,19 @@ ROLES_PER_GUILD: dict[int, dict[str, dict[discord.PartialEmoji, int]]] = {
             discord.PartialEmoji(name='🏰'): ROLES["backpacks and sherpas"]["elden ring sherpa"],
             discord.PartialEmoji(name='🤺'): ROLES["backpacks and sherpas"]["nightreign sherpa"],
             discord.PartialEmoji(name='🔫'): ROLES["backpacks and sherpas"]["Destiney Sherpa"],
+            discord.PartialEmoji(name='<:animateduwu:1279478093278609491>'): ROLES["backpacks and sherpas"]["DNA sherpa"],
+            discord.PartialEmoji(name='<:Zerotwosurprisedbyliliiet112:1318361087833538631>'): ROLES["backpacks and sherpas"]["ZZZ sherpa"],
+        },
+        "friend": {
+            discord.PartialEmoji(name='🦸'): ROLES["friend"]["Marvel Rivals"],
+            discord.PartialEmoji(name='🧙‍♀️'): ROLES["friend"]["Marvel Rivals"],
+            discord.PartialEmoji(name='🧟'): ROLES["friend"]["Marvel Rivals"],
+            discord.PartialEmoji(name='🥷'): ROLES["friend"]["Marvel Rivals"],
+            discord.PartialEmoji(name='🏰'): ROLES["friend"]["Marvel Rivals"],
+            discord.PartialEmoji(name='🤺'): ROLES["friend"]["Marvel Rivals"],
+            discord.PartialEmoji(name='🔫'): ROLES["friend"]["Marvel Rivals"],
+            discord.PartialEmoji(name='<:animateduwu:1279478093278609491>'): ROLES["friend"]["DNA"],
+            discord.PartialEmoji(name='<:Zerotwosurprisedbyliliiet112:1318361087833538631>'): ROLES["friend"]["ZZZ"]
         }
     }    
 }
@@ -188,6 +203,7 @@ class MyClient(discord.Client):
                         logging.warning(f"[TICKET SYSTEM] Channel ID for {guild_name} is either None or Zero!")
                     await self.ticket_system.send_ticket_panel(channel=channel)
                     logging.info(f"[TICKETING SYSTEM] Ticket embed sent to {guild_name}")
+                
                 self._ticket_setup_done = True
         
 
@@ -746,10 +762,13 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                     await follow.reply("Cancelled.")
                     return
                 # print(nets)
-                success, net_name = sg.buy_net(message.author, int(follow.content.strip().lower()))
+                success, net_name, reason = sg.buy_net(message.author, int(follow.content.strip().lower()))
                 if success:
-                    print("Found it!")
+                    logging.info(f"Found net: {net_name} for {message.author}")
                     await message.reply(f"Successfully bought {net_name}")
+                else:
+                    logging.info(f"Could not buy {net_name} for {message.author}")
+                    await message.reply(f"Could not buy net because {reason}")
                     
 
 

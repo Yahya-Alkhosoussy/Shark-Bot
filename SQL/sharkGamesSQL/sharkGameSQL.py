@@ -1,6 +1,11 @@
-import sqlite3
-import json
+import sqlite3, json, logging
 from enum import Enum
+
+# ======= Logging =======
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+root_logger.addHandler(handler)
 
 with open("listofsharks.json", "r", encoding="utf-8") as file:
     list_of_sharks: dict = json.load(file)
@@ -443,6 +448,19 @@ class num_to_net(Enum):
 
 def buy_net(username: str, net: int):
 
+    """
+    Allows users to buy a net from a certain selection of nets
+
+    Inputs:
+        Username: str           This is the user's discord username that is used for the SQL tables.
+        Net: int                This is the number corresponding to the net they want to buy, refer to num_to_net class for the numbers.
+        
+    Outputs:
+        Successful: Bool        Was the buying of the net successful?
+        net_to_buy: str | None  Returns the net that the user bought.
+        reason:     str | None  Returns the reason the transaction failed.
+    """
+
     coins = check_currency(username)
 
     price: list = []
@@ -450,35 +468,52 @@ def buy_net(username: str, net: int):
     net_to_buy: str
     bundle: bool = False
 
+    reason = ""
+    success = True
+    fail = False
+
     match net:
         case num_to_net.leather_net.value:
             net_to_buy = "leather net"
+            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case num_to_net.leather_net_5.value:
             net_to_buy = "leather net"
             bundle = True
+            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case num_to_net.gold_net.value:
             net_to_buy = "gold net"
+            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case num_to_net.gold_net_5.value:
             net_to_buy = "gold net"
             bundle = True
+            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case num_to_net.titanium_net.value:
             net_to_buy = "titanium net"
+            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case num_to_net.titanium_net_5.value:
             net_to_buy = "titanium net"
             bundle = True
+            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case num_to_net.net_of_doom.value:
             net_to_buy = "net of doom"
+            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case num_to_net.net_of_doom_5.value:
             net_to_buy = "net of doom"
             bundle = True
+            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case _:
-            return False, None
+            logging.info(f"[SHARK GAME SQL] {net} not found when prompted by {username}")
+            reason = "I could not find the net you requested"
+            return fail, None, reason # net bought is None
 
     for prices in cursor.execute(f"SELECT price FROM 'nets shop' WHERE net='{net_to_buy}'"):
         price.extend(prices)
 
     if coins is None:
-        return False, None
+        logging.warning(f"[SHARK GAME SQL] Could not find coins for {username}")
+        reason = "I could not find your coins"
+        return fail, None, reason
+    
     
     catches = []
     latest_catch = ""
@@ -493,16 +528,22 @@ def buy_net(username: str, net: int):
             cursor.execute(f"UPDATE '{username} dex' SET net_uses=5 WHERE net='{net_to_buy}' AND time=?", (latest_catch,))
             cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins - price[-1], latest_catch,))
             connection.commit()
-            return True, net_to_buy
+            logging.info("[SHARK GAME SQL] Net bought successfully!")
+            return success, net_to_buy, None # reason
         elif not is_net_available(username, net_to_buy) and bundle:
             cursor.execute(f"UPDATE '{username} nets' SET '{net_to_buy}'=TRUE")
             cursor.execute(f"UPDATE '{username} dex' SET net_uses=25 WHERE net='{net_to_buy}' AND time=?", (latest_catch,))
             cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins - price[-1], latest_catch,))
-            return True, net_to_buy
+            connection.commit()
+            logging.info("[SHARK GAME SQL] Net bought successfully!")
+            return success, net_to_buy, None # reason
         elif is_net_available(username, net_to_buy):
-            return False, net_to_buy
+            reason = "You already have the net"
+            logging.info("[SHARK GAME SQL] Could not buy net, user already had it")
+            return success, net_to_buy, reason
     else:
-        return False, net_to_buy
+        reason = "You cannot afford the net"
+        return fail, net_to_buy, reason
 
 def get_shark_rarity(shark_name: str):
     rarity = cursor.execute(f"SELECT rarity FROM sharks WHERE name='{shark_name}'")
