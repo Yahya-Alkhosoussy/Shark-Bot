@@ -552,7 +552,7 @@ def buy_net(username: str, net: int):
         current_time = dt.datetime.now()
         time_now: str = f"{current_time.date()} {current_time.hour}"
         if not is_net_available(username, net_to_buy) and not bundle:
-            cursor.execute(f"UPDATE '{username} nets' SET '{net_to_buy}'=TRUE, time={time_now}")
+            cursor.execute(f"UPDATE '{username} nets' SET '{net_to_buy}'=1, time={time_now}")
             cursor.execute(f"UPDATE '{username} dex' SET net_uses=5 WHERE net='{net_to_buy}' AND time=?", (latest_catch,))
             cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins - price[-1], latest_catch,))
             connection.commit()
@@ -811,12 +811,12 @@ def add_row_to_nets():
                 catches.extend(catch)
                 latest_catch = catches[0]
             for net_to_buy in nets:
-                cursor.execute(f"UPDATE '{t}' SET '{net_to_buy}'=TRUE, time={time_now}")
+                cursor.execute(f"UPDATE '{t}' SET '{net_to_buy}'=1, time={time_now}")
                 cursor.execute(f"UPDATE '{tables[i]}' SET net_uses=25 WHERE net='{net_to_buy}' AND time=?", (latest_catch,))
         except sqlite3.OperationalError as e:
             print(f"Skipping {t}: {e}")
         i+=1
 
-add_row_to_nets()
+# add_row_to_nets()
 
 connection.commit() #pushes changes to database
