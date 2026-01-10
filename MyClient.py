@@ -472,6 +472,9 @@ class MyClient(discord.Client):
         if message.author.id == self.user.id:
             return
         
+        if message.content.startswith(prefix + "react"):
+            await message.react(1279478093278609491)
+
         if message.guild == None:
             await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
 
