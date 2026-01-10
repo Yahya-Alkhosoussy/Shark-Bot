@@ -375,6 +375,8 @@ class MyClient(discord.Client):
         print(key)
         try: 
             role_id = mapping.get(str(key))
+            if role_id == None:
+                role_id = mapping.get(key)
             print(f"found role ID: {role_id}")
         except KeyError:
             logging.info("not the emoji i care about")
