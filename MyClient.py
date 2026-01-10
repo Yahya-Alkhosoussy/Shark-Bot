@@ -372,6 +372,7 @@ class MyClient(discord.Client):
         rr_message = id_to_name_rr.get(message_id)
         mapping = ROLES_PER_GUILD.get(gid).get(rr_message)
         key = payload.emoji
+        print(key)
         try: 
             role_id = mapping.get(key)
             print(f"found role ID: {role_id}")
