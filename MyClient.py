@@ -473,7 +473,7 @@ class MyClient(discord.Client):
             return
         
         if message.content.startswith(prefix + "react"):
-            await message.add_reaction(str(1279478093278609491))
+            await message.add_reaction("<a:animateduwu:1279478093278609491>")
 
         if message.guild == None:
             await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
