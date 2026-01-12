@@ -251,11 +251,9 @@ def add_column_to_net(column_name: str, column_type, default):
                     WHERE type='table' AND name NOT LIKE 'sqlite_%'
                 """)
     table_names = [row[0] for row in cursor.fetchall()]
-    print(f"Grabbed tables {table_names}")
-
     # 2) keep only tables that follow your pattern
-    net_tables = [t for t in table_names if t.endswith(" net")]
-    print(f"Grabbed net tables {net_tables}")
+    net_tables = [t for t in table_names if t.endswith(" nets")]
+
     # 3) Alter each
     for t in net_tables:
         try:
