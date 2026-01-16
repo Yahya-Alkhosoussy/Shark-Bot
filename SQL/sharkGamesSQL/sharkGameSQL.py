@@ -325,6 +325,7 @@ def get_net_availability(username: str):
     broken = []
     i = 0
     try:
+        print("Get net availability:")
         for nets in all_nets[0]:
             print(f"{nets}: i={i}")
             if nets == 0:
@@ -426,7 +427,9 @@ def is_net_available(username: str, net: str):
         return False
     i = 0
     try:
+        print("is net available:")
         for nets in all_nets[0]:
+            print(nets)
             if nets == 0:
                 i += 1
             else:
