@@ -560,6 +560,8 @@ def buy_net(username: str, net: int):
             cursor.execute(f"UPDATE '{username} dex' SET net_uses=5 WHERE net='{net_to_buy}' AND time=?", (latest_catch,))
             cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins - price[-1], latest_catch,))
             connection.commit()
+            for row in cursor.execute(f"SELECT * FROM '{username} nets'"):
+                print(f"DEBUG after buying {net_to_buy}: {row}")
             logging.info("[SHARK GAME SQL] Net bought successfully!")
             return success, net_to_buy, None # reason
         elif not is_net_available(username, net_to_buy) and bundle:
