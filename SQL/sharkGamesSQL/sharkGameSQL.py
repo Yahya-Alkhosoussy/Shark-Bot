@@ -814,22 +814,22 @@ def add_row_to_nets():
     for t in dex_tables:
         i = 0
         try:
-            nets = ["leather net", "gold net", "titanium net", "net of doom"]
-            time_now: str = f"{current_time.date()} {current_time.hour}"
-            catches = []
-            for catch in cursor.execute(f"SELECT time FROM '{tables[i]}' ORDER BY time DESC LIMIT 1"):
-                catches.extend(catch)
-                latest_catch = catches[0]
-            for net_to_buy in nets:
+            # nets = ["leather net", "gold net", "titanium net", "net of doom"]
+            # time_now: str = f"{current_time.date()} {current_time.hour}"
+            # catches = []
+            # for catch in cursor.execute(f"SELECT time FROM '{tables[i]}' ORDER BY time DESC LIMIT 1"):
+            #     catches.extend(catch)
+            #     latest_catch = catches[0]
+            # for net_to_buy in nets:
                 # cursor.execute(f"UPDATE '{t}' SET '{net_to_buy}'=0, time='{time_now}'")
-                # Check if row exists
-                row_count = cursor.execute(f"SELECT COUNT(*) FROM '{t}'").fetchone()[0]
-                if row_count == 0:
-                    cursor.execute(f"INSERT INTO '{t}' VALUES (?, ?, ?, ?, ?, ?)", (True, False, False, False, False, time_now))
-                    print(f"Added row for {t}")
-                    connection.commit()
-                else:
-                    print(f"Skipping {t}: row already exists")
+            # Check if row exists
+            row_count = cursor.execute(f"SELECT COUNT(*) FROM '{t}'").fetchone()[0]
+            if row_count == 0:
+                cursor.execute(f"INSERT INTO '{t}' VALUES (?, ?, ?, ?, ?, ?)", (True, False, False, False, False, time_now))
+                print(f"Added row for {t}")
+                connection.commit()
+            else:
+                print(f"Skipping {t}: row already exists, there are {row_count} rows")
                 # cursor.execute(f"UPDATE '{tables[i]}' SET net_uses=25 WHERE net='{net_to_buy}' AND time=?", (latest_catch,))
         except sqlite3.OperationalError as e:
             print(f"Skipping {t}: {e}")
