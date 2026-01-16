@@ -823,6 +823,20 @@ def add_row_to_nets():
             print(f"Skipping {t}: {e}")
         i+=1
 
-add_row_to_nets()
+# add_row_to_nets()
 
+def delete_all_rows_from_nets():
+    cursor.execute("""
+                    SELECT name
+                   FROM sqlite_master
+                   WHERE type='table' AND name NOT LIKE 'sqlite_%'
+                   """)
+    table_names = [row[0] for row in cursor.fetchall()]
+
+    nets_tables = [t for t in table_names if t.endswith(" nets")]
+    for t in nets_tables:
+        print(t)
+
+
+delete_all_rows_from_nets()
 connection.commit() #pushes changes to database
