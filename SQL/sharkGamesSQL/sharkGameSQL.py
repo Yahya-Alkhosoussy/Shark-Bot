@@ -422,7 +422,7 @@ def is_net_available(username: str, net: str):
     nets_available: dict = {}
     all_nets = []
     try:
-        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets' ORDER BY time DESC LIMIT 1;"))
+        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets' WHERE rowid=(SELECT rowid FROM '{username} nets' LIMIT 1)"))
     except sqlite3.OperationalError:
         return False
     i = 0
