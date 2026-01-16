@@ -815,7 +815,7 @@ def add_row_to_nets():
         i = 0
         try:
             # nets = ["leather net", "gold net", "titanium net", "net of doom"]
-            # time_now: str = f"{current_time.date()} {current_time.hour}"
+            time_now: str = f"{current_time.date()} {current_time.hour}"
             # catches = []
             # for catch in cursor.execute(f"SELECT time FROM '{tables[i]}' ORDER BY time DESC LIMIT 1"):
             #     catches.extend(catch)
