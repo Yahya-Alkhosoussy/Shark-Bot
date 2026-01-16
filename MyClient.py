@@ -91,7 +91,7 @@ ROLES_PER_GUILD: dict[int, dict[str, dict[discord.PartialEmoji, int]]] = {
             discord.PartialEmoji(name='🎮'): ROLES["general"]["shark games"],
             discord.PartialEmoji(name='❗'): ROLES["general"]["shark update"],
             discord.PartialEmoji(name='💻'): ROLES["general"]["discord bot update"],
-            discord.PartialEmoji(name='❕'): ROLES["general"]["dyslexxik updates"],
+            '<Zerotwodrinkbyliliiet112:1318361002072604692>': ROLES["general"]["dyslexxik updates"],
             discord.PartialEmoji(name='🎫'): ROLES["general"]["shark movie ticket"],
         },
         "backpack": {
