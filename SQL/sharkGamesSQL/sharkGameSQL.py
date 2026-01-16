@@ -342,7 +342,7 @@ def get_net_availability(username: str):
                             broken.append("leather net")
                             available_nets.append("leather net")
                             if net_uses == 0:
-                                cursor.execute(f"UPDATE '{username} nets' SET 'leather net'=FALSE")
+                                cursor.execute(f"UPDATE '{username} nets' SET 'leather net'=0")
                         else: 
                             broken.append("leather net")
                             
@@ -359,7 +359,7 @@ def get_net_availability(username: str):
                             broken.append("gold net")
                             available_nets.append("gold net")
                             if net_uses == 0:
-                                cursor.execute(f"UPDATE '{username} nets' SET 'gold net'=FALSE")
+                                cursor.execute(f"UPDATE '{username} nets' SET 'gold net'=0")
                         else: 
                             broken.append("gold net")
 
@@ -375,7 +375,7 @@ def get_net_availability(username: str):
                             broken.append("titanium net")
                             available_nets.append("titanium net")
                             if net_uses == 0:
-                                cursor.execute(f"UPDATE '{username} nets' SET 'titanium net'=FALSE")
+                                cursor.execute(f"UPDATE '{username} nets' SET 'titanium net'=0")
                         else: 
                             broken.append("titanium net")
 
@@ -391,7 +391,7 @@ def get_net_availability(username: str):
                             broken.append("net of doom")
                             available_nets.append("net of doom")
                             if net_uses == 0:
-                                cursor.execute(f"UPDATE '{username} nets' SET 'net of doom'=FALSE")
+                                cursor.execute(f"UPDATE '{username} nets' SET 'net of doom'=0")
                         else: 
                             broken.append("net of doom")
 
@@ -812,12 +812,12 @@ def add_row_to_nets():
                 catches.extend(catch)
                 latest_catch = catches[0]
             for net_to_buy in nets:
-                cursor.execute(f"UPDATE '{t}' SET '{net_to_buy}'=1, time={time_now}")
-                cursor.execute(f"UPDATE '{tables[i]}' SET net_uses=25 WHERE net='{net_to_buy}' AND time=?", (latest_catch,))
+                cursor.execute(f"UPDATE '{t}' SET '{net_to_buy}'=0, time={time_now}")
+                # cursor.execute(f"UPDATE '{tables[i]}' SET net_uses=25 WHERE net='{net_to_buy}' AND time=?", (latest_catch,))
         except sqlite3.OperationalError as e:
             print(f"Skipping {t}: {e}")
         i+=1
 
-# add_row_to_nets()
+add_row_to_nets()
 
 connection.commit() #pushes changes to database
