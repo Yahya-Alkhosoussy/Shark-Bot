@@ -315,7 +315,7 @@ def get_net_availability(username: str):
     all_nets = []
     available_nets = ["rope net"]
     try:
-        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets'"))
+        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets' ORDER BY time DESC LIMIT 1;"))
     except sqlite3.OperationalError:
         all_nets.extend(available_nets)
         
@@ -420,12 +420,13 @@ def is_net_available(username: str, net: str):
     nets_available: dict = {}
     all_nets = []
     try:
-        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets' ORDER BY TIME DESC LIMIT 1"))
+        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets' ORDER BY time DESC LIMIT 1;"))
     except sqlite3.OperationalError:
         return False
     i = 0
     try:
         for nets in all_nets[0]:
+            print(nets)
             if nets == 0:
                 i += 1
             else:
