@@ -26,10 +26,6 @@ connection = sqlite3.connect("databases/shark_game.db")
 # cursor that allows us to perform SQL queries
 cursor = connection.cursor()
 
-# # Execute SQL query
-# cursor.execute("""CREATE TABLE IF NOT EXISTS tshirts
-#                         (sku text PRIMARY KEY, name text, size text, price real)""") # real is a float
-
 cursor.execute("""CREATE TABLE IF NOT EXISTS sharks
                         (name text PRIMARY KEY, fact text, emoji text, weight real, rarity INTEGER)""") # real is a float
 
@@ -588,7 +584,7 @@ def buy_net(username: str, net: int):
                 cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins - price[-1], latest_catch,))
             else:
                 row: tuple = (None, time_now, None, None, net_to_buy, coins - price[-1], None, None, 25)
-                cursor.execute(f"INSERT INTO '{username} dex' VALUES (?, ?, ?, ?, ?, ?, ?)", row)
+                cursor.execute(f"INSERT INTO '{username} dex' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
             connection.commit()
             logging.info(f"[SHARK GAME SQL] Net bought successfully by {username} and the net uses for {net_to_buy} has been set to 25 at {latest_catch}")
             return success, net_to_buy, None # reason
