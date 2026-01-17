@@ -680,13 +680,16 @@ Shark Catch Game:
             if dex is None:
                 await user.send("You have not caught a shark so you have no dex, go catch sharks!")
 
-            send = "Here's your sharkdex: \n"
+            message_1: str = "Here's your sharkdex: \n"
+            # back ups in case the 2000 character limit discord has is reached
+            message_2: str
+            message_3: str
 
             index = 1
 
             for item in dex:
 
-                send += f"""shark {index}: 
+                string = f"""shark {index}: 
 name: {item[sharks_index.SHARK_NAME.value]} 🦈
 rarity: {item[sharks_index.RARITY.value]} 
 time caught: {item[sharks_index.TIME_CAUGHT.value]} 🕰️
@@ -696,10 +699,22 @@ net used: {item[sharks_index.NET_TYPE.value]} 🎣
 coins balance: {item[sharks_index.COINS.value]} 🪙
 
 """
+                if len(message_1 + string) < 2000:
+                    message_1 += string
+                elif len(message_2 + string) < 2000:
+                    message_2 += string
+                else:
+                    message_3 += string
+
                 index += 1
 
-            await user.send(send)
-        
+            await user.send(message_1)
+            if len(message_2) != 0:
+                await user.send(message_2)
+            if len(message_3) != 0:
+                await user.send(message_3)
+
+
         if message.content.startswith(prefix + "my nets"):
             user = message.author
             nets, about_to_break, _, _ = sg.get_net_availability(user)
