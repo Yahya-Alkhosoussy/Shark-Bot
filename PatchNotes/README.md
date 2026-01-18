@@ -1,1 +1,1 @@
-# This folder contains all the patch notes
+# This folder contains all the patch notes and updates when they happen
