@@ -215,6 +215,7 @@ class MyClient(discord.Client):
             message = f"""Tiny fry drifting in sparkling nursery currents. The water shimmers around you, catching the first hints of ocean magic.
 Chat, explore, and let your fins grow — your journey through the glittering ocean has just begun. You'll find more to explore at level 1. {member.mention} """
             chatting_channel.send(message)
+            self.leveling_loop.add_users(user = member)
 
     # ======= ANNOUNCE DEPARTURE =======
     async def on_member_remove(self, member):
