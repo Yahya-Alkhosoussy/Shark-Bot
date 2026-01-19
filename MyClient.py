@@ -170,7 +170,8 @@ class MyClient(discord.Client):
             if guild_name == "shark squad":
                 self.birthday_loops.start_for(guild.id)
                 for member in guild.members:
-                    self.leveling_loop.add_users(user=member)
+                    added = self.leveling_loop.add_users(user=member)
+                    if added: self.leveling_loop.add_role(user=member)
 
             
             if not self._ticket_setup_done:
@@ -214,8 +215,9 @@ class MyClient(discord.Client):
 
             message = f"""Tiny fry drifting in sparkling nursery currents. The water shimmers around you, catching the first hints of ocean magic.
 Chat, explore, and let your fins grow — your journey through the glittering ocean has just begun. You'll find more to explore at level 1. {member.mention} """
-            chatting_channel.send(message)
-            self.leveling_loop.add_users(user = member)
+            await chatting_channel.send(message)
+            await self.leveling_loop.add_users(user=member)
+            await self.leveling_loop.add_role(user=member)
 
     # ======= ANNOUNCE DEPARTURE =======
     async def on_member_remove(self, member):
@@ -453,10 +455,10 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         
         # leveling system messages
         id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
-        if len(message.content) >= 10 and id_to_name.get(message.guild.id) == "shark squad":
+        if len(message.content) >= 10: # add and id_to_name.get(message.guild.id) == "shark squad"
             await self.leveling_loop.message_handle(message)
         
-        if message.content.startswith(prefix + "check level") and id_to_name.get(message.guild.id) == "shark squad":
+        if message.content.startswith(prefix + "check level"): # add and id_to_name.get(message.guild.id) == "shark squad"
             await self.leveling_loop.check_level(message)
 
         if message.content.startswith(prefix + "hello"):
