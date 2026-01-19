@@ -29,12 +29,12 @@ def check_level(username: str):
     :return level_up: Whether or not the user has levelled up
     """
     info = []
-    for row in cur.execute("SELECT * FROM level WHERE username=?", username):
+    for row in cur.execute("SELECT * FROM level WHERE username=?", (username,)):
         info.extend(row) # breaks to tuple into individual indicies
 
     level_up = False
 
-    if info[indicies.EXP.value] == info[indicies.UNTIL_NEXT_LEVEL.value]:
+    if info[indicies.EXP.value] >= info[indicies.UNTIL_NEXT_LEVEL.value]:
         level_up = True
         info[indicies.LEVEL.value] += 1
         info[indicies.EXP.value] = 0
@@ -53,7 +53,7 @@ def calculate_xp_needed(username: str) -> int:
     :param username: The user's username
     :type username: str
     """
-    level, xp_needed = cur.execute("SELECT level, until_next_level FROM level WHERE username=?", username).fetchone()
+    level, xp_needed = cur.execute("SELECT level, until_next_level FROM level WHERE username=?", (username,)).fetchone()
 
 
     if level >= 0 and level <= 4:
@@ -77,7 +77,7 @@ def calculate_xp_needed(username: str) -> int:
     elif level > 36 and level % 4 == 0:
         xp_needed += 100
 
-        return xp_needed
+    return xp_needed
 
 
 def get_info(username: str):
@@ -89,7 +89,7 @@ def get_info(username: str):
     """
     
     info = []
-    for row in cur.execute("SELECT * FROM level WHERE username=?", username):
+    for row in cur.execute("SELECT * FROM level WHERE username=?", (username,)):
         info.extend(row)
     
     return info[indicies.LEVEL.value], info[indicies.EXP.value], info[indicies.UNTIL_NEXT_LEVEL.value], get_rank(username=username)
@@ -104,10 +104,9 @@ def add_user(username: str):
     :type username: str
     """
     rows: tuple = (username, 0, 0, 30)
-    existing = cur.execute("SELECT COUNT(*) FROM level WHERE username=?", (username,)).fetchone()[0]
     cur.execute(f"INSERT OR IGNORE INTO level (username, level, exp, until_next_level) VALUES (?, ?, ?, ?)", rows)
     connection.commit()
-    if existing == 0:
+    if cur.rowcount > 0:
         logging.info(f"[LEVELING SYSTEM] {username} was added to the leveling database")
 
 def add_to_level(username: str, boost: bool, boost_amount: int):
