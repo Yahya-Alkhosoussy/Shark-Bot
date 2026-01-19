@@ -78,6 +78,8 @@ def calculate_xp_needed(username: str) -> int:
     elif level > 36 and level % 4 == 0:
         xp_needed += 100
 
+        return xp_needed
+
 
 def get_info(username: str):
     """
