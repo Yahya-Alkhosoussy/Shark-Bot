@@ -186,7 +186,6 @@ class MyClient(discord.Client):
                 
                 self._ticket_setup_done = True
         
-
     # ======= ANNOUNCE ARRIVAL =======
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
@@ -449,11 +448,12 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
         
         # leveling system messages
-        if len(message.content) >= 10:    
-            self.leveling_loop.message_handle(message)
+        id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
+        if len(message.content) >= 10 and id_to_name.get(message.guild.id) == "shark squad":
+            await self.leveling_loop.message_handle(message)
         
-        if message.content.startswith(prefix + "check level"):
-            self.leveling_loop.check_level(message)
+        if message.content.startswith(prefix + "check level") and id_to_name.get(message.guild.id) == "shark squad":
+            await self.leveling_loop.check_level(message)
 
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")
