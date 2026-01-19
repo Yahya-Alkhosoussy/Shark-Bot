@@ -73,7 +73,7 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
     draw.text(xy=(750, 60), text=f"LEVEL {level}", fill=pale_lavendar, font=font_medium)
 
     # Draw XP 
-    draw.text(xy=(750, 120), text=f"{xp:,}", fill=cyan, font=font_small) # the ':,' makes it a 1000 comma separator
+    draw.text(xy=(750, 120), text=f"{xp:,}", fill=cyan, font=font_medium) # the ':,' makes it a 1000 comma separator
     
     # Draw the background of the progress bar
     bar_x, bar_y = 200, 140
@@ -92,15 +92,36 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
 
     return discord.File(buffer, filename='rank_card.png')
 
-
-# ============== LOOP LOGIC ==========================
+# ============= LEVEL ROLES ===================
+ROLES: dict = config.get("level roles")
+ROLES_SHARK_SQUAD: dict = ROLES.get("shark squad")
+# ============== LOOP LOGIC ===================
 class levelingLoop:
     
     def __init__(self, bot):
         self.bot = bot
 
     async def add_users(self, user: discord.Member):
-        ls.add_user(username=user.name)
+        return ls.add_user(username=user.name)
+
+    async def add_role(self, user: discord.Member):
+        level, _, _, _ = ls.get_info(username=user.name)
+        
+        
+        level_role_id = ROLES_SHARK_SQUAD.get(f"level {level}")
+        role = user.guild.get_role(level_role_id)
+        if role is None:
+            if level <= 5:
+                logging.warning(f"[LEVELLING SYSTEM] ROLE 'level {level}' is not registered for guild {user.guild.name}")
+            return
+        
+        try:
+            await user.add_roles(role)
+            logging.info(f"Added role {role} to {user.name}")
+        except discord.HTTPException:
+            logging.error("No can do, HTTPException")
+            return
+
     
     async def message_handle(self, message: discord.Message):
         boost_event  = config.get("boost")
@@ -140,6 +161,8 @@ The currents here shimmer with bioluminescent magic — irl-pics, selfies, venti
 Swim thoughtfully, respect the depths, and enjoy your sparkling new habitat. {message.author.mention}"""
             else:
                 message_to_send = None
+
+            await self.add_role(message.author)
 
             if message_to_send is not None:
                 await channel.send(message_to_send, file=card)

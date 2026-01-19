@@ -108,6 +108,8 @@ def add_user(username: str):
     connection.commit()
     if cur.rowcount > 0:
         logging.info(f"[LEVELING SYSTEM] {username} was added to the leveling database")
+        return True
+    return False
 
 def add_to_level(username: str, boost: bool, boost_amount: int):
     """
