@@ -47,13 +47,13 @@ class SharkLoops:
             
             rand_int = random.randint(1, 100)
             
-            if rand_int <= 4:
+            if rand_int <= 9:
                 list_of_names = sg.get_shark_names("ultra-rare")
-            elif rand_int <= 10:
-                list_of_names = sg.get_shark_names("rare")
             elif rand_int <= 20:
+                list_of_names = sg.get_shark_names("rare")
+            elif rand_int <= 35:
                 list_of_names = sg.get_shark_names("uncommon")
-            elif rand_int <= 50:
+            elif rand_int <= 65:
                 list_of_names = sg.get_shark_names("common")
             else:
                 list_of_names = sg.get_shark_names("very common")
