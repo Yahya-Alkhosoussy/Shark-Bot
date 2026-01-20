@@ -6,7 +6,7 @@ from discord.ext import tasks
 import datetime as dt
 from SQL.levellingSQL import levellingSQL as level
 from enum import Enum
-from loops.birthdayloop.birthdayLoop import BirthdayLoop, SharkLoops, TIME_PER_LOOP, sg
+from loops.birthdayloop.birthdayLoop import BirthdayLoop, SharkLoops, sg
 from loops.levellingloop.levellingLoop import levelingLoop
 from ticketingSystem.Ticket_System import TicketSystem
 
@@ -495,6 +495,7 @@ A few notes:
             await message.reply(rules_part2)
 
         if message.content.startswith(prefix + "describe game"):
+            TIME_PER_LOOP = config.get("time per loop")
             send = f"The shark catch game is a game where once every {TIME_PER_LOOP / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"
             await message.reply(send)
 

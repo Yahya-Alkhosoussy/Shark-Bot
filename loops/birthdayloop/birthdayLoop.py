@@ -1,6 +1,6 @@
 import logging, discord, datetime as dt
 from discord.ext import tasks
-from ..sharkGameLoop.sharkGameLoop import get_channel_id, config, RY, CONFIG_PATH, SharkLoops, TIME_PER_LOOP, sg
+from ..sharkGameLoop.sharkGameLoop import get_channel_id, config, RY, CONFIG_PATH, SharkLoops, sg
 from zoneinfo import ZoneInfo
 
 def mark_reminder_as_done(month: str):
