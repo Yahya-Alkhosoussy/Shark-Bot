@@ -109,7 +109,7 @@ class TicketOptions(discord.ui.View):
                 dm_embed.add_field(name="Ticket Created", value=f"<t:{ticket_created_unix}:f>", inline=True)
                 dm_embed.add_field(name="Ticket Closed", value=f"<t:{ticket_closed_unix}:f>", inline=True)
 
-                await ticket_creator.send(embed=dm_embed, file=transcript_file_user)
+                await ticket_creator.send(content="Here's your transcript: \n In order to view it you will have to download the file and open it in your web browser!",embed=dm_embed, file=transcript_file_user)
             except discord.Forbidden:
                 transcript_info.add_field(name="Error", value="Ticket Creator DM's are disabled", inline=True)
             except Exception as e:
@@ -124,7 +124,7 @@ class TicketOptions(discord.ui.View):
             transcript_info.add_field(name="Ticket Created", value=f"<t:{ticket_created_unix}:f>", inline=True)
             transcript_info.add_field(name="Ticket Closed", value=f"<t:{ticket_closed_unix}:f>", inline=True)
             
-            await channel.send(embed=transcript_info, file=transcript_file_logs)
+            await channel.send(content="Here's your transcript: \n In order to view it you will have to download the file and open it in your web browser!",embed=transcript_info, file=transcript_file_logs)
         except Exception as e:
             logging.error(f"Failed to send transcript to log channel: {e}")
         await asyncio.sleep(3)

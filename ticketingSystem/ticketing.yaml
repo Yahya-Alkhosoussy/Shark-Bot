@@ -6,14 +6,20 @@ ticket channels:
   shark squad: 0
 category ids:
   test server:
-    general: 1446052298747805797
-    technical: 1446052336349872184
+    mod mail: 1446052298747805797
+    tech: 1446052336349872184
+  shark squad:
+    mod mail: 0
+    tech: 0
 role ids:
   test server:
-    general: 1446052643935096894
-    technical: 1446052549596549141
+    mods: 1446052643935096894
+    tech support: 1446052549596549141
+  shark squad:
+    mods: 1386628035591012393
+    tech support: 1463081866109128734
 embed message ids:
-  test server: 1449776030813392942
+  test server: 1463143288511922290
   shark squad: 0
 embed title: Support ticket
 embed description: This is where you can raise a ticket

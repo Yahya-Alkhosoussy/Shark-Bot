@@ -36,21 +36,21 @@ class MyView(discord.ui.View):
         placeholder="Choose a Ticket option",
         options=[
             discord.SelectOption(
-                label="Mod help",
+                label="Mod mail",
                 description="Report something to the mods or get help from the mods",
-                emoji='❓',
+                emoji='📧',
                 value="support1"
             ),
             discord.SelectOption(
                 label="Tech support",
-                description="Ask questions here!",
-                emoji='📛',
+                description="Got a tech related question or issue? Come and ask!",
+                emoji='💻',
                 value="support2"
             )
         ]
     )
     async def callback(self, interaction: discord.Interaction, select):
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         
         creation_date = dt.datetime.now(timezone).strftime(r'%Y-%m-%d %H:%M:%S')
         user_name = interaction.user.name
@@ -90,12 +90,12 @@ class MyView(discord.ui.View):
 
                 cur.execute("SELECT id FROM ticket WHERE discord_id=?", (user_id,))
                 ticket_number = cur.fetchone()[0]
-                test_server: dict = CATEGORY_IDS.get("test server")
-                category = self.bot.get_channel(test_server.get("general"))
-                ticket_channel = await guild.create_text_channel(f"ticket-{ticket_number}", category=category, topic=f"{interaction.user.id}")
+                category_ids: dict = CATEGORY_IDS.get(guild_name)
+                category = self.bot.get_channel(category_ids.get("mod mail"))
+                ticket_channel = await guild.create_text_channel(f"mod ticket-{ticket_number}", category=category, topic=f"{interaction.user.id}")
 
-                test_server_role_ids = ROLE_IDS.get("test server")
-                await ticket_channel.set_permissions(guild.get_role(test_server_role_ids.get("general")), send_messages=True, read_messages=True, add_reactions=False, # set permissins for the staff team
+                role_ids = ROLE_IDS.get(guild_name)
+                await ticket_channel.set_permissions(guild.get_role(role_ids.get("mods")), send_messages=True, read_messages=True, add_reactions=False, # set permissins for the staff team
                                                         embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
                 await ticket_channel.set_permissions(interaction.user, send_messages=True, read_messages=True, add_reactions=False, #Set the permissions for the user
                                                         embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
@@ -129,11 +129,11 @@ class MyView(discord.ui.View):
                 cur.execute("SELECT id FROM ticket WHERE discord_id=?", (user_id,))
                 ticket_number = cur.fetchone()[0]
                 test_server: dict = CATEGORY_IDS.get("test server")
-                category = self.bot.get_channel(test_server.get("technical"))
-                ticket_channel = await guild.create_text_channel(f"ticket-{ticket_number}", category=category, topic=f"P{interaction.user.id}")
+                category = self.bot.get_channel(test_server.get("tech support"))
+                ticket_channel = await guild.create_text_channel(f"tech-support-ticket-{ticket_number}", category=category, topic=f"P{interaction.user.id}")
                 
                 test_server_role_ids = ROLE_IDS.get("test server")
-                await ticket_channel.set_permissions(guild.get_role(test_server_role_ids.get("technical")), send_messages=True, read_messages=True, add_reactions=True, # Set permissions for the staff team
+                await ticket_channel.set_permissions(guild.get_role(test_server_role_ids.get("tech")), send_messages=True, read_messages=True, add_reactions=True, # Set permissions for the staff team
                                                         embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
                 await ticket_channel.set_permissions(interaction.user, send_messages=True, read_messages=True, add_reactions=False, #Set the permissions for the user
                                                         embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
