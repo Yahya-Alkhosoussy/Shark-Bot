@@ -608,8 +608,62 @@ def get_shark_rarity(shark_name: str):
     rare.extend(rarity)
     return rare[0][0]
 
-def reward_coins(username: str, shark: bool, rare: str, shark_name: str | None = None, size: str | None = None):
-    if shark:
+def reward_coins(username: str, shark: bool, rare: str, shark_name: str | None = None, size: str | None = None, boost: bool = False, boost_amount: int = 2):
+    if shark and boost:
+        rarity = get_shark_rarity(shark_name)
+        match rare:
+            case "normal":
+                match rarity:
+                    case 1: # very common
+                        add_coins(username, 10 * boost_amount)
+                        return 10 * boost_amount
+                    case 2: # common
+                        add_coins(username, 15 * boost_amount)
+                        return 15 * boost_amount
+                    case 3: # uncommon
+                        add_coins(username, 20 * boost_amount)
+                        return 20 * boost_amount
+                    case 4: # rare
+                        add_coins(username, 25 * boost_amount)
+                        return 25 * boost_amount
+                    case 5: # ultra-rare
+                        add_coins(username, 30 * boost_amount)
+                        return 30 * boost_amount
+            case "shiny":
+                match rarity:
+                    case 1: # very common
+                        add_coins(username, 20 * boost_amount)
+                        return 20 * boost_amount
+                    case 2: # common
+                        add_coins(username, 25 * boost_amount)
+                        return 25 * boost_amount
+                    case 3: # uncommon
+                        add_coins(username, 30 * boost_amount)
+                        return 30 * boost_amount
+                    case 4: # rare
+                        add_coins(username, 35 * boost_amount)
+                        return 35 * boost_amount
+                    case 5: # ultra-rare
+                        add_coins(username, 40 * boost_amount)
+                        return 40 * boost_amount
+            case "legendary":
+                match rarity:
+                    case 1: # very common
+                        add_coins(username, 30 * boost_amount)
+                        return 30 * boost_amount
+                    case 2: # common
+                        add_coins(username, 35 * boost_amount)
+                        return 35 * boost_amount
+                    case 3: # uncommon
+                        add_coins(username, 40 * boost_amount)
+                        return 40 * boost_amount
+                    case 4: # rare
+                        add_coins(username, 45 * boost_amount)
+                        return 45 * boost_amount
+                    case 5: # ultra-rare
+                        add_coins(username, 50 * boost_amount)
+                        return 50 * boost_amount
+    elif shark:
         rarity = get_shark_rarity(shark_name)
         match rare:
             case "normal":
@@ -663,6 +717,44 @@ def reward_coins(username: str, shark: bool, rare: str, shark_name: str | None =
                     case 5: # ultra-rare
                         add_coins(username, 50)
                         return 50
+    elif not shark and boost: # fish but with booster
+         match rare:
+            case "trash":
+                add_coins(username, 1 * boost_amount)
+                return 1 * boost_amount
+            case "normal":
+                match size:
+                    case "large":
+                        add_coins(username, 6 * boost_amount)
+                        return 6 * boost_amount
+                    case "medium":
+                        add_coins(username, 4 * boost_amount)
+                        return 4 * boost_amount
+                    case "small":
+                        add_coins(username, 2 * boost_amount)
+                        return 2 * boost_amount
+            case "shiny":
+                match size:
+                    case "large":
+                        add_coins(username, 9 * boost_amount)
+                        return 9 * boost_amount
+                    case "medium":
+                        add_coins(username, 7 * boost_amount)
+                        return 7 * boost_amount
+                    case "small":
+                        add_coins(username, 5 * boost_amount)
+                        return 5 * boost_amount
+            case "legendary":
+                match size:
+                    case "large":
+                        add_coins(username, 14 * boost_amount)
+                        return 14 * boost_amount
+                    case "medium":
+                        add_coins(username, 12 * boost_amount)
+                        return 12 * boost_amount
+                    case "small":
+                        add_coins(username, 10 * boost_amount)
+                        return 10 * boost_amount
     else: # Fish
         match rare:
             case "trash":
