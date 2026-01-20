@@ -806,13 +806,13 @@ def fishing_odds_shark(username: str, net_used: str = "rope net"):
         case "net of doom":
             return 90
         case "titanium net":
-            return 50
+            return 60
         case "gold net":
-            return 30
+            return 40
         case "leather net":
-            return 25
+            return 30
         case _:
-            return 15
+            return 20
     
 def fishing_odds_fish(username: str, net_used: str = "rope net"):
     try:
