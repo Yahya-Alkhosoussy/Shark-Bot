@@ -55,9 +55,9 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
     overlay_draw = ImageDraw.Draw(overlay)
     
     # colours in RGB
-    skin_white: tuple = (255, 240, 236, 128) #RGB then opacity
+    skin_white: tuple = (255, 240, 236, 191) #RGB then opacity
     purple: tuple = (182, 59, 150, 255)
-    grey: tuple = (60, 60, 60, 229)
+    grey: tuple = (60, 60, 60, 204)
 
     # draw opaque background behind rank and level
     level_x, level_y = 565, 75
@@ -145,9 +145,7 @@ class levelingLoop:
     async def message_handle(self, message: discord.Message):
         config = RY.read_config(CONFIG_PATH) # This is here too just so it can check for live changes
         boost_event  = config.get("boost")
-        print(boost_event)
         boost_amount = config.get("boost amount")
-        print(boost_amount)
 
         username = message.author.name
 
@@ -171,7 +169,7 @@ Keep swimming and chatting — the sparkling waters of the Kelp Forest are just 
                 message_to_send = f"""_Mid-depth currents sway the kelp, and tiny flecks of light dance across the water._
 Swim a little further and you'll find your way into the wide, open ocean - so many new friends! {message.author.mention}"""
             elif level == 3:
-                message_to_send = f"""These waters are vast, the currents gentle but sparkling all around you._
+                message_to_send = f"""_These waters are vast, the currents gentle but sparkling all around you._
 Every movement leaves a trail of glittering ripples.
 Keep exploring — the Twilight Zone waits. {message.author.mention}"""
             elif level == 4:
