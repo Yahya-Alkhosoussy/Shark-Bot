@@ -96,3 +96,6 @@ birthday message:
 boost: true
 boost amount: 3
 time per loop: 1800
+set up done:
+  test server: false
+  shark_squad: false

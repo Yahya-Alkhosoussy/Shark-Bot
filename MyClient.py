@@ -152,7 +152,7 @@ class MyClient(discord.Client):
         self.birthday_loops = BirthdayLoop(self)
         self.leveling_loop = levelingLoop(self)
         self.ticket_system = TicketSystem(self)
-        self._ticket_setup_done = False
+        self._ticket_setup_done: dict = config.get("set up done")
         
     # ======= ON RUN =======
     async def on_ready(self):
@@ -174,7 +174,7 @@ class MyClient(discord.Client):
                     if added: await self.leveling_loop.add_role(user=member)
 
             
-            if not self._ticket_setup_done:
+            if not self._ticket_setup_done.get(guild_name):
                 print("set up not done")
                 await self.ticket_system.setup_hook()
                 logging.info("[TICKETING SYSTEM] Ticket system set up, checking for messages now")
@@ -189,7 +189,7 @@ class MyClient(discord.Client):
                     await self.ticket_system.send_ticket_panel(channel=channel)
                     logging.info(f"[TICKETING SYSTEM] Ticket embed sent to {guild_name}")
                 
-                self._ticket_setup_done = True
+                self._ticket_setup_done[guild_name] = True
         
     # ======= ANNOUNCE ARRIVAL =======
     async def on_member_join(self, member: discord.Member):
