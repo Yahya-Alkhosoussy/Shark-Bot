@@ -1,4 +1,18 @@
-from MyClient import AppConfig
+from dataclasses import dataclass
+from pydantic import BaseModel
+
+
+@dataclass
+class AppConfig(BaseModel):
+    guilds: dict[str, int]
+    roles: dict[str, dict[str, int]]
+    channels: dict[str, dict[str, int]]
+    guild_role_messages: dict[str, dict[str, int]]
+    birthday_message: dict[str, bool]
+    boost: bool
+    boost_amount: int
+    time_per_loop: int
+    set_up_done: dict[str, bool]
 
 # This is to check if the guild ID is in the config
 def is_guild_in_config(config: AppConfig, guild_id: int):

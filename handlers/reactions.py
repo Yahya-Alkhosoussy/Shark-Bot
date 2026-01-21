@@ -1,7 +1,5 @@
 import logging, discord
 import utils.read_Yaml as RY
-
-from MyClient import AppConfig
 from utils.core import *
 
 class reaction_handler:
