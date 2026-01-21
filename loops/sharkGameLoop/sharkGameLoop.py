@@ -2,6 +2,7 @@ import asyncio, logging, random, time, discord, datetime as dt
 from discord.ext import tasks
 from pathlib import Path
 import utils.read_Yaml as RY
+from utils.core import get_channel_id
 
 # import your helpers/config
 import SQL.sharkGamesSQL.sharkGameSQL as sg
@@ -9,20 +10,6 @@ import SQL.sharkGamesSQL.sharkGameSQL as sg
 CONFIG_PATH = Path(r"config.YAML")
 
 config = RY.read_config(CONFIG=CONFIG_PATH)
-
-def get_channel_id(guild_name: str, channel: str):
-
-    channels = config.get("channels").get(channel)
-
-    if channels is None:
-        return "Channel not in config"
-    
-    channels = channels.get(guild_name)
-
-    if channels is None:
-        return "Channel does not exist in the server"
-    else:
-        return int(channels)
 
 class SharkLoops:
     def __init__(self, client: discord.client):
