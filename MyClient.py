@@ -160,13 +160,13 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
                 await channel.send(to_send)
 
     async def ensure_react_roles_message(self, guild: discord.Guild):
-        self.reaction_handler.ensure_react_roles_message_internal(guild)
+        self.reaction_handler.ensure_react_roles_message_internal(guild=guild, config=config)
 
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        self.reaction_handler.on_raw_reaction_add_internal(payload)
+        self.reaction_handler.on_raw_reaction_add_internal(payload=payload, config=config)
     
     async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
-        self.reaction_handler.on_raw_reaction_remove_internal(payload)
+        self.reaction_handler.on_raw_reaction_remove_internal(payload=payload, config=config)
 
     async def on_message(self, message: discord.Message):
         # ignore if it's the bot's message
