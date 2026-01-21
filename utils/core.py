@@ -14,6 +14,20 @@ class AppConfig(BaseModel):
     time_per_loop: int
     set_up_done: dict[str, bool]
 
+    def to_yaml_dict(self) -> dict:
+        """App config to dictionary"""
+        return {
+            "guilds": self.guilds,
+            "roles": self.roles,
+            "channels": self.channels,
+            "guild role messages": self.guild_role_messages,
+            "birthday message": self.birthday_message,
+            "boost": self.boost,
+            "boost amount": self.boost_amount,
+            "time per loop": self.time_per_loop,
+            "set up done": self.set_up_done
+        }
+
 # This is to check if the guild ID is in the config
 def is_guild_in_config(config: AppConfig, guild_id: int):
 
