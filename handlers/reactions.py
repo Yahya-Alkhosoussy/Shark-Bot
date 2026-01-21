@@ -102,7 +102,7 @@ class reaction_handler:
             RY.save_config(CONFIG=self.CONFIG_PATH, cfg=config)
         
     # ======= REACTION ROLES ADD ROLE =======
-    async def on_raw_reaction_add_interal(self, config: AppConfig, payload: discord.RawReactionActionEvent):
+    async def on_raw_reaction_add_internal(self, config: AppConfig, payload: discord.RawReactionActionEvent):
 
         guilds = config.guilds
         gid = payload.guild_id
