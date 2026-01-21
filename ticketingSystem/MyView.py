@@ -128,8 +128,8 @@ class MyView(discord.ui.View):
 
                 cur.execute("SELECT id FROM ticket WHERE discord_id=?", (user_id,))
                 ticket_number = cur.fetchone()[0]
-                test_server: dict = CATEGORY_IDS.get("test server")
-                category = self.bot.get_channel(test_server.get("tech support"))
+                category_ids: dict = CATEGORY_IDS.get(guild_name)
+                category = self.bot.get_channel(category_ids.get("tech"))
                 ticket_channel = await guild.create_text_channel(f"tech-support-ticket-{ticket_number}", category=category, topic=f"P{interaction.user.id}")
                 
                 role_ids = ROLE_IDS.get(guild_name)
