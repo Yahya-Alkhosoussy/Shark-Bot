@@ -32,7 +32,7 @@ class reaction_handler:
         for rr_message in react_role_messages:
             # print(react_role_messages[rr_message])
 
-            channel_id = int(get_channel_id(guild_name, "roles"))
+            channel_id = int(get_channel_id(config=config, guild_name=guild_name, channel="roles"))
             channel = guild.get_channel(channel_id) if channel_id else None
 
             if react_role_messages[rr_message] != 0:
@@ -99,7 +99,7 @@ class reaction_handler:
                 except discord.HTTPException:
                     logging.error(f"[RR] could not add reaction {emoji} in {guild_name}")
             
-            config["guild role messages"][guild_name][rr_message] = message.id
+            config.guild_role_messages[guild_name][rr_message] = message.id
             RY.save_config(CONFIG=self.CONFIG_PATH, cfg=config)
         
     # ======= REACTION ROLES ADD ROLE =======
