@@ -3,14 +3,14 @@ guild ids:
   test server: 1066090135839580231
 ticket channels:
   test server: 1446051942202609785
-  shark squad: 0
+  shark squad: 1463075074394296341
 category ids:
   test server:
     mod mail: 1446052298747805797
     tech: 1446052336349872184
   shark squad:
-    mod mail: 0
-    tech: 0
+    mod mail: 1463517852299558932
+    tech: 1463518059175350404
 role ids:
   test server:
     mods: 1446052643935096894
@@ -23,4 +23,10 @@ embed message ids:
   shark squad: 0
 embed title: Support ticket
 embed description: This is where you can raise a ticket
-log channel: 1446462012157726730
+log channel: 
+  test server: 
+    mod mail: 1446462012157726730
+    tech: 1446462012157726730
+  shark squad:
+    mod mail: 1463519489634336768
+    tech: 1463520181031534602
