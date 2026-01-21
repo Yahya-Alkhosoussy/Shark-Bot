@@ -125,8 +125,9 @@ class SharkLoops:
             success: list = []
 
             odds = sg.fishing_odds_shark
-            boost: bool = config.get("boost")
-            boost_amount: int = config.get("boost_amount")
+            boost_config = RY.read_config(CONFIG_PATH)
+            boost: bool = boost_config.get("boost")
+            boost_amount: int = boost_config.get("boost_amount")
             for user in caught_users: # looks through all the keys
                 num = random.randint(0, 100)
                 net = lists_of_after.get(user) if sg.is_net_available(user, lists_of_after.get(user)) else "rope net"
