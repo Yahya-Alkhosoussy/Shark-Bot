@@ -170,8 +170,8 @@ class MyClient(discord.Client):
             if guild_name == "shark squad":
                 self.birthday_loops.start_for(guild.id)
                 for member in guild.members:
-                    added = self.leveling_loop.add_users(user=member)
-                    if added: self.leveling_loop.add_role(user=member)
+                    added = await self.leveling_loop.add_users(user=member)
+                    if added: await self.leveling_loop.add_role(user=member)
 
             
             if not self._ticket_setup_done:
