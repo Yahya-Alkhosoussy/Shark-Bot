@@ -132,8 +132,10 @@ class MyView(discord.ui.View):
                 category = self.bot.get_channel(test_server.get("tech support"))
                 ticket_channel = await guild.create_text_channel(f"tech-support-ticket-{ticket_number}", category=category, topic=f"P{interaction.user.id}")
                 
-                test_server_role_ids = ROLE_IDS.get("test server")
-                await ticket_channel.set_permissions(guild.get_role(test_server_role_ids.get("tech")), send_messages=True, read_messages=True, add_reactions=True, # Set permissions for the staff team
+                role_ids = ROLE_IDS.get(guild_name)
+                await ticket_channel.set_permissions(guild.get_role(role_ids.get("tech")), send_messages=True, read_messages=True, add_reactions=True, # Set permissions for the staff team
+                                                        embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
+                await ticket_channel.set_permissions(guild.get_role(role_ids.get("mods")), send_messages=True, read_messages=True, add_reactions=True, # Set permissions for the staff team
                                                         embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
                 await ticket_channel.set_permissions(interaction.user, send_messages=True, read_messages=True, add_reactions=False, #Set the permissions for the user
                                                         embed_links=True, attach_files=True, read_message_history=True, external_emojis=True)
