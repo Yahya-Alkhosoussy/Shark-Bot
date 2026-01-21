@@ -36,8 +36,10 @@ class TicketOptions(discord.ui.View):
             guild_id = interaction.guild.id
 
         guild = self.bot.get_guild(guild_id)
-        tech_channel = self.bot.get_channel(LOG_CHANNELS.get("tech"))
-        mod_mail_channel = self.bot.get_channel(LOG_CHANNELS.get("mod mail"))
+        id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
+        guild_log_channels: dict = LOG_CHANNELS.get(id_to_name.get(guild_id))
+        tech_channel = self.bot.get_channel(guild_log_channels.get("tech"))
+        mod_mail_channel = self.bot.get_channel(guild_log_channels.get("mod mail"))
         channel_id = interaction.channel.id
 
         # ===== RESPOND IMMEDIATELY (within the 3 second window discord gives) =====
