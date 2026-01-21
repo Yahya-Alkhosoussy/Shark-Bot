@@ -456,11 +456,11 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         
         # leveling system messages
         id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
-        # if len(message.content) >= 10 and id_to_name.get(message.guild.id) == "shark squad":
-        #     await self.leveling_loop.message_handle(message)
+        if len(message.content) >= 10 and id_to_name.get(message.guild.id) == "shark squad":
+            await self.leveling_loop.message_handle(message)
         
-        # if message.content.startswith(prefix + "check level") and id_to_name.get(message.guild.id) == "shark squad":
-        #     await self.leveling_loop.check_level(message)
+        if message.content.startswith(prefix + "check level") and id_to_name.get(message.guild.id) == "shark squad":
+            await self.leveling_loop.check_level(message)
 
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")
