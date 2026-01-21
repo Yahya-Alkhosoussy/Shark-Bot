@@ -175,6 +175,7 @@ class MyClient(discord.Client):
 
             
             if not self._ticket_setup_done:
+                print("set up not done")
                 await self.ticket_system.setup_hook()
                 logging.info("[TICKETING SYSTEM] Ticket system set up, checking for messages now")
 
