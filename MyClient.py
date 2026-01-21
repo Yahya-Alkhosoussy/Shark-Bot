@@ -1,4 +1,6 @@
 import discord, os, logging, asyncio, random, time
+from dataclasses import dataclass
+from pydantic import BaseModel, ValidationError
 from dotenv import load_dotenv
 from pathlib import Path
 import utils.read_Yaml as RY
@@ -9,6 +11,9 @@ from enum import Enum
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, SharkLoops, sg
 from loops.levellingloop.levellingLoop import levelingLoop
 from ticketingSystem.Ticket_System import TicketSystem
+
+import data
+import handlers
 
 # ======= Logging/Env =======
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -22,114 +27,39 @@ token = os.getenv("token")
 CONFIG_PATH = Path(r"config.YAML")
 TICKET_CONFIG_PATH = Path(r"ticketingSystem\ticketing.yaml")
 
-config = RY.read_config(CONFIG=CONFIG_PATH)
+raw_config = RY.read_config(CONFIG=CONFIG_PATH)
 ticket_config = RY.read_config(CONFIG=TICKET_CONFIG_PATH)
 prefix: str = "?"
 
-# This is to check if the guild ID is in the config
-def is_guild_in_config(guild_id: int):
+@dataclass
+class AppConfig(BaseModel):
+    guilds: dict[str, int]
+    roles: dict[str, dict[str, int]]
+    channels: dict[str, dict[str, int]]
+    guild_role_messages: dict[str, dict[str, int]]
+    birthday_message: dict[str, bool]
+    boost: bool
+    boost_amount: int
+    time_per_loop: int
+    set_up_done: dict[str, bool]
 
-    guild_ids: dict = config.get("guilds")
+try:
+    config = AppConfig(
+        guilds = raw_config["guilds"],
+        roles = raw_config["roles"],
+        channels = raw_config["channels"],
+        guild_role_messages = raw_config["guild role messages"],
+        birthday_message = raw_config["birthday message"],
+        boost = raw_config["boost"],
+        boost_amount = raw_config["boost amount"],
+        time_per_loop = raw_config["time per loop"],
+        set_up_done = raw_config["set up done"]
+    )
+except ValidationError as e:
+    print(e)
 
-    if guild_id in guild_ids.values():
-        return True
-    else:
-        return False
-    
-def is_rr_message_id_in_config(guild_name: str):
-
-    guild_role_message_ids: dict = config.get("guild role messages")
-
-    if guild_name in guild_role_message_ids.keys():
-        return True
-    else:
-        return False
-
-def get_channel_id(guild_name: str, channel: str):
-
-    channels = config.get("channels").get(channel)
-
-    if channels is None:
-        return "Channel not in config"
-    
-    channels = channels.get(guild_name)
-
-    if channels is None:
-        return "Channel does not exist in the server"
-    else:
-        return int(channels)
-
-GIDS: dict = config["guilds"]
-ROLES: dict = config["roles"]
-ROLES_PER_GUILD: dict[int, dict[str, dict[discord.PartialEmoji, int]]] = {
-    GIDS["test server"]: {
-        "colour": {
-            discord.PartialEmoji(name='🩵'): ROLES["colour"]["cyan"]
-        },
-        "general": {
-            discord.PartialEmoji(name='❤️'): ROLES["general"]["red"]
-        },
-        "test": {
-            discord.PartialEmoji(name='💚'): ROLES["test"]["green"]
-        },
-    },
-    GIDS["shark squad"]: {
-        "birthdays": {
-            discord.PartialEmoji(name='🎆'): ROLES["birthdays"]["January babies"],
-            discord.PartialEmoji(name='💌'): ROLES["birthdays"]["February babies"],
-            discord.PartialEmoji(name='🍀'): ROLES["birthdays"]["March babies"],
-            discord.PartialEmoji(name='🪺'): ROLES["birthdays"]["April babies"],
-            discord.PartialEmoji(name='🌥️'): ROLES["birthdays"]["May babies"],
-            discord.PartialEmoji(name='🌞'): ROLES["birthdays"]["June babies"],
-            discord.PartialEmoji(name='🗽'): ROLES["birthdays"]["July babies"],
-            discord.PartialEmoji(name='🌤️'): ROLES["birthdays"]["August babies"],
-            discord.PartialEmoji(name='🍂'): ROLES["birthdays"]["September babies"],
-            discord.PartialEmoji(name='👻'): ROLES["birthdays"]["October babies"],
-            discord.PartialEmoji(name='🦃'): ROLES["birthdays"]["November babies"],
-            discord.PartialEmoji(name='🎅'): ROLES["birthdays"]["December babies"],
-        },
-        "general": {
-            discord.PartialEmoji(name='🎮'): ROLES["general"]["shark games"],
-            discord.PartialEmoji(name='❗'): ROLES["general"]["shark update"],
-            discord.PartialEmoji(name='💻'): ROLES["general"]["discord bot update"],
-            '<:Zerotwodrinkbyliliiet112:1318361002072604692>': ROLES["general"]["dyslexxik updates"],
-            discord.PartialEmoji(name='🎫'): ROLES["general"]["shark movie ticket"],
-        },
-        "backpack": {
-            discord.PartialEmoji(name='🦸'): ROLES["backpacks and sherpas"]["marvel rivals backpack"],
-            discord.PartialEmoji(name='🧙‍♀️'): ROLES["backpacks and sherpas"]["TFD backpack"],
-            discord.PartialEmoji(name='🧟'): ROLES["backpacks and sherpas"]["monster hunter backpack"],
-            discord.PartialEmoji(name='🥷'): ROLES["backpacks and sherpas"]["warframe backpack"],
-            discord.PartialEmoji(name='🏰'): ROLES["backpacks and sherpas"]["elden ring backpack"],
-            discord.PartialEmoji(name='🤺'): ROLES["backpacks and sherpas"]["nightreign backpack"],
-            discord.PartialEmoji(name='🔫'): ROLES["backpacks and sherpas"]["Destiney Backpack"],
-            '<a:animateduwu:1279478093278609491>': ROLES["backpacks and sherpas"]["DNA backpack"],
-            '<:Zerotwosurprisedbyliliiet112:1318361087833538631>': ROLES["backpacks and sherpas"]["ZZZ backpack"],
-        },
-        "sherpa": {
-            discord.PartialEmoji(name='🦸'): ROLES["backpacks and sherpas"]["marvel rivals sherpa"],
-            discord.PartialEmoji(name='🧙‍♀️'): ROLES["backpacks and sherpas"]["TFD sherpa"],
-            discord.PartialEmoji(name='🧟'): ROLES["backpacks and sherpas"]["monster hunter sherpa"],
-            discord.PartialEmoji(name='🥷'): ROLES["backpacks and sherpas"]["warframe sherpa"],
-            discord.PartialEmoji(name='🏰'): ROLES["backpacks and sherpas"]["elden ring sherpa"],
-            discord.PartialEmoji(name='🤺'): ROLES["backpacks and sherpas"]["nightreign sherpa"],
-            discord.PartialEmoji(name='🔫'): ROLES["backpacks and sherpas"]["Destiney Sherpa"],
-            '<a:animateduwu:1279478093278609491>': ROLES["backpacks and sherpas"]["DNA sherpa"],
-            '<:Zerotwosurprisedbyliliiet112:1318361087833538631>': ROLES["backpacks and sherpas"]["ZZZ sherpa"],
-        },
-        "friend": {
-            discord.PartialEmoji(name='🦸'): ROLES["friend"]["Marvel Rivals"],
-            discord.PartialEmoji(name='🧙‍♀️'): ROLES["friend"]["TFD"],
-            discord.PartialEmoji(name='🧟'): ROLES["friend"]["Monster Hunter"],
-            discord.PartialEmoji(name='🥷'): ROLES["friend"]["Warframe"],
-            discord.PartialEmoji(name='🏰'): ROLES["friend"]["Elden Ring"],
-            discord.PartialEmoji(name='🤺'): ROLES["friend"]["Nightreign"],
-            discord.PartialEmoji(name='🔫'): ROLES["friend"]["Destiney"],
-            '<a:animateduwu:1279478093278609491>': ROLES["friend"]["DNA"],
-            '<:Zerotwosurprisedbyliliiet112:1318361087833538631>': ROLES["friend"]["ZZZ"]
-        }
-    }    
-}
+GIDS: dict = config.guilds
+ROLES: dict = config.roles
 
 # ======= ENUM CLASS =======
 class sharks_index(Enum):
@@ -153,6 +83,7 @@ class MyClient(discord.Client):
         self.leveling_loop = levelingLoop(self)
         self.ticket_system = TicketSystem(self)
         self._ticket_setup_done: dict = config.get("set up done")
+        self.reaction_handler = handlers.roles(CONFIG_PATH, data.gids.roles_per_gid(GIDS, ROLES))
         
     # ======= ON RUN =======
     async def on_ready(self):
@@ -160,11 +91,11 @@ class MyClient(discord.Client):
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
         
-        id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
+        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
 
         for guild in self.guilds:
 
-            await self.ensure_react_roles_message(guild)
+            await self.reaction_handler.ensure_react_roles_message_internal(guild)
             guild_name: str = id_to_name.get(guild.id)
             
             if guild_name == "shark squad":
@@ -196,7 +127,7 @@ class MyClient(discord.Client):
         guild = member.guild
         welcome_channels = config["channels"]["welcome"]
         # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file, so for consistency we use the one on the YAML
-        id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
+        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
         guild_name: str = id_to_name.get(guild.id) 
         channel_id = welcome_channels.get(guild_name)
         if not channel_id:
@@ -225,7 +156,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         guild = member.guild
         welcome_channels = config["channels"]["welcome"]
         # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file, so for consistency we use the one on the YAML
-        id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
+        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
         guild_name: str = id_to_name.get(guild.id) 
         channel_id = welcome_channels.get(guild_name)
         if not channel_id:
@@ -241,210 +172,14 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
                 to_send = f'{member} has left the server'
                 await channel.send(to_send)
 
-    # ======= Ensures React Roles message exists =======
     async def ensure_react_roles_message(self, guild: discord.Guild):
-        # check for guild config, if none found then skip
-        if not is_guild_in_config(guild.id):
-            logging.error(f"Guild {guild.name} is not in the config. Skipping")
-            return
+        self.reaction_handler.ensure_react_roles_message_internal(guild)
 
-        id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
-        guild_name: str = id_to_name.get(guild.id)
-        # print(guild_name)
-        
-        react_role_messages: dict = config.get("guild role messages").setdefault(guild_name, {})
-        # print(react_role_messages)
-
-        if not is_rr_message_id_in_config(guild_name=guild_name):
-            logging.error(f"Guild {guild.name} is does not have a react roles message ID Key")
-            return        
-
-        for rr_message in react_role_messages:
-            # print(react_role_messages[rr_message])
-
-            channel_id = int(get_channel_id(guild_name, "roles"))
-            channel = guild.get_channel(channel_id) if channel_id else None
-
-            if react_role_messages[rr_message] != 0:
-                logging.info(f"There is already a react roles message of {rr_message} for {guild_name}")
-                if channel is None:
-                    logging.error(f"[RR] No valid channel configured for {guild_name}")
-                    continue # Keep original flow
-                    
-                try:
-                    message_id = int(react_role_messages[rr_message])
-                    message = await channel.fetch_message(message_id)
-                except (discord.NotFound, discord.Forbidden, discord.HTTPException) as e:
-                    logging.error(f"[RR] could not fetch existing react-roles message {rr_message} in {guild_name}")
-                    continue
-
-                mapping = ROLES_PER_GUILD.get(guild.id).get(rr_message)
-                if not mapping:
-                    continue # nothing to add
-                
-                existing = {str(r.emoji) for r in message.reactions}
-                for emoji in mapping.keys():
-                    if emoji not in existing:
-                        try:
-                            await message.add_reaction(emoji)
-                        except discord.HTTPException:
-                            logging.error(f"[RR] could not add reaction {emoji} in {guild_name}")
-
-                current_content = ""
-                current_lines = current_content.splitlines()
-                header = current_lines[0] if current_lines else "React to get your roles: "
-                existing_entries = set(current_lines[1 :]) if len(current_lines) > 1 else set()
-
-                desired_entries = [f"{emoji} -> <@&{role_id}>" for emoji, role_id in mapping.items()]
-                to_append = [line for line in desired_entries if line not in existing_entries]
-
-                if to_append: #make sure it isn't empty
-                    new_content = (header + "\n" + "\n".join(sorted(existing_entries)) + ("\n" if existing_entries else "") + "\n".join(to_append)).strip()
-                    try:
-                        await message.edit(content=new_content)
-                    except discord.HTTPException:
-                        logging.error(f"[RR could not edit react-roles message {rr_message} in {guild_name}]")
-                # ---------------------------------------------------------------------------------------------
-                
-                
-                continue
-            
-
-            if channel is None:
-                logging.error(f"[RR] No valid channel configured for {guild_name}")
-                return
-
-            mapping = ROLES_PER_GUILD.get(guild.id).get(rr_message)
-            # print("current mapping: ",mapping)
-            # print(f"emoji: ",mapping)
-            message = await channel.send(
-                "React to get your roles: \n" +
-                "\n".join(f"{emoji} -> <@&{role_id}>" for emoji, role_id in mapping.items())
-            )
-
-            # Add the reactions we'll listen for
-            for emoji in mapping.keys():
-                try:
-                    await message.add_reaction(emoji)
-                except discord.HTTPException:
-                    logging.error(f"[RR] could not add reaction {emoji} in {guild_name}")
-            
-            config["guild role messages"][guild_name][rr_message] = message.id
-            RY.save_config(CONFIG=CONFIG_PATH, cfg=config)
-        
-    # ======= REACTION ROLES ADD ROLE =======
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-
-        guilds = config["guilds"]
-        gid = payload.guild_id
-
-        if gid is None: 
-            logging.info("[RR] Reaction was not from a guild")
-            return
-        
-        id_to_name = {int(v): k for k, v in guilds.items()}
-        if gid is None:
-            logging.error(f"Guild ID could not be found")
-            return
-        
-        guild_name = id_to_name.get(int(gid))
-
-        rr_message_ids: dict = config.get("guild role messages").get(guild_name)
-        found = False
-        message_id: int
-        for id in rr_message_ids.values():
-            if payload.message_id == id:
-                found = True
-                message_id = id
-                logging.info(f"found message! Reaction to message id: {id}")
-        if not found:
-            logging.info("Message isn't in my list")
-            return
-        
-        react_role_messages: dict = config.get("guild role messages").setdefault(guild_name, {})
-        id_to_name_rr = {int(v): k for k, v in react_role_messages.items()}
-        rr_message = id_to_name_rr.get(message_id)
-        mapping = ROLES_PER_GUILD.get(gid).get(rr_message)
-        key = payload.emoji
-        try: 
-            role_id = mapping.get(str(key))
-            if role_id == None:
-                role_id = mapping.get(key)
-            print(f"found role ID: {role_id}")
-        except KeyError:
-            logging.info("not the emoji i care about")
-            return
-        
-        guild = self.get_guild(gid)
-        role = guild.get_role(role_id)
-        if role is None:
-            logging.warning(f"Couldn't find role with ID of {role_id} and emoji of {key}")
-            return
-        
-        try:
-            await payload.member.add_roles(role)
-            logging.info(f"Added role {role} to {payload.member.name}")
-        except discord.HTTPException:
-            logging.error("HTTPException, I couldn't do it")
-            return
-        
-    # ======= REACTION ROLES ADD ROLE =======
+        self.reaction_handler.on_raw_reaction_add_internal(payload)
+    
     async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
-
-        guilds = config["guilds"]
-        gid = payload.guild_id
-
-        if gid is None: 
-            logging.info("[RR] Reaction was not from a guild")
-            return
-        
-        id_to_name = {int(v): k for k, v in guilds.items()}
-        if gid is None:
-            logging.error(f"Guild ID could not be found")
-            return
-        
-        guild_name = id_to_name.get(int(gid))
-
-        rr_message_ids: dict = config.get("guild role messages").get(guild_name)
-        found = False
-        message_id: int
-        for id in rr_message_ids.values():
-            if payload.message_id == id:
-                found = True
-                message_id = id
-                logging.info(f"found message! Reaction to message id: {id}")
-        if not found:
-            logging.info("Message isn't in my list")
-            return
-        
-        react_role_messages: dict = config.get("guild role messages").setdefault(guild_name, {})
-        id_to_name_rr = {int(v): k for k, v in react_role_messages.items()}
-        rr_message = id_to_name_rr.get(message_id)
-        mapping = ROLES_PER_GUILD.get(gid).get(rr_message)
-        key = payload.emoji
-        try: 
-            role_id = mapping.get(str(key))
-            if role_id == None:
-                role_id = mapping.get(key)
-            print(f"found role ID: {role_id}")
-        except KeyError:
-            logging.info("not the emoji i care about")
-            return
-        
-        guild = self.get_guild(gid)
-        role = guild.get_role(role_id)
-        if role is None:
-            logging.warning(f"Couldn't find role with ID of {role_id} and emoji of {key}")
-            return
-        
-        member = guild.get_member(payload.user_id)
-
-        try:
-            await member.remove_roles(role)
-            logging.info(f"removed role {role} from {member.name}")
-        except discord.HTTPException:
-            logging.error("HTTPException, I couldn't do it")
-            return
+        self.reaction_handler.on_raw_reaction_remove_internal(payload)
 
     async def on_message(self, message: discord.Message):
         # ignore if it's the bot's message
@@ -455,7 +190,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
         
         # leveling system messages
-        id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
+        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
         if len(message.content) >= 10 and id_to_name.get(message.guild.id) == "shark squad":
             await self.leveling_loop.message_handle(message)
         

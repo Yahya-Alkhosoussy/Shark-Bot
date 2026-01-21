@@ -1,2 +1,4 @@
 chat-exporter
 datetime
+discord
+pydantic
