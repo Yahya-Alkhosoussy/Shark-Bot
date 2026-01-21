@@ -16,7 +16,7 @@ CATEGORY_IDS: dict = config["category ids"]
 ROLE_IDS: dict = config["role ids"]
 EMBED_TITLE: str = config["embed title"]
 EMBED_DESCRIPTION: str = config["embed description"]
-LOG_CHANNEL: int = config["log channel"]
+LOG_CHANNELS: dict = config["log channel"]
 timezone = ZoneInfo("America/Chicago")
 
 # ===== LOGGING =====
@@ -36,7 +36,8 @@ class TicketOptions(discord.ui.View):
             guild_id = interaction.guild.id
 
         guild = self.bot.get_guild(guild_id)
-        channel = self.bot.get_channel(LOG_CHANNEL)
+        tech_channel = self.bot.get_channel(LOG_CHANNELS.get("tech"))
+        mod_mail_channel = self.bot.get_channel(LOG_CHANNELS.get("mod mail"))
         channel_id = interaction.channel.id
 
         # ===== RESPOND IMMEDIATELY (within the 3 second window discord gives) =====
@@ -48,13 +49,13 @@ class TicketOptions(discord.ui.View):
 
         # ===== NOW DO EVERYTHING ELSE =====
 
-        cur.execute("SELECT id, discord_id, ticket_created FROM ticket WHERE ticket_channel=?", (channel_id,))
+        cur.execute("SELECT id, discord_id, ticket_created, ticket_type FROM ticket WHERE ticket_channel=?", (channel_id,))
         ticket_data = cur.fetchone()
         if ticket_data is None:
             logging.warning("[TICKETING SYSTEM] ticket_data is None")
             return
         
-        id, ticket_creator_id, ticket_created = ticket_data
+        id, ticket_creator_id, ticket_created, ticket_type = ticket_data
         ticket_creator = guild.get_member(ticket_creator_id)
         ticket_created_unix = self.convert_to_unix_timestamp(ticket_created)
         ticket_closed = datetime.now(timezone).strftime(r'%Y-%m-%d %H:%M:%S')
@@ -123,8 +124,10 @@ class TicketOptions(discord.ui.View):
             transcript_info.add_field(name="Closed by", value=interaction.user.mention, inline=True)
             transcript_info.add_field(name="Ticket Created", value=f"<t:{ticket_created_unix}:f>", inline=True)
             transcript_info.add_field(name="Ticket Closed", value=f"<t:{ticket_closed_unix}:f>", inline=True)
-            
-            await channel.send(content="Here's your transcript: \n In order to view it you will have to download the file and open it in your web browser!",embed=transcript_info, file=transcript_file_logs)
+            if ticket_type == "mod mail":
+                await mod_mail_channel.send(content="Here's your transcript: \n In order to view it you will have to download the file and open it in your web browser!",embed=transcript_info, file=transcript_file_logs)
+            elif ticket_type == "tech support":
+                await tech_channel.send(content="Here's your transcript: \n In order to view it you will have to download the file and open it in your web browser!",embed=transcript_info, file=transcript_file_logs)
         except Exception as e:
             logging.error(f"Failed to send transcript to log channel: {e}")
         await asyncio.sleep(3)

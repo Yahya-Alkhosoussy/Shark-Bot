@@ -39,13 +39,13 @@ class MyView(discord.ui.View):
                 label="Mod mail",
                 description="Report something to the mods or get help from the mods",
                 emoji='📧',
-                value="support1"
+                value="mod mail"
             ),
             discord.SelectOption(
                 label="Tech support",
                 description="Got a tech related question or issue? Come and ask!",
                 emoji='💻',
-                value="support2"
+                value="tech support"
             )
         ]
     )
@@ -77,13 +77,13 @@ class MyView(discord.ui.View):
             await interaction.message.edit(embed=embed, view=MyView(bot=self.bot)) # This will reset the SelectMenu in the ticket channel
 
         # ---- SUPPORT 1 ----
-        if "support1" in interaction.data['values']:
+        if "mod mail" in interaction.data['values']:
             if interaction.channel.id == TICKET_CHANNELS.get(guild_name):
                 guild = self.bot.get_guild(guild_id)
                 
                 cur.execute(
-                    "INSERT INTO ticket (discord_name, discord_id, ticket_created) VALUES (?, ?, ?)",
-                    (user_name, user_id, creation_date)
+                    "INSERT INTO ticket (discord_name, discord_id, ticket_created, ticket_type) VALUES (?, ?, ?, ?)",
+                    (user_name, user_id, creation_date, "mod mail")
                 )
                 conn.commit()
                 await asyncio.sleep(1)
@@ -115,13 +115,13 @@ class MyView(discord.ui.View):
                 embed = discord.Embed(title=EMBED_TITLE, description=EMBED_DESCRIPTION, color=discord.colour.Color.blue())
                 await interaction.message.edit(embed=embed, view=MyView(bot=self.bot)) # This will reset the select menu
 
-        if "support2" in interaction.data['values']:
+        if "tech support" in interaction.data['values']:
             if interaction.channel.id == TICKET_CHANNELS.get(guild_name):
                 guild = self.bot.get_guild(guild_id)
 
                 cur.execute(
-                    "INSERT INTO ticket (discord_name, discord_id, ticket_created) VALUES (?, ?, ?)",
-                    (user_name, user_id, creation_date)
+                    "INSERT INTO ticket (discord_name, discord_id, ticket_created, ticket_type) VALUES (?, ?, ?, ?)",
+                    (user_name, user_id, creation_date, "tech support")
                 )
                 conn.commit()
                 await asyncio.sleep(1)

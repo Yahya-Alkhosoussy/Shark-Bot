@@ -26,7 +26,8 @@ class TicketSystem:
                     discord_name TEXT NOT NULL,
                     discord_id INTEGER NOT NULL,
                     ticket_created TEXT NOT NULL,
-                    ticket_channel INTEGER
+                    ticket_channel INTEGER,
+                    ticket_type TEXT
             );""")
         
         # Maybe used later
@@ -38,6 +39,7 @@ class TicketSystem:
                         ticket_created TEXT NOT NULL,
                         ticket_closed TEXT,
                         closed_by_id INTEGER,
+                        ticket_type TEXT,
                         transcript_saved BOOLEAN DEFAULT 0
                     );""")
 
