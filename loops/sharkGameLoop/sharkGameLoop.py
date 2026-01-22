@@ -2,14 +2,29 @@ import asyncio, logging, random, time, discord, datetime as dt
 from discord.ext import tasks
 from pathlib import Path
 import utils.read_Yaml as RY
-from utils.core import get_channel_id
+from utils.core import get_channel_id, AppConfig
+from pydantic import ValidationError
 
 # import your helpers/config
 import SQL.sharkGamesSQL.sharkGameSQL as sg
 
 CONFIG_PATH = Path(r"config.YAML")
+raw_config = RY.read_config(CONFIG_PATH)
 
-config = RY.read_config(CONFIG=CONFIG_PATH)
+try:
+    config = AppConfig.model_construct(
+        guilds = raw_config["guilds"],
+        roles = raw_config["roles"],
+        channels = raw_config["channels"],
+        guild_role_messages = raw_config["guild role messages"],
+        birthday_message = raw_config["birthday message"],
+        boost = raw_config["boost"],
+        boost_amount = raw_config["boost amount"],
+        time_per_loop = raw_config["time per loop"],
+        set_up_done = raw_config["set up done"]
+    )
+except ValidationError as e:
+    logging.error(f"[shark game loop] config error: {e}")
 
 class SharkLoops:
     def __init__(self, client: discord.client):
@@ -22,8 +37,8 @@ class SharkLoops:
         return bool(loop and loop.is_running())
     
     def load_interval(self):
-        config = RY.read_config(CONFIG=CONFIG_PATH)
-        return config.get("time per loop")
+        config_load = RY.read_config(CONFIG=CONFIG_PATH)
+        return config_load.get("time per loop")
 
     def start_for(self, guild_id: int):
         if self.is_running(guild_id=guild_id):
@@ -68,7 +83,7 @@ class SharkLoops:
             else:
                 rarity = "normal"
 
-            id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
+            id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
             guild_name: str = id_to_name.get(guild_id)
             channel_id = get_channel_id(guild_name=guild_name, channel="game")
             # print(channel_id)
@@ -172,7 +187,7 @@ class SharkLoops:
                 await channel.send(f"Congratulations to {people} for catching a {rarity} {name_to_drop} 👏. You have been granted {coins}")
 
         loop = tasks.loop(seconds=self.check_interval, reconnect=True)(_tick)
-        id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
+        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
         guild_name: str | None = id_to_name.get(guild_id)
 
         @loop.before_loop
