@@ -160,7 +160,12 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
                 await channel.send(to_send)
 
     async def ensure_react_roles_message(self, guild: discord.Guild):
-        await self.reaction_handler.ensure_react_roles_message_internal(guild=guild, config=config)
+        try:
+            await self.reaction_handler.ensure_react_roles_message_internal(guild=guild, config=config)
+        except (KeyError, ValueError, LookupError) as e:
+            logging.error(f"Failed to ensure react roles message(s) exist. Inner error:\n{e}")
+        except Exception as e:
+            raise e
 
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
         await self.reaction_handler.on_raw_reaction_add_internal(payload=payload, config=config)
