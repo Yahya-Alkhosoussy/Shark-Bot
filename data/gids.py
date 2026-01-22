@@ -32,7 +32,7 @@ def roles_per_gid(gids: dict[str, int], roles: dict[str, dict[str, int]]):
                 discord.PartialEmoji(name='🎮'): roles["general"]["shark games"],
                 discord.PartialEmoji(name='❗'): roles["general"]["shark update"],
                 discord.PartialEmoji(name='💻'): roles["general"]["discord bot update"],
-                '<:Zerotwodrinkbyliliiet112:1318361002072604692>': roles["general"]["dyslexxik updates"],
+                discord.PartialEmoji(name='Zerotwodrinkbyliliiet112', id=1318361002072604692): roles["backpacks and sherpas"]["ZZZ backpack"],
                 discord.PartialEmoji(name='🎫'): roles["general"]["shark movie ticket"],
             },
             "backpack": {
@@ -43,8 +43,8 @@ def roles_per_gid(gids: dict[str, int], roles: dict[str, dict[str, int]]):
                 discord.PartialEmoji(name='🏰'): roles["backpacks and sherpas"]["elden ring backpack"],
                 discord.PartialEmoji(name='🤺'): roles["backpacks and sherpas"]["nightreign backpack"],
                 discord.PartialEmoji(name='🔫'): roles["backpacks and sherpas"]["Destiney Backpack"],
-                '<a:animateduwu:1279478093278609491>': roles["backpacks and sherpas"]["DNA backpack"],
-                '<:Zerotwosurprisedbyliliiet112:1318361087833538631>': roles["backpacks and sherpas"]["ZZZ backpack"],
+                discord.PartialEmoji(name='animateduwu', animated=True, id=1279478093278609491): roles["backpacks and sherpas"]["DNA backpack"],
+                discord.PartialEmoji(name='Zerotwosurprisedbyliliiet112', id=1318361087833538631): roles["backpacks and sherpas"]["ZZZ backpack"],
             },
             "sherpa": {
                 discord.PartialEmoji(name='🦸'): roles["backpacks and sherpas"]["marvel rivals sherpa"],
@@ -54,8 +54,8 @@ def roles_per_gid(gids: dict[str, int], roles: dict[str, dict[str, int]]):
                 discord.PartialEmoji(name='🏰'): roles["backpacks and sherpas"]["elden ring sherpa"],
                 discord.PartialEmoji(name='🤺'): roles["backpacks and sherpas"]["nightreign sherpa"],
                 discord.PartialEmoji(name='🔫'): roles["backpacks and sherpas"]["Destiney Sherpa"],
-                '<a:animateduwu:1279478093278609491>': roles["backpacks and sherpas"]["DNA sherpa"],
-                '<:Zerotwosurprisedbyliliiet112:1318361087833538631>': roles["backpacks and sherpas"]["ZZZ sherpa"],
+                discord.PartialEmoji(name='animateduwu', animated=True, id=1279478093278609491): roles["backpacks and sherpas"]["DNA sherpa"],
+                discord.PartialEmoji(name='Zerotwosurprisedbyliliiet112', id=1318361087833538631): roles["backpacks and sherpas"]["ZZZ sherpa"],
             },
             "friend": {
                 discord.PartialEmoji(name='🦸'): roles["friend"]["Marvel Rivals"],
@@ -65,9 +65,9 @@ def roles_per_gid(gids: dict[str, int], roles: dict[str, dict[str, int]]):
                 discord.PartialEmoji(name='🏰'): roles["friend"]["Elden Ring"],
                 discord.PartialEmoji(name='🤺'): roles["friend"]["Nightreign"],
                 discord.PartialEmoji(name='🔫'): roles["friend"]["Destiney"],
-                '<a:animateduwu:1279478093278609491>': roles["friend"]["DNA"],
-                '<:Zerotwosurprisedbyliliiet112:1318361087833538631>': roles["friend"]["ZZZ"],
-                '<:hello:1446858982403739689>': roles["friend"]["Gaming Friend"]
+                discord.PartialEmoji(name='animateduwu', animated=True, id=1279478093278609491): roles["friend"]["DNA"],
+                discord.PartialEmoji(name='Zerotwosurprisedbyliliiet112', id=1318361087833538631): roles["friend"]["ZZZ"],
+                discord.PartialEmoji(name='hello', id=1446858982403739689): roles["friend"]["Gaming Friend"]
             }
         }    
     }
