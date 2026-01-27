@@ -85,7 +85,7 @@ class SharkLoops:
 
             id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
             guild_name: str = id_to_name.get(guild_id)
-            channel_id = get_channel_id(guild_name=guild_name, channel="game")
+            channel_id = get_channel_id(guild_name=guild_name, channel="game", config=config)
             # print(channel_id)
             channel = c.get_channel(channel_id)
             # print(channel)
