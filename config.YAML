@@ -94,7 +94,7 @@ birthday message:
   October: false
   November: false
   December: false
-boost: true
+boost: false
 boost amount: 3
 time per loop: 1800
 set up done:
