@@ -123,6 +123,9 @@ class SharkLoops:
                     # print(msg.author.name)
                     caught_users[msg.author.name] = msg
                     lists_of_after[msg.author.name] = after
+                    # Send a message to the user if the net is not available after they send the `?catch` command.
+                    if not sg.is_net_available(user, after):
+                    	await channel.send(f"{user} you do not own {lists_of_after.get(user)}! Defaulting to rope net.")
 
             success: list = []
 
@@ -131,10 +134,13 @@ class SharkLoops:
             boost: bool = boost_config.get("boost")
             boost_amount: int = boost_config.get("boost amount")
             for user in caught_users: # looks through all the keys
-                num = random.randint(0, 100)
-                net = lists_of_after.get(user) if sg.is_net_available(user, lists_of_after.get(user)) else "rope net"
-                net_uses = 0
-                if net != "rope net":
+				num = random.randint(0, 100)
+				is_net_available: bool = sg.is_net_available(user, lists_of_after.get(user))
+                # Make sure it is a boolean and not None or any other type that is not what is expected.
+				assert type(is_net_available) == bool, "it is not a boolean"
+				net = lists_of_after.get(user) if is_net_available else "rope net"
+				net_uses = 0
+                if is_net_available:
                     available_nets, about_to_break, broken_nets, net_uses = sg.get_net_availability(user)
                     if net in available_nets:
                         print(net_uses)
@@ -182,6 +188,8 @@ class SharkLoops:
                 for person in success:
                     if i < len(success):
                         people += f"{person}, "
+                    elif i - 1 == len(success):
+                        people += f"{person} and "
                     else:
                         people += f"{person}"
                 await channel.send(f"Congratulations to {people} for catching a {rarity} {name_to_drop} 👏. You have been granted {coins}")
