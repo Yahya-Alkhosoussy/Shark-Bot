@@ -110,7 +110,7 @@ class MyClient(discord.Client):
     # ======= ANNOUNCE ARRIVAL =======
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
-        welcome_channels = config["channels"]["welcome"]
+        welcome_channels = config.channels["welcome"]
         # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file, so for consistency we use the one on the YAML
         id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
         guild_name: str = id_to_name.get(guild.id) 
@@ -127,7 +127,7 @@ class MyClient(discord.Client):
             logging.warning(f"[WELCOME] Channel not found for {guild_name} ({guild.id})")
 
         if guild_name == "shark squad":
-            chatting_channels = config["channels"]["chatting"]
+            chatting_channels = config.channels["chatting"]
             chatting_channel = guild.get_channel(chatting_channels.get(guild_name))
 
             message = f"""_Tiny fry drifting in sparkling nursery currents. The water shimmers around you, catching the first hints of ocean magic._
@@ -139,7 +139,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
     # ======= ANNOUNCE DEPARTURE =======
     async def on_member_remove(self, member):
         guild = member.guild
-        welcome_channels = config["channels"]["welcome"]
+        welcome_channels = config.channels["welcome"]
         # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file, so for consistency we use the one on the YAML
         id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
         guild_name: str = id_to_name.get(guild.id) 
