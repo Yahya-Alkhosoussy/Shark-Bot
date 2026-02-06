@@ -99,4 +99,4 @@ boost amount: 3
 time per loop: 1800
 set up done:
   test server: true
-  shark_squad: true
+  shark squad: true

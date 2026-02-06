@@ -2,32 +2,15 @@ import asyncio, logging, random, time, discord, datetime as dt
 from discord.ext import tasks
 from pathlib import Path
 import utils.read_Yaml as RY
-from utils.core import get_channel_id, AppConfig
+from utils.core import AppConfig
 from pydantic import ValidationError
 
 # import your helpers/config
 import SQL.sharkGamesSQL.sharkGameSQL as sg
 
-CONFIG_PATH = Path(r"config.YAML")
-raw_config = RY.read_config(CONFIG_PATH)
-
-try:
-    config = AppConfig.model_construct(
-        guilds = raw_config["guilds"],
-        roles = raw_config["roles"],
-        channels = raw_config["channels"],
-        guild_role_messages = raw_config["guild role messages"],
-        birthday_message = raw_config["birthday message"],
-        boost = raw_config["boost"],
-        boost_amount = raw_config["boost amount"],
-        time_per_loop = raw_config["time per loop"],
-        set_up_done = raw_config["set up done"]
-    )
-except ValidationError as e:
-    logging.error(f"[shark game loop] config error: {e}")
-
 class SharkLoops:
-    def __init__(self, client: discord.client):
+    def __init__(self, client: discord.Client, config: AppConfig):
+        self.config = config
         self.client = client
         self._loops: dict[int, tasks.Loop] = {} #guild id -> Loop.
         self.check_interval = self.load_interval()
@@ -37,8 +20,8 @@ class SharkLoops:
         return bool(loop and loop.is_running())
     
     def load_interval(self):
-        config_load = RY.read_config(CONFIG=CONFIG_PATH)
-        return config_load.get("time per loop")
+        self.config.reload()
+        return self.config.time_per_loop
 
     def start_for(self, guild_id: int):
         if self.is_running(guild_id=guild_id):
@@ -83,9 +66,8 @@ class SharkLoops:
             else:
                 rarity = "normal"
 
-            id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
-            guild_name: str = id_to_name.get(guild_id)
-            channel_id = get_channel_id(guild_name=guild_name, channel="game", config=config)
+            guild_name: str = self.config.guilds[guild_id]
+            channel_id = self.config.get_channel_id(guild_name=guild_name, channel="game")
             # print(channel_id)
             channel = c.get_channel(channel_id)
             # print(channel)
@@ -127,9 +109,6 @@ class SharkLoops:
             success: list = []
 
             odds = sg.fishing_odds_shark
-            boost_config = RY.read_config(CONFIG_PATH)
-            boost: bool = boost_config.get("boost")
-            boost_amount: int = boost_config.get("boost amount")
             for user in caught_users: # looks through all the keys
                 num = random.randint(0, 100)
                 net = lists_of_after.get(user) if sg.is_net_available(user, lists_of_after.get(user)) else "rope net"
@@ -167,8 +146,8 @@ class SharkLoops:
                     time_caught: str = f"{current_time.date()} {current_time.hour}"
                     success.append(user)
                     sg.create_dex(username=user, shark_name=name_to_drop, when_caught=time_caught, net_used=net, rarity=rarity, net_uses=net_uses)
-                    if boost is not None:
-                        coins = sg.reward_coins(username=user, rare=rarity, shark=True, shark_name=name_to_drop, boost=boost, boost_amount=boost_amount)
+                    if self.config.boost is not None:
+                        coins = sg.reward_coins(username=user, rare=rarity, shark=True, shark_name=name_to_drop, boost=self.config.boost, boost_amount=self.config.boost_amount)
                     else:
                         coins = sg.reward_coins(username=user, rare=rarity, shark=True, shark_name=name_to_drop)
                 sg.remove_net_use(user, net, net_uses - 1)
@@ -187,8 +166,7 @@ class SharkLoops:
                 await channel.send(f"Congratulations to {people} for catching a {rarity} {name_to_drop} 👏. You have been granted {coins}")
 
         loop = tasks.loop(seconds=self.check_interval, reconnect=True)(_tick)
-        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
-        guild_name: str | None = id_to_name.get(guild_id)
+        guild_name: str = self.config.guilds[guild_id]
 
         @loop.before_loop
         async def _before():

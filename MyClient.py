@@ -10,7 +10,8 @@ from loops.levellingloop.levellingLoop import levelingLoop
 from ticketingSystem.Ticket_System import TicketSystem
 
 from data.gids import roles_per_gid
-from handlers.reactions import reaction_handler, AppConfig
+from handlers.reactions import reaction_handler
+from utils.core import AppConfig
 
 # ======= Logging/Env =======
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -24,26 +25,16 @@ token = os.getenv("token")
 CONFIG_PATH = Path(r"config.YAML")
 TICKET_CONFIG_PATH = Path(r"ticketingSystem\ticketing.yaml")
 
-raw_config = RY.read_config(CONFIG=CONFIG_PATH)
 ticket_config = RY.read_config(CONFIG=TICKET_CONFIG_PATH)
 prefix: str = "?"
 
 try:
-    config = AppConfig.model_construct(
-        guilds = raw_config["guilds"],
-        roles = raw_config["roles"],
-        channels = raw_config["channels"],
-        guild_role_messages = raw_config["guild role messages"],
-        birthday_message = raw_config["birthday message"],
-        boost = raw_config["boost"],
-        boost_amount = raw_config["boost amount"],
-        time_per_loop = raw_config["time per loop"],
-        set_up_done = raw_config["set up done"]
-    )
+    config = AppConfig(CONFIG_PATH)
 except ValidationError as e:
-    print(e)
+    logging.error(e)
+    raise
 
-GIDS: dict = config.guilds
+GIDS: dict = {k: v.id for k, v in config.guilds}
 ROLES: dict = config.roles
 
 # ======= ENUM CLASS =======
@@ -63,12 +54,12 @@ class MyClient(discord.Client):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.shark_loops = SharkLoops(self)
-        self.birthday_loops = BirthdayLoop(self)
+        self.shark_loops = SharkLoops(self, config)
+        self.birthday_loops = BirthdayLoop(self, config)
         self.leveling_loop = levelingLoop(self)
         self.ticket_system = TicketSystem(self)
         self._ticket_setup_done: dict = config.set_up_done
-        self.reaction_handler = reaction_handler(config_path=CONFIG_PATH, roles_per_guild=roles_per_gid(GIDS, ROLES), bot=self)
+        self.reaction_handler = reaction_handler(config=config, roles_per_guild=roles_per_gid(GIDS, ROLES), bot=self)
         
     # ======= ON RUN =======
     async def on_ready(self):
@@ -76,12 +67,10 @@ class MyClient(discord.Client):
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
         
-        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
-
         for guild in self.guilds:
 
-            await self.reaction_handler.ensure_react_roles_message_internal(config=config, guild=guild)
-            guild_name: str = id_to_name.get(guild.id)
+            await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
+            guild_name: str = config.guilds[guild.id]
             
             if guild_name == "shark squad":
                 self.birthday_loops.start_for(guild.id)
@@ -112,8 +101,7 @@ class MyClient(discord.Client):
         guild = member.guild
         welcome_channels = config.channels["welcome"]
         # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file, so for consistency we use the one on the YAML
-        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
-        guild_name: str = id_to_name.get(guild.id) 
+        guild_name: str = config.guilds[guild.id]
         channel_id = welcome_channels.get(guild_name)
         if not channel_id:
             logging.warning(f"[WELCOME] No channel configured for {guild_name} ({guild.id})")
@@ -141,8 +129,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         guild = member.guild
         welcome_channels = config.channels["welcome"]
         # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file, so for consistency we use the one on the YAML
-        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
-        guild_name: str = id_to_name.get(guild.id) 
+        guild_name: str = config.guilds[guild.id]
         channel_id = welcome_channels.get(guild_name)
         if not channel_id:
             logging.warning(f"[GOODBYE] No channel configured for {guild_name} ({guild.id})")
@@ -178,11 +165,10 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             await message.reply(":ZeroTwoBonkbyliliiet112:")
 
         # leveling system messages
-        id_to_name: dict = {int(v): k for k, v in config.guilds.items()}
-        if len(message.content) >= 10 and id_to_name.get(message.guild.id) == "shark squad":
+        if len(message.content) >= 10 and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.message_handle(message)
         
-        if message.content.startswith(prefix + "check level") and id_to_name.get(message.guild.id) == "shark squad":
+        if message.content.startswith(prefix + "check level") and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.check_level(message)
 
         if message.content.startswith(prefix + "hello"):
@@ -219,7 +205,7 @@ A few notes:
             await message.reply(rules_part2)
 
         if message.content.startswith(prefix + "describe game"):
-            TIME_PER_LOOP = config.get("time per loop")
+            TIME_PER_LOOP = config["time per loop"]
             send = f"The shark catch game is a game where once every {TIME_PER_LOOP / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"
             await message.reply(send)
 
@@ -259,8 +245,6 @@ Shark Catch Game:
 
         if message.content.startswith(prefix + "fish"):
             user = message.author
-
-            config_2 = RY.read_config(CONFIG_PATH)
 
             owned_nets, about_to_break, broken, net_uses = sg.get_net_availability(message.author)
 
@@ -321,8 +305,8 @@ Shark Catch Game:
             
             fish_odds = sg.fishing_odds_fish(username=user, net_used=net)
 
-            boost = config_2.get("boost")
-            boost_amount = config_2.get("boost amount")
+            boost = config["boost"]
+            boost_amount = config["boost amount"]
 
             rand_int = random.randint(0, 99)
             if rand_int <= fish_odds: #did it catch anything

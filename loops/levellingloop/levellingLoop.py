@@ -1,9 +1,9 @@
 import logging, requests, discord
-import utils.read_Yaml as RY
 import SQL.levellingSQL.levellingSQL as ls
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from pathlib import Path
+from utils.leveling import LevelingConfig, LevelRoleSet, LevelRole
 
 # ================== LOGGING AND CONFIG ===================
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -12,7 +12,7 @@ root_logger.setLevel(logging.INFO)
 root_logger.addHandler(handler)
 
 CONFIG_PATH = Path(r"loops\levellingloop\levelingConfig.yaml")
-config = RY.read_config(CONFIG_PATH)
+config = LevelingConfig(CONFIG_PATH)
 
 # ============== CREATING THE IMAGE ============
 async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int, xp_needed: int) -> discord.File:
@@ -112,8 +112,7 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
     return discord.File(buffer, filename='rank_card.png')
 
 # ============= LEVEL ROLES ===================
-ROLES: dict = config.get("level roles")
-ROLES_SHARK_SQUAD: dict = ROLES.get("shark squad")
+ROLES_SHARK_SQUAD: LevelRoleSet = config.level_roles["shark squad"]
 # ============== LOOP LOGIC ===================
 class levelingLoop:
     
@@ -127,8 +126,8 @@ class levelingLoop:
         level, _, _, _ = ls.get_info(username=user.name)
         
         
-        level_role_id = ROLES_SHARK_SQUAD.get(f"level {level}")
-        role = user.guild.get_role(level_role_id)
+        level_role: LevelRole = ROLES_SHARK_SQUAD[level]
+        role = user.guild.get_role(level_role.id)
         if role is None:
             if level <= 5:
                 logging.warning(f"[LEVELLING SYSTEM] ROLE 'level {level}' is not registered for guild {user.guild.name}")
@@ -143,9 +142,9 @@ class levelingLoop:
 
     
     async def message_handle(self, message: discord.Message):
-        config = RY.read_config(CONFIG_PATH) # This is here too just so it can check for live changes
-        boost_event  = config.get("boost")
-        boost_amount = config.get("boost amount")
+        config.reload() # This is here too just so it can check for live changes
+        boost_event  = config["boost"]
+        boost_amount = config["boost amount"]
 
         username = message.author.name
 
