@@ -2,3 +2,6 @@ chat-exporter
 datetime
 discord
 pydantic
+PyYAML
+requests
+Pillow

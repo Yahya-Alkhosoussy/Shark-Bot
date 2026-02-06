@@ -1,9 +1,13 @@
-import logging, requests, discord
-import SQL.levellingSQL.levellingSQL as ls
-from PIL import Image, ImageDraw, ImageFont
+import logging
 from io import BytesIO
 from pathlib import Path
-from utils.leveling import LevelingConfig, LevelRoleSet, LevelRole
+
+import discord
+import requests
+from PIL import Image, ImageDraw, ImageFont
+
+import SQL.levellingSQL.levellingSQL as ls
+from utils.leveling import LevelingConfig, LevelRole, LevelRoleSet
 
 # ================== LOGGING AND CONFIG ===================
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -14,11 +18,12 @@ root_logger.addHandler(handler)
 CONFIG_PATH = Path(r"loops\levellingloop\levelingConfig.yaml")
 config = LevelingConfig(CONFIG_PATH)
 
+
 # ============== CREATING THE IMAGE ============
 async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int, xp_needed: int) -> discord.File:
     """
     Docstring for create_rank_card
-    
+
     :param user: This is the person's discord user which will include information like their username and profile picture
     :type user: discord.Member
     :param rank: This is their rank on a leaderboard
@@ -32,37 +37,41 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
     """
 
     # Create a blank image
-    black: tuple = (0, 0, 0)
+    black: tuple = (0, 0, 0, 0)
     img = Image.open(r"loops\levellingloop\images\leveling up background.png")
     img = img.convert("RGBA")
-    draw = ImageDraw.Draw(img) # Creates the drawing tool that will be working on the image
+    draw = ImageDraw.Draw(img)  # Creates the drawing tool that will be working on the image
 
     profile_picture_url = user.display_avatar.url
-    response = requests.get(profile_picture_url) # gets the image from the web
-    profile_picture = Image.open(BytesIO(response.content)) # This opens the image as a PIL image object and doesn't download the image, as BytesIO stores it in memory
+    response = requests.request("GET", profile_picture_url)  # gets the image from the web
+    profile_picture = Image.open(
+        BytesIO(response.content)
+    )  # This opens the image as a PIL image object and doesn't download the image, as BytesIO stores it in memory
     profile_picture = profile_picture.resize(size=(192, 179))
 
     # Make the profile picture circular
-    mask = Image.new(mode='L', size=(192, 179), color=0)
+    mask = Image.new(mode="L", size=(192, 179), color=0)
     mask_draw = ImageDraw.Draw(mask)
-    mask_draw.ellipse(xy=(0, 0, 192, 179), fill=255) # xy is in the format of x1, y1, x2, y2
+    mask_draw.ellipse(xy=(0, 0, 192, 179), fill=255)  # xy is in the format of x1, y1, x2, y2
 
     # Past the profile picture into the card
     img.paste(im=profile_picture, box=(79, 49), mask=mask)
 
     # Create overlay
-    overlay = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    overlay = Image.new("RGBA", img.size, black)
     overlay_draw = ImageDraw.Draw(overlay)
-    
+
     # colours in RGB
-    skin_white: tuple = (255, 240, 236, 191) #RGB then opacity
+    skin_white: tuple = (255, 240, 236, 191)  # RGB then opacity
     purple: tuple = (182, 59, 150, 255)
     grey: tuple = (60, 60, 60, 204)
 
     # draw opaque background behind rank and level
     level_x, level_y = 565, 75
     level_width, level_height = 220, 44
-    overlay_draw.rectangle(xy=[level_x, level_y, level_x + level_width, level_y + level_height], fill=skin_white, outline=purple)
+    overlay_draw.rectangle(
+        xy=[level_x, level_y, level_x + level_width, level_y + level_height], fill=skin_white, outline=purple
+    )
 
     rank_x, rank_y = 620, 15
     rank_width, rank_height = 165, 46
@@ -71,21 +80,19 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
     # Draw the background of the progress bar
     bar_x, bar_y = 333, 138
     bar_width, bar_height = 451, 51
-    overlay_draw.rectangle(xy=[bar_x, bar_y, bar_x + bar_width, bar_y + bar_height], fill=grey )
+    overlay_draw.rectangle(xy=[bar_x, bar_y, bar_x + bar_width, bar_y + bar_height], fill=grey)
 
     # compose it into the main image
     img = Image.alpha_composite(img, overlay)
 
     # Load fonts
-    try: 
-        font_large = ImageFont.truetype(font=r"loops\levellingloop\Fonts\arial.ttf", size=40)
+    try:
         font_medium = ImageFont.truetype(font=r"loops\levellingloop\Fonts\arial.ttf", size=30)
         font_small = ImageFont.truetype(font=r"loops\levellingloop\Fonts\arial.ttf", size=20)
-    except:
-        font_large = ImageFont.load_default()
+    except Exception:
         font_medium = ImageFont.load_default()
         font_small = ImageFont.load_default()
-        logging.warning(f"[LEVELING SYSTEM] Unable to load font 'arial.ttf' using default.")
+        logging.warning("[LEVELING SYSTEM] Unable to load font 'arial.ttf' using default.")
 
     # to be able to place the text on the background
     draw = ImageDraw.Draw(img)
@@ -94,10 +101,8 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
     draw.text(xy=(650, 30), text=f"RANK #{rank}", fill=purple, font=font_small)
     draw.text(xy=(600, 80), text=f"LEVEL {level}", fill=purple, font=font_medium)
 
-    # # Draw XP 
+    # # Draw XP
     # draw.text(xy=(750, 120), text=f"{xp:,}", fill=purple, font=font_medium) # the ':,' makes it a 1000 comma separator
-    
-    
 
     # draw progress bar filled
     progress = xp / xp_needed
@@ -106,16 +111,18 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
 
     # Save to BytesIO to send as discord file
     buffer = BytesIO()
-    img.save(buffer, format='PNG')
+    img.save(buffer, format="PNG")
     buffer.seek(0)
 
-    return discord.File(buffer, filename='rank_card.png')
+    return discord.File(buffer, filename="rank_card.png")
+
 
 # ============= LEVEL ROLES ===================
 ROLES_SHARK_SQUAD: LevelRoleSet = config.level_roles["shark squad"]
+
+
 # ============== LOOP LOGIC ===================
 class levelingLoop:
-    
     def __init__(self, bot):
         self.bot = bot
 
@@ -124,15 +131,14 @@ class levelingLoop:
 
     async def add_role(self, user: discord.Member):
         level, _, _, _ = ls.get_info(username=user.name)
-        
-        
+
         level_role: LevelRole = ROLES_SHARK_SQUAD[level]
         role = user.guild.get_role(level_role.id)
         if role is None:
             if level <= 5:
                 logging.warning(f"[LEVELLING SYSTEM] ROLE 'level {level}' is not registered for guild {user.guild.name}")
             return
-        
+
         try:
             await user.add_roles(role)
             logging.info(f"Added role {role} to {user.name}")
@@ -140,24 +146,23 @@ class levelingLoop:
             logging.error("No can do, HTTPException")
             return
 
-    
     async def message_handle(self, message: discord.Message):
-        config.reload() # This is here too just so it can check for live changes
-        boost_event  = config["boost"]
+        config.reload()  # This is here too just so it can check for live changes
+        boost_event = config["boost"]
         boost_amount = config["boost amount"]
 
         username = message.author.name
 
         # Make sure the user is added to the database
         ls.add_user(username=username)
-        
+
         # Add to the user's level
         ls.add_to_level(username=username, boost=boost_event, boost_amount=boost_amount)
 
-        leveled_up = ls.check_level(username=username) # leveled_up is a boolean and level is an integer
+        leveled_up = ls.check_level(username=username)  # leveled_up is a boolean and level is an integer
 
         if leveled_up:
-            level, _, _, _= ls.get_info(username=username)
+            level, _, _, _ = ls.get_info(username=username)
             channel = message.channel
             message_to_send: str | None
             if level == 1:
@@ -180,17 +185,22 @@ Swim thoughtfully, respect the depths, and enjoy your sparkling new habitat. {me
             else:
                 message_to_send = None
 
-            await self.add_role(message.author)
+            if isinstance(message.author, discord.Member):
+                await self.add_role(message.author)
+            else:
+                raise TypeError("Message author is a User type instead of Member type, cannot add role")
 
             if message_to_send is not None:
                 await channel.send(message_to_send)
-    
+
     async def check_level(self, message: discord.Message):
         username = message.author.name
         level, exp, exp_needed, rank = ls.get_info(username=username)
-
-        card = await create_rank_card(user=message.author, rank=rank, level=level, xp=exp, xp_needed=exp_needed)
+        if not isinstance(rank, int):
+            rank = 0
+        if isinstance(message.author, discord.Member):
+            card = await create_rank_card(user=message.author, rank=rank, level=level, xp=exp, xp_needed=exp_needed)
+        else:
+            raise TypeError("Message author is a User type instead of Member type, cannot check level")
 
         await message.reply(f"You currently are level {level} with {exp} xp and here's your card!", file=card)
-
-            

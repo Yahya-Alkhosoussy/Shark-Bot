@@ -1,17 +1,21 @@
-import logging, discord, datetime as dt
-from discord.ext import tasks
-from ..sharkGameLoop.sharkGameLoop import SharkLoops, sg
+import datetime as dt
+import logging
 from zoneinfo import ZoneInfo
+
+import discord
+from discord.ext import tasks
+
 from utils.core import AppConfig
+
 
 class BirthdayLoop:
     def __init__(self, client: discord.Client, config: AppConfig):
         self.client = client
         self.config = config
-        self._loops: dict[int, tasks.Loop] = {} # Guild_id --> Loop
+        self._loops: dict[int, tasks.Loop] = {}  # Guild_id --> Loop
 
     def is_running(self, guild_id: int) -> bool:
-        loop = self._loops.get(guild_id)
+        loop = self._loops[guild_id]
         return bool(loop and loop.is_running())
 
     def start_for(self, guild_id: int):
@@ -31,10 +35,14 @@ class BirthdayLoop:
             current_date = dt.datetime.now(central).date()
             birthday_messages = self.config.birthday_message
             month = current_date.strftime("%B")
-            if str(current_date) in firsts and not birthday_messages.get(month):
-                guild_name: str  = self.config.guilds[guild_id]
-                channel_id: int  = self.config.get_channel_id(guild_name=guild_name, channel="chatting")
+            if str(current_date) in firsts and not birthday_messages[month]:
+                guild_name: str = self.config.guilds[guild_id]
+                channel_id: int = self.config.get_channel_id(guild_name=guild_name, channel="chatting")
                 channel = c.get_channel(channel_id)
+
+                if not (channel and isinstance(channel, discord.TextChannel)):
+                    logging.error(f"Channel not found for channelId: {channel_id}, or channel is not a TextChannel")
+                    return
 
                 current_month = current_date.month
                 print(current_month)
@@ -75,7 +83,7 @@ class BirthdayLoop:
                         else:
                             logging.warning(f"{month} was not found in loaded config")
                     case 6:
-                        await channel.send("Happy Birthday to <@&1335417579832873072>")#
+                        await channel.send("Happy Birthday to <@&1335417579832873072>")  #
                         logging.info("Said happy birthday to June babies!")
                         if self.config.mark_reminder_as_done("June"):
                             logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
@@ -123,34 +131,31 @@ class BirthdayLoop:
                             logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
                         else:
                             logging.warning(f"{month} was not found in loaded config")
-        
+
         loop = tasks.loop(hours=13, reconnect=True)(_tick)
-        
+
         @loop.before_loop
         async def _before():
             await self.client.wait_until_ready()
-            logging.info(f"Birthday loop started")
-        
+            logging.info("Birthday loop started")
+
         @loop.after_loop
         async def _after():
             if loop.is_being_cancelled():
-                logging.info(f"Birthday loop cancelled (shutdown)")
+                logging.info("Birthday loop cancelled (shutdown)")
             else:
                 logging.info("Birthday loop ended normally.")
-        
+
         @loop.error
-        async def _error(error: Exception):
-            logging.exception("birthday loop error %s", error)
-        
+        async def _error(self, error: BaseException):
+            logging.exception(f"birthday loop error {error}")
+
         self._loops[guild_id] = loop
         loop.start()
-    
+
     def stop_for(self, guild_id: int) -> bool:
-        loop = self._loops.get(guild_id)
+        loop = self._loops[guild_id]
         if loop and loop.is_running():
             loop.stop()
             return True
         return False
-
-            
-            

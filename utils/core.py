@@ -1,32 +1,34 @@
-import yaml
-from os.path import getmtime
+from abc import ABC, abstractmethod
 from copy import deepcopy
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from os.path import getmtime
+from pathlib import Path
+from typing import Any, Callable, Generic, TypeVar, Union, cast, overload
 
+import yaml
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_serializer
 from pydantic_core import core_schema
-from typing import Any, cast, Callable, overload, Union, TypeVar, Generic
 from typing_extensions import Self
-from pathlib import Path
-from abc import ABC, abstractmethod
 
 DiscordNamedObjType = TypeVar("DiscordNamedObjType", bound="DiscordNamedObj")
 
+
 class DiscordNamedObjTypes(Enum):
-    none = 0
-    guild = 1
-    role = 2
-    channel = 3
-    roleMessage = 4
-    levelRole = 5
+    NONE = 0
+    GUILD = 1
+    ROLE = 2
+    CHANNEL = 3
+    ROLE_MESSAGE = 4
+    LEVEL_ROLE = 5
+
 
 class DiscordNamedObj(ABC, tuple, Generic[DiscordNamedObjType]):
     objType: DiscordNamedObjTypes
     name: str
     id: int
 
-    def __new__(cls, name: str, id: int, objType: DiscordNamedObjTypes = DiscordNamedObjTypes.none):
+    def __new__(cls, name: str, id: int, objType: DiscordNamedObjTypes = DiscordNamedObjTypes.NONE):
         inst = super().__new__(cls, (objType, name, id))
         inst.objType = objType
         inst.name = name
@@ -36,18 +38,20 @@ class DiscordNamedObj(ABC, tuple, Generic[DiscordNamedObjType]):
     @abstractmethod
     def __deepcopy__(self, memo) -> Self:
         pass
-    
+
     @classmethod
     def __get_pydantic_core_schema__(
         cls, _source_type: Any, _handler: Callable[[Any], core_schema.CoreSchema]
     ) -> core_schema.CoreSchema:
         return core_schema.no_info_after_validator_function(
             cls._validate,
-            core_schema.tuple_schema([
-                core_schema.is_instance_schema(DiscordNamedObjTypes),
-                core_schema.str_schema(),
-                core_schema.int_schema(),
-            ]),
+            core_schema.tuple_schema(
+                [
+                    core_schema.is_instance_schema(DiscordNamedObjTypes),
+                    core_schema.str_schema(),
+                    core_schema.int_schema(),
+                ]
+            ),
         )
 
     @classmethod
@@ -56,16 +60,17 @@ class DiscordNamedObj(ABC, tuple, Generic[DiscordNamedObjType]):
             return value
         # Subclasses (Guild, Role) expect __new__(cls, name, id)
         return cls(value[1], value[2])
-    
+
     @model_serializer
     def serialize_model(self) -> str:
         return self.name
 
     def __str__(self) -> str:
-        return f"({self.objType.name}Name: \"{self.name}\", {self.objType.name}Id: {self.id})"
-    
+        return f'({self.objType.name}Name: "{self.name}", {self.objType.name}Id: {self.id})'
+
     def __repr__(self) -> str:
-        return f"({self.objType.name}Name: \"{self.name}\", {self.objType.name}Id: {self.id})"
+        return f'({self.objType.name}Name: "{self.name}", {self.objType.name}Id: {self.id})'
+
 
 class DiscordNamedObjSet(ABC, Generic[DiscordNamedObjType]):
     def __init__(self, setData: list[DiscordNamedObjType]):
@@ -110,7 +115,7 @@ class DiscordNamedObjSet(ABC, Generic[DiscordNamedObjType]):
 
     @overload
     def get(self, selector: int) -> DiscordNamedObjType: ...
-    
+
     @overload
     def get(self, selector: DiscordNamedObj) -> DiscordNamedObjType: ...
 
@@ -145,17 +150,17 @@ class DiscordNamedObjSet(ABC, Generic[DiscordNamedObjType]):
 
     def __repr__(self) -> str:
         separator = ", "
-        strOut = "{" + separator.join([f"'{v.name}': {v.id}" for k,v in self._byName.items()]) + "}"
+        strOut = "{" + separator.join([f"'{v.name}': {v.id}" for k, v in self._byName.items()]) + "}"
         return strOut
-    
+
     def __len__(self) -> int:
         return len(self._byName)
 
     def __deepcopy__(self, memo):
-        new_instance = type(self)(deepcopy([v for v in self._byName.values()], memo))
+        new_instance = type(self)(deepcopy(list(self._byName.values()), memo))
         memo[id(self)] = new_instance
         return new_instance
-    
+
     def __iter__(self):
         return iter(self._byName.items())
 
@@ -185,19 +190,21 @@ class DiscordNamedObjSet(ABC, Generic[DiscordNamedObjType]):
             self._byId = backups[1]
             return False
 
+
 class Guild(DiscordNamedObj):
-    objType = DiscordNamedObjTypes.guild
+    objType = DiscordNamedObjTypes.GUILD
 
     def __new__(cls, guildName: str, guildId: int):
         return super().__new__(cls, guildName, guildId, cls.objType)
-    
+
     def __deepcopy__(self, memo):
         new_instance = type(self)(deepcopy(self.name, memo), deepcopy(self.id, memo))
         memo[id(self)] = new_instance
         return new_instance
 
+
 class Role(DiscordNamedObj):
-    objType = DiscordNamedObjTypes.role
+    objType = DiscordNamedObjTypes.ROLE
 
     def __new__(cls, roleName: str, roleId: int):
         return super().__new__(cls, roleName, roleId, cls.objType)
@@ -207,27 +214,30 @@ class Role(DiscordNamedObj):
         memo[id(self)] = new_instance
         return new_instance
 
+
 class Channel(DiscordNamedObj):
-    objType = DiscordNamedObjTypes.channel
+    objType = DiscordNamedObjTypes.CHANNEL
 
     def __new__(cls, channelName: str, channelId: int):
         return super().__new__(cls, channelName, channelId, cls.objType)
-    
+
     def __deepcopy__(self, memo):
         new_instance = type(self)(deepcopy(self.name, memo), deepcopy(self.id, memo))
         memo[id(self)] = new_instance
         return new_instance
-    
+
+
 class RoleMessage(DiscordNamedObj):
-    objType = DiscordNamedObjTypes.roleMessage
-    
+    objType = DiscordNamedObjTypes.ROLE_MESSAGE
+
     def __new__(cls, roleMessageName: str, roleMessageId: int):
         return super().__new__(cls, roleMessageName, roleMessageId, cls.objType)
-    
+
     def __deepcopy__(self, memo):
         new_instance = type(self)(deepcopy(self.name, memo), deepcopy(self.id, memo))
         memo[id(self)] = new_instance
         return new_instance
+
 
 class RoleSet(DiscordNamedObjSet[Role]):
     def __init__(self, roles: list[Role]):
@@ -235,60 +245,62 @@ class RoleSet(DiscordNamedObjSet[Role]):
 
     @property
     def setType(self) -> DiscordNamedObjTypes:
-        return DiscordNamedObjTypes.role
-    
+        return DiscordNamedObjTypes.ROLE
+
     def upsert(self, name: str, id: int):
         self._upsert(Role(name, id))
+
 
 class GuildSet(DiscordNamedObjSet[Guild]):
     def __init__(self, guilds: list[Guild]):
         super().__init__(guilds)
 
-
     @property
     def setType(self) -> DiscordNamedObjTypes:
-        return DiscordNamedObjTypes.guild
-    
+        return DiscordNamedObjTypes.GUILD
+
     def upsert(self, name: str, id: int):
         self._upsert(Guild(name, id))
+
 
 class ChannelSet(DiscordNamedObjSet[Channel]):
     def __init__(self, channels: list[Channel]):
         super().__init__(channels)
 
-
     @property
     def setType(self) -> DiscordNamedObjTypes:
-        return DiscordNamedObjTypes.channel
-    
+        return DiscordNamedObjTypes.CHANNEL
+
     def upsert(self, name: str, id: int):
         self._upsert(Channel(name, id))
+
 
 class RoleMessageSet(DiscordNamedObjSet[RoleMessage]):
     def __init__(self, roleMessages: list[RoleMessage]):
         super().__init__(roleMessages)
 
-
     @property
     def setType(self) -> DiscordNamedObjTypes:
-        return DiscordNamedObjTypes.roleMessage
+        return DiscordNamedObjTypes.ROLE_MESSAGE
 
     def upsert(self, name: str, id: int):
         self._upsert(RoleMessage(name, id))
 
+
 class BirthdayMessageSet(list[tuple[str, bool]]):
     def __init__(self, birthdayMessages: list[tuple[str, bool]]):
         self._byMonth = {birthdayMessage[0]: birthdayMessage[1] for birthdayMessage in birthdayMessages}
-    
+
     def upsert(self, month: str, state: bool):
         self._byMonth[month] = state
+
 
 class BaseConfig(ABC, BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     _last_load: datetime = PrivateAttr(default_factory=datetime.now)
     _loaded_config_path: Path = PrivateAttr(default_factory=Path)
-    
+
     def __init__(self, confPath: Path, **data):
         super().__init__(**data)
         self.loadConfig(confPath)
@@ -308,12 +320,12 @@ class BaseConfig(ABC, BaseModel):
 
     def __getitem__(self, selector: str):
         return getattr(self, selector.replace(" ", "_"))
-    
+
     def _assert_populated(self, obj: Union[dict, DiscordNamedObjSet]):
         if not isinstance(obj, bool):
-            assert(obj)
+            assert obj
         if hasattr(obj, "__len__"):
-            assert(len(obj) > 0)
+            assert len(obj) > 0
         if isinstance(obj, dict):
             for v in obj.values():
                 self._assert_populated(v)
@@ -327,35 +339,33 @@ class BaseConfig(ABC, BaseModel):
             self.__dict__.update(type(self)(self._loaded_config_path).__dict__)
             return True
         return False
-    
+
     def model_dump(self, **kwargs) -> dict[str, Any]:
         model = super().model_dump(**kwargs)
-        
+
         def yaml_clean(obj):
             if isinstance(obj, dict):
-                return {
-                    (k.name if hasattr(k, 'name') else yaml_clean(k)): yaml_clean(v) 
-                    for k, v in obj.items()
-                }
+                return {(k.name if hasattr(k, "name") else yaml_clean(k)): yaml_clean(v) for k, v in obj.items()}
             elif isinstance(obj, list):
                 return [yaml_clean(i) for i in obj]
             elif isinstance(obj, tuple):
                 return obj[1]
-            elif hasattr(obj, 'todict'):
+            elif hasattr(obj, "todict"):
                 return obj.todict()
-            elif hasattr(obj, 'id'):
+            elif hasattr(obj, "id"):
                 return obj.id
             elif isinstance(obj, Enum):
                 return obj.name
             return obj
 
         return cast(dict[str, Any], yaml_clean(model))
-    
-    def saveConfig(self, confPath: Path|None = None):
+
+    def saveConfig(self, confPath: Path | None = None):
         temp = confPath.with_suffix(".tmp") if confPath else self._loaded_config_path.with_suffix(".tmp")
         temp.write_text(yaml.safe_dump(self.model_dump(), sort_keys=False, allow_unicode=True), encoding=("UTF-8"))
         temp.replace(confPath if confPath else self._loaded_config_path)
         self._last_load = datetime.now()
+
 
 class AppConfig(BaseConfig):
     guilds: GuildSet = Field(default_factory=lambda: GuildSet([]))
@@ -378,7 +388,7 @@ class AppConfig(BaseConfig):
         self._assert_populated(self.guild_role_messages)
         self._assert_populated(self.birthday_message)
         self._assert_populated(self.set_up_done)
-        assert(self.time_per_loop > 0)
+        assert self.time_per_loop > 0
 
     def loadConfig(self, confPath: Path):
         fromYaml = self._loadYamlDict(confPath)
@@ -387,19 +397,21 @@ class AppConfig(BaseConfig):
             match confkey:
                 case "guilds":
                     if confvalue and isinstance(confvalue, dict):
-                        self.guilds = GuildSet(
-                                [Guild(guildName=key, guildId=value) for key, value in confvalue.items()]
-                            )
+                        self.guilds = GuildSet([Guild(guildName=key, guildId=value) for key, value in confvalue.items()])
                 case "roles":
                     if confvalue and isinstance(confvalue, dict):
-                        self.roles = {key: RoleSet(
-                                [Role(roleName=subkey, roleId=subvalue) for subkey, subvalue in value.items()]
-                            ) for key, value in confvalue.items()}
+                        self.roles = {
+                            key: RoleSet([Role(roleName=subkey, roleId=subvalue) for subkey, subvalue in value.items()])
+                            for key, value in confvalue.items()
+                        }
                 case "channels":
                     if confvalue and isinstance(confvalue, dict):
-                        self.channels = {key: ChannelSet(
+                        self.channels = {
+                            key: ChannelSet(
                                 [Channel(channelName=subkey, channelId=subvalue) for subkey, subvalue in value.items()]
-                            ) for key, value in confvalue.items()}
+                            )
+                            for key, value in confvalue.items()
+                        }
                 case "guild role messages":
                     if confvalue and isinstance(confvalue, dict):
                         new_guild_role_messages = {}
@@ -408,12 +420,17 @@ class AppConfig(BaseConfig):
                                 if key in self.guilds._byName:
                                     guild = self.guilds.get(key)
                                     new_guild_role_messages[guild] = RoleMessageSet(
-                                        [RoleMessage(roleMessageName=subkey, roleMessageId=subvalue) for subkey, subvalue in value.items()]
+                                        [
+                                            RoleMessage(roleMessageName=subkey, roleMessageId=subvalue)
+                                            for subkey, subvalue in value.items()
+                                        ]
                                     )
                         self.guild_role_messages = new_guild_role_messages
                 case "birthday message":
                     if confvalue and isinstance(confvalue, dict):
-                        self.birthday_message = {key: value for key, value in confvalue.items() if isinstance(key, str) and isinstance(value, bool)}
+                        self.birthday_message = {
+                            key: value for key, value in confvalue.items() if isinstance(key, str) and isinstance(value, bool)
+                        }
                 case "boost":
                     if confvalue and isinstance(confvalue, bool):
                         self.boost = confvalue
@@ -432,21 +449,19 @@ class AppConfig(BaseConfig):
                                     guild = self.guilds.get(key)
                                     new_set_up_done[guild] = value
                         self.set_up_done = new_set_up_done
-        
+
         self._afterLoad(confPath)
 
     # This is to check if the guild ID is in the config
     def is_guild_in_config(self, guild_id: int) -> bool:
-
         guild_ids = self.guilds._byId.keys() if self.guilds else []
 
         if guild_id in guild_ids:
             return True
         else:
             return False
-        
-    def is_rr_message_id_in_config(self, guild_name: str) -> bool:
 
+    def is_rr_message_id_in_config(self, guild_name: str) -> bool:
         guild_role_message_names: list[str] = [guild.name for guild in self.guild_role_messages.keys()]
 
         if guild_name in guild_role_message_names:
@@ -455,19 +470,18 @@ class AppConfig(BaseConfig):
             return False
 
     def get_channel_id(self, guild_name: str, channel: str) -> int:
-
         channels = self.channels.get(channel)
 
         if channels is None:
             raise KeyError(f"Channel type {channel} not in config")
-        
+
         guild_channel = channels.get(guild_name)
 
         if guild_channel is None:
             raise KeyError(f"Channel type {channel} for guild {guild_name} does not exist in the server")
         else:
             return guild_channel.id
-        
+
     def mark_reminder_as_done(self, month: str) -> bool:
         if month in self.birthday_message:
             self.birthday_message[month] = True
@@ -475,4 +489,3 @@ class AppConfig(BaseConfig):
             return True
         else:
             return False
-

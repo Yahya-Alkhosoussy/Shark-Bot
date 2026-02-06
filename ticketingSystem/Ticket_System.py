@@ -1,7 +1,13 @@
-import discord, logging, sqlite3
+import logging
+import sqlite3
 from pathlib import Path
-from ticketingSystem.MyView import MyView, CloseButton, TicketOptions
-from utils.read_Yaml import read_config, save_config
+
+import discord
+
+from ticketingSystem.CloseButton import CloseButton
+from ticketingSystem.MyView import MyView
+from ticketingSystem.TicketOptions import TicketOptions
+from utils.read_Yaml import read_config
 
 # ===== LOGGING =====
 handler = logging.FileHandler(filename="tickets.log", encoding="utf-8", mode="a")
@@ -17,6 +23,7 @@ id_to_name: dict = {int(v): k for k, v in config["guild ids"].items()}
 conn = sqlite3.connect("databases/Ticket_System.db")
 cur = conn.cursor()
 
+
 class TicketSystem:
     def __init__(self, bot: discord.Client):
         self.bot = bot
@@ -29,7 +36,7 @@ class TicketSystem:
                     ticket_channel INTEGER,
                     ticket_type TEXT
             );""")
-        
+
         # Maybe used later
         cur.execute("""CREATE TABLE IF NOT EXISTS 'ticket history'(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,10 +53,10 @@ class TicketSystem:
     async def setup_hook(self):
         """
         Docstring for setup_hook
-        
+
         :param self: Description
         """
-        #Register the persistence views
+        # Register the persistence views
         self.bot.add_view(MyView(bot=self.bot))
         self.bot.add_view(CloseButton(bot=self.bot))
         self.bot.add_view(TicketOptions(bot=self.bot))
@@ -58,19 +65,16 @@ class TicketSystem:
     async def send_ticket_panel(self, channel: discord.TextChannel):
         """
         Docstring for send_ticket_panel
-        
-        :param self: 
+
+        :param self:
         """
 
         embed = discord.Embed(
-            title=config["embed title"],
-            description=config["embed description"],
-            colour=discord.colour.Color.blue()
+            title=config["embed title"], description=config["embed description"], colour=discord.colour.Color.blue()
         )
 
         message = await channel.send(embed=embed, view=MyView(bot=self.bot))
         logging.info("[TICKETING SYSTEM] Support Ticket Sent")
         guild_name = id_to_name[channel.guild.id]
         MESSAGE_IDS[guild_name] = message.id
-        save_config(CONFIG_PATH, config)
-
+        # save_config(CONFIG_PATH, config) ## DISABLED because incompatible with Config class updates, and there is nothing that changes the config in this function anyway?!
