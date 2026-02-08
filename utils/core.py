@@ -21,6 +21,11 @@ class DiscordNamedObjTypes(Enum):
     CHANNEL = 3
     ROLE_MESSAGE = 4
     LEVEL_ROLE = 5
+    TICKET_ROLE = 6
+    TICKET_CHANNEL = 7
+    CATEGORY_ID = 8
+    EMBED_TITLE = 9
+    EMBED_DESCRIPTION = 10
 
 
 class DiscordNamedObj(ABC, tuple, Generic[DiscordNamedObjType]):
