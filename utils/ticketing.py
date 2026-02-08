@@ -1,7 +1,8 @@
 from copy import deepcopy
 from pathlib import Path
 
-from pydantic import Field
+import yaml
+from pydantic import ConfigDict, Field
 from typing_extensions import Self
 
 from utils.core import BaseConfig, DiscordNamedObj, DiscordNamedObjSet, DiscordNamedObjTypes
@@ -152,12 +153,17 @@ class LogChannelSet(DiscordNamedObjSet[LogChannel]):
 
 
 class TicketingConfig(BaseConfig):
-    guilds: GuildSet = Field(default_factory=lambda: GuildSet([]))
-    ticket_channels: TicketChannelSet = Field(default_factory=lambda: TicketChannelSet([]))
-    catergories: dict[str, CategoryIdSet] = Field(default_factory=dict)
-    roles: dict[str, TicketRoleSet] = Field(default_factory=dict)
-    embed_messages: EmbedMessagesSet = Field(default_factory=lambda: EmbedMessagesSet([]))
-    log_channels: dict[str, LogChannelSet] = Field(default_factory=dict)
+    guilds: GuildSet = Field(default_factory=lambda: GuildSet([]), serialization_alias="guilds")
+    ticket_channels: TicketChannelSet = Field(
+        default_factory=lambda: TicketChannelSet([]), serialization_alias="ticket channels"
+    )
+    categories: dict[str, CategoryIdSet] = Field(default_factory=dict, serialization_alias="categories")
+    roles: dict[str, TicketRoleSet] = Field(default_factory=dict, serialization_alias="roles")
+    embed_messages: EmbedMessagesSet = Field(default_factory=lambda: EmbedMessagesSet([]), serialization_alias="embed messages")
+    log_channels: dict[str, LogChannelSet] = Field(default_factory=dict, serialization_alias="log channels")
+    path: str | None = None
+
+    model_config = ConfigDict(serialize_by_alias=True)
 
     def __init__(self, confPath: Path, **data):
         super().__init__(confPath=confPath, **data)
@@ -165,17 +171,18 @@ class TicketingConfig(BaseConfig):
     def _validate_config(self):
         self._assert_populated(self.guilds)
         self._assert_populated(self.ticket_channels)
-        self._assert_populated(self.catergories)
+        self._assert_populated(self.categories)
         self._assert_populated(self.roles)
         self._assert_populated(self.embed_messages)
         self._assert_populated(self.log_channels)
 
     def loadConfig(self, confPath: Path):
         fromYaml = self._loadYamlDict(confPath)
+        self.path = str(confPath)
 
         for confkey, confvalue in fromYaml.items():
             match confkey:
-                case "guild ids":
+                case "guilds":
                     if confvalue and isinstance(confvalue, dict):
                         self.guilds = GuildSet([Guild(guildName=key, guildId=value) for key, value in confvalue.items()])
                 case "ticket channels":
@@ -183,15 +190,15 @@ class TicketingConfig(BaseConfig):
                         self.ticket_channels = TicketChannelSet(
                             [TicketChannels(guildName=key, channelId=value) for key, value in confvalue.items()]
                         )
-                case "category ids":
+                case "categories":
                     if confvalue and isinstance(confvalue, dict):
-                        self.catergories = {
+                        self.categories = {
                             key: CategoryIdSet(
                                 [CategoryIds(channelName=subkey, channelId=subvalue) for subkey, subvalue in value.items()]
                             )
                             for key, value in confvalue.items()
                         }
-                case "role ids":
+                case "roles":
                     if confvalue and isinstance(confvalue, dict):
                         self.roles = {
                             key: TicketRoleSet(
@@ -199,12 +206,12 @@ class TicketingConfig(BaseConfig):
                             )
                             for key, value in confvalue.items()
                         }
-                case "embed message ids":
+                case "embed messages":
                     if confvalue and isinstance(confvalue, dict):
                         self.embed_messages = EmbedMessagesSet(
                             [EmbedMessages(guildName=key, messageId=value) for key, value in confvalue.items()]
                         )
-                case "log channel":
+                case "log channels":
                     if confvalue and isinstance(confvalue, dict):
                         self.log_channels = {
                             key: LogChannelSet(
@@ -212,3 +219,17 @@ class TicketingConfig(BaseConfig):
                             )
                             for key, value in confvalue.items()
                         }
+
+    def save_message_id(self, guild_name: str, message_id: int) -> bool:
+        guild_names: list[str] = []
+        for guild in self.guilds:
+            guild_names.append(guild[0])
+        if guild_name in guild_names:
+            self.embed_messages[guild_name] = message_id
+            if self.path is not None:
+                temp = Path(self.path).with_suffix(".tmp")
+                temp.write_text(yaml.safe_dump(self.model_dump(), sort_keys=False, allow_unicode=True), encoding=("UTF-8"))
+                temp.replace(Path(self.path))
+            return True
+        else:
+            raise KeyError(f"Could not find {guild_name} in config!")
