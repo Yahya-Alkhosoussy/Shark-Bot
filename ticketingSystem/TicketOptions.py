@@ -3,27 +3,14 @@ import io
 import logging
 import sqlite3
 from datetime import datetime
-from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import chat_exporter  # pip install chat-exporter
 import discord
 
-import utils.read_Yaml as RY
+from ticketingSystem.MyView import config, timezone
 
 conn = sqlite3.connect("databases/Ticket_System.db")
 cur = conn.cursor()
-
-# ===== CONFIG =====
-config = RY.read_config(Path(r"ticketingSystem/ticketing.yaml"))
-GUILD_IDS: dict = config["guild ids"]
-TICKET_CHANNELS: dict = config["ticket channels"]
-CATEGORY_IDS: dict = config["category ids"]
-ROLE_IDS: dict = config["role ids"]
-EMBED_TITLE: str = config["embed title"]
-EMBED_DESCRIPTION: str = config["embed description"]
-LOG_CHANNELS: dict = config["log channel"]
-timezone = ZoneInfo("America/Chicago")
 
 # ===== LOGGING =====
 handler = logging.FileHandler(filename="tickets.log", encoding="utf-8", mode="a")
@@ -39,7 +26,10 @@ class TicketOptions(discord.ui.View):
 
     @discord.ui.button(label="Delete Ticket 🎫", style=discord.ButtonStyle.red, custom_id="delete")
     async def delete_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.guild and interaction.guild.id in GUILD_IDS.values():
+        guild_ids: list[int] = []
+        for guild in config.guilds:
+            guild_ids.append(guild[1][2])
+        if interaction.guild and interaction.guild.id in guild_ids:
             guild_id = interaction.guild.id
         else:
             raise ValueError(
@@ -47,8 +37,7 @@ class TicketOptions(discord.ui.View):
             )
 
         guild = self.bot.get_guild(guild_id)
-        id_to_name: dict = {int(v): k for k, v in config["guild ids"].items()}
-        guild_log_channels: dict = LOG_CHANNELS[id_to_name.get(guild_id)]
+        guild_log_channels = config.log_channels[config.guilds[guild_id]]
         tech_channel = self.bot.get_channel(guild_log_channels["tech"])
         if not isinstance(tech_channel, discord.TextChannel):
             raise TypeError("Tech Support channel is not a TextChannel!")
@@ -85,7 +74,7 @@ class TicketOptions(discord.ui.View):
                 await interaction.response.send_message("Failed to generate transcript!", ephemeral=True)
                 logging.error("[TICKETTING SYSTEM] Transcript exporter returned None or Empty string")
                 return
-            
+
             # Ensure transcript is a string
             if isinstance(transcript, bytes):
                 transcript = transcript.decode("utf-8")
