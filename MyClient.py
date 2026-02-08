@@ -10,7 +10,6 @@ import discord
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
-import utils.read_Yaml as RY
 from data.gids import roles_per_gid
 from handlers.reactions import reaction_handler
 from loops.birthdayloop.birthdayLoop import BirthdayLoop
@@ -18,6 +17,7 @@ from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
+from utils.ticketing import TicketingConfig
 
 # ======= Logging/Env =======
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -31,11 +31,11 @@ assert token, "No token found in envvars. Impossible to continue."
 CONFIG_PATH = Path(r"config.YAML")
 TICKET_CONFIG_PATH = Path(r"ticketingSystem\ticketing.yaml")
 
-ticket_config = RY.read_config(CONFIG=TICKET_CONFIG_PATH)
 prefix: str = "?"
 
 try:
     config = AppConfig(CONFIG_PATH)
+    ticket_config = TicketingConfig(TICKET_CONFIG_PATH)
 except ValidationError as e:
     logging.critical("Unable to load config. Inner Exception:\n{e}")
     raise e
