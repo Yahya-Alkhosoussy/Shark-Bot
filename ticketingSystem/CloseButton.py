@@ -1,6 +1,6 @@
 import discord
 
-from ticketingSystem.TicketOptions import TicketOptions
+import ticketingSystem.TicketOptions as t
 
 
 # First button for the ticket
@@ -17,7 +17,7 @@ class CloseButton(discord.ui.View):
             color=discord.colour.Color.green(),
         )
         await interaction.response.send_message(
-            embed=embed, view=TicketOptions(bot=self.bot)
+            embed=embed, view=t.TicketOptions(bot=self.bot)
         )  # This wil show the user the Ticket Options view
         assert interaction.message
         await interaction.message.edit(view=self)

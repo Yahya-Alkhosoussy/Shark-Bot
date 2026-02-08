@@ -3,11 +3,23 @@ import io
 import logging
 import sqlite3
 from datetime import datetime
+from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import chat_exporter  # pip install chat-exporter
 import discord
+from pydantic import ValidationError
 
-from ticketingSystem.MyView import config, timezone
+from utils.ticketing import TicketingConfig
+
+# ===== CONFIG =====
+try:
+    config = TicketingConfig(Path(r"ticketingSystem\ticketing.yaml"))
+except ValidationError as e:
+    logging.critical("Unable to load config. Inner Exception:\n{e}")
+    raise e
+timezone = ZoneInfo("America/Chicago")
+
 
 conn = sqlite3.connect("databases/Ticket_System.db")
 cur = conn.cursor()

@@ -2,14 +2,14 @@ import asyncio
 import datetime as dt
 import logging
 import sqlite3
-from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import discord
-from pydantic import ValidationError
 
-from ticketingSystem.CloseButton import CloseButton
-from utils.ticketing import TicketingConfig
+from ticketingSystem.CloseButton import CloseButton, t
+
+# ===== CONFIG AND TIMEZONE =====
+config = t.config
+timezone = t.timezone
 
 # ===== LOGGING =====
 handler = logging.FileHandler(filename="tickets.log", encoding="utf-8", mode="a")
@@ -19,14 +19,6 @@ root_logger.addHandler(handler)
 
 conn = sqlite3.connect("databases/Ticket_System.db")
 cur = conn.cursor()
-
-# ===== CONFIG =====
-try:
-    config = TicketingConfig(Path(r"ticketingSystem\ticketing.yaml"))
-except ValidationError as e:
-    logging.critical("Unable to load config. Inner Exception:\n{e}")
-    raise e
-timezone = ZoneInfo("America/Chicago")
 
 
 class MyView(discord.ui.View):
