@@ -70,11 +70,14 @@ class TicketSystem:
         """
 
         embed = discord.Embed(
-            title=config["embed title"], description=config["embed description"], colour=discord.colour.Color.blue()
+            title="Support ticket",
+            description="This is where you can raise a ticket for tech support or access mod mail",
+            colour=discord.colour.Color.blue(),
         )
 
         message = await channel.send(embed=embed, view=MyView(bot=self.bot))
         logging.info("[TICKETING SYSTEM] Support Ticket Sent")
         guild_name = id_to_name[channel.guild.id]
         MESSAGE_IDS[guild_name] = message.id
-        # save_config(CONFIG_PATH, config) ## DISABLED because incompatible with Config class updates, and there is nothing that changes the config in this function anyway?!
+        # save_config(CONFIG_PATH, config) ## DISABLED because incompatible with Config class updates, and there is nothing that
+        # changes the config in this function anyway?!
