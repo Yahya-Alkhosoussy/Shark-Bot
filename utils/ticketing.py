@@ -228,7 +228,9 @@ class TicketingConfig(BaseConfig):
             self.embed_messages[guild_name] = message_id
             if self.path is not None:
                 temp = Path(self.path).with_suffix(".tmp")
-                temp.write_text(yaml.safe_dump(self.model_dump(), sort_keys=False, allow_unicode=True), encoding=("UTF-8"))
+                temp.write_text(
+                    yaml.safe_dump(self.model_dump(exclude={"path"}), sort_keys=False, allow_unicode=True), encoding=("UTF-8")
+                )
                 temp.replace(Path(self.path))
             return True
         else:
