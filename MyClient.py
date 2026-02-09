@@ -95,28 +95,37 @@ class MyClient(discord.Client):
                     else:
                         logging.warning(f"Failed to add user with member {member}, returned None")
 
-            if not self._ticket_setup_done[guild_name]:
-                print("set up not done")
-                await self.ticket_system.setup_hook()
-                logging.info("[TICKETING SYSTEM] Ticket system set up, checking for messages now")
+            for key, value in self._ticket_setup_done.items():
+                if key == config.guilds.get(guild_name):
+                    if not value:
+                        print("set up not done")
+                        await self.ticket_system.setup_hook()
+                        logging.info("[TICKETING SYSTEM] Ticket system set up, checking for messages now")
 
-                embed_message_ids = ticket_config["embed message ids"]
-                if embed_message_ids and embed_message_ids[guild_name] == 0:
-                    channel_id = ticket_config["ticket channels"][guild_name]
-                    if channel_id is not None or channel_id != 0:
-                        channel = guild.get_channel(channel_id)
-                        if channel and isinstance(channel, discord.TextChannel):
-                            await self.ticket_system.send_ticket_panel(channel=channel)
-                        else:
-                            logging.warning(f"[TICKET SYSTEM] Channel {channel_id} does not exist or is not a TextChannel")
-                            return
-                    else:
-                        logging.warning(f"[TICKET SYSTEM] Channel ID for {guild_name} is either None or Zero!")
-                        return
+                        embed_message_ids = ticket_config.embed_messages
+                        if embed_message_ids and embed_message_ids[guild_name] == 0:
+                            channel_id = ticket_config.ticket_channels[guild_name]
+                            if channel_id is not None or channel_id != 0:
+                                channel = guild.get_channel(channel_id)
+                                if channel and isinstance(channel, discord.TextChannel):
+                                    await self.ticket_system.send_ticket_panel(channel=channel)
+                                else:
+                                    logging.warning(
+                                        f"[TICKET SYSTEM] Channel {channel_id} does not exist or is not a TextChannel"
+                                    )
+                                    return
+                            else:
+                                logging.warning(f"[TICKET SYSTEM] Channel ID for {guild_name} is either None or Zero!")
+                                return
 
-                    logging.info(f"[TICKETING SYSTEM] Ticket embed sent to {guild_name}")
+                            logging.info(f"[TICKETING SYSTEM] Ticket embed sent to {guild_name}")
 
-                self._ticket_setup_done[guild_name] = True
+                            self._ticket_setup_done[key] = True
+                            print(config.set_up_done)
+                            print(self._ticket_setup_done)
+                            config.saveConfig()
+                            print("After saving:")
+                            print(config.set_up_done)
 
     # ======= ANNOUNCE ARRIVAL =======
     async def on_member_join(self, member: discord.Member):
