@@ -26,6 +26,7 @@ class DiscordNamedObjTypes(Enum):
     CATEGORY_ID = 8
     EMBED_TITLE = 9
     EMBED_DESCRIPTION = 10
+    PRICE = 11
 
 
 class DiscordNamedObj(ABC, tuple, Generic[DiscordNamedObjType]):
@@ -378,8 +379,6 @@ class AppConfig(BaseConfig):
     channels: dict[str, ChannelSet] = Field(default_factory=dict, serialization_alias="channels")
     guild_role_messages: dict[Guild, RoleMessageSet] = Field(default_factory=dict, serialization_alias="guild role messages")
     birthday_message: dict[str, bool] = Field(default_factory=dict, serialization_alias="birthday message")
-    boost: bool = False
-    boost_amount: int = Field(default=0, serialization_alias="boost amount")
     time_per_loop: int = Field(default=0, serialization_alias="time per loop")
     set_up_done: dict[Guild, bool] = Field(default_factory=dict, serialization_alias="set up done")
 
@@ -438,12 +437,6 @@ class AppConfig(BaseConfig):
                         self.birthday_message = {
                             key: value for key, value in confvalue.items() if isinstance(key, str) and isinstance(value, bool)
                         }
-                case "boost":
-                    if confvalue and isinstance(confvalue, bool):
-                        self.boost = confvalue
-                case "boost amount":
-                    if confvalue and isinstance(confvalue, int):
-                        self.boost_amount = confvalue
                 case "time per loop":
                     if confvalue and isinstance(confvalue, int):
                         self.time_per_loop = confvalue

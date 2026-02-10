@@ -95,8 +95,6 @@ birthday message:
   October: false
   November: false
   December: false
-boost: false
-boost amount: 3
 time per loop: 1800
 set up done:
   test server: true
