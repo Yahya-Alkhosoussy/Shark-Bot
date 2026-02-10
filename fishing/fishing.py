@@ -43,6 +43,9 @@ class Fishing:
             return
         # print(nets)
         channel = message.channel
+        if follow.content.strip().lower()[1:] not in owned_nets:
+            await channel.send("Net not found, defaulting to basic net. Fishing now!🎣")
+            net = "rope net"
         if follow.content.strip().lower()[1:] in owned_nets:
             # print("found it")
             if follow.content.strip().lower()[1:] in about_to_break and net_uses == 21:
@@ -79,9 +82,6 @@ class Fishing:
             net = follow.content.strip().lower()[1:]
         elif follow.content.strip().lower()[1:] == "none":
             await channel.send("Using basic net. Fishing now! 🎣")
-            net = "rope net"
-        else:
-            await channel.send("Net not found, defaulting to basic net. Fishing now!🎣")
             net = "rope net"
 
         fish_odds = sg.fishing_odds_fish(username=str(user), net_used=net)
