@@ -1,30 +1,27 @@
-guild ids:
+guilds:
   shark squad: 1273776575266951268
   test server: 1066090135839580231
 ticket channels:
   test server: 1446051942202609785
   shark squad: 1463075074394296341
-category ids:
+categories:
   test server:
     mod mail: 1446052298747805797
     tech: 1446052336349872184
   shark squad:
     mod mail: 1463517852299558932
     tech: 1463518059175350404
-role ids:
+roles:
   test server:
     mods: 1446052643935096894
     tech support: 1446052549596549141
   shark squad:
     mods: 1386628035591012393
     tech support: 1463081866109128734
-embed message ids:
+embed messages:
   test server: 1463520943354810461
   shark squad: 1463535754197073952
-embed title: Support ticket
-embed description: This is where you can raise a ticket for tech support or access
-  mod mail
-log channel:
+log channels:
   test server:
     mod mail: 1446462012157726730
     tech: 1446462012157726730

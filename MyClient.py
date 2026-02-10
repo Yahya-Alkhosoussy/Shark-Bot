@@ -10,7 +10,6 @@ import discord
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
-import utils.read_Yaml as RY
 from data.gids import roles_per_gid
 from handlers.reactions import reaction_handler
 from loops.birthdayloop.birthdayLoop import BirthdayLoop
@@ -18,6 +17,7 @@ from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
+from utils.ticketing import TicketingConfig
 
 # ======= Logging/Env =======
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -31,16 +31,16 @@ assert token, "No token found in envvars. Impossible to continue."
 CONFIG_PATH = Path(r"config.YAML")
 TICKET_CONFIG_PATH = Path(r"ticketingSystem\ticketing.yaml")
 
-ticket_config = RY.read_config(CONFIG=TICKET_CONFIG_PATH)
 prefix: str = "?"
 
 try:
     config = AppConfig(CONFIG_PATH)
+    ticket_config = TicketingConfig(TICKET_CONFIG_PATH)
 except ValidationError as e:
     logging.critical("Unable to load config. Inner Exception:\n{e}")
     raise e
 
-GIDS: dict = {k: v.id for k, v in config.guilds}
+GIDS: dict[str, int] = {k: v.id for k, v in config.guilds}
 ROLES: dict = config.roles
 
 
@@ -95,34 +95,44 @@ class MyClient(discord.Client):
                     else:
                         logging.warning(f"Failed to add user with member {member}, returned None")
 
-            if not self._ticket_setup_done[guild_name]:
-                print("set up not done")
-                await self.ticket_system.setup_hook()
-                logging.info("[TICKETING SYSTEM] Ticket system set up, checking for messages now")
+            for key, value in self._ticket_setup_done.items():
+                if key == config.guilds.get(guild_name):
+                    if not value:
+                        print("set up not done")
+                        await self.ticket_system.setup_hook()
+                        logging.info("[TICKETING SYSTEM] Ticket system set up, checking for messages now")
 
-                embed_message_ids = ticket_config["embed message ids"]
-                if embed_message_ids and embed_message_ids[guild_name] == 0:
-                    channel_id = ticket_config["ticket channels"][guild_name]
-                    if channel_id is not None or channel_id != 0:
-                        channel = guild.get_channel(channel_id)
-                        if channel and isinstance(channel, discord.TextChannel):
-                            await self.ticket_system.send_ticket_panel(channel=channel)
-                        else:
-                            logging.warning(f"[TICKET SYSTEM] Channel {channel_id} does not exist or is not a TextChannel")
-                            return
-                    else:
-                        logging.warning(f"[TICKET SYSTEM] Channel ID for {guild_name} is either None or Zero!")
-                        return
+                        embed_message_ids = ticket_config.embed_messages
+                        if embed_message_ids and embed_message_ids[guild_name] == 0:
+                            channel_id = ticket_config.ticket_channels[guild_name]
+                            if channel_id is not None or channel_id != 0:
+                                channel = guild.get_channel(channel_id)
+                                if channel and isinstance(channel, discord.TextChannel):
+                                    await self.ticket_system.send_ticket_panel(channel=channel)
+                                else:
+                                    logging.warning(
+                                        f"[TICKET SYSTEM] Channel {channel_id} does not exist or is not a TextChannel"
+                                    )
+                                    return
+                            else:
+                                logging.warning(f"[TICKET SYSTEM] Channel ID for {guild_name} is either None or Zero!")
+                                return
 
-                    logging.info(f"[TICKETING SYSTEM] Ticket embed sent to {guild_name}")
+                            logging.info(f"[TICKETING SYSTEM] Ticket embed sent to {guild_name}")
 
-                self._ticket_setup_done[guild_name] = True
+                            self._ticket_setup_done[key] = True
+                            print(config.set_up_done)
+                            print(self._ticket_setup_done)
+                            config.saveConfig()
+                            print("After saving:")
+                            print(config.set_up_done)
 
     # ======= ANNOUNCE ARRIVAL =======
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
         welcome_channels = config.channels["welcome"]
-        # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file, so for consistency we use the one on the YAML
+        # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file,
+        # so for consistency we use the one on the YAML
         guild_name: str = config.guilds[guild.id]
         channel_id = welcome_channels[guild_name]
         if not channel_id:
@@ -140,7 +150,7 @@ class MyClient(discord.Client):
             chatting_channel = guild.get_channel(config.channels["chatting"][guild_name])
 
             message = f"""_Tiny fry drifting in sparkling nursery currents. The water shimmers around you, catching the first hints of ocean magic._
-Chat, explore, and let your fins grow — your journey through the glittering ocean has just begun. You'll find more to explore at level 1. {member.mention} """
+Chat, explore, and let your fins grow — your journey through the glittering ocean has just begun. You'll find more to explore at level 1. {member.mention} """  # noqa: E501
             if chatting_channel and isinstance(chatting_channel, discord.TextChannel):
                 await chatting_channel.send(message)
             await self.leveling_loop.add_users(user=member)
@@ -150,7 +160,8 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
     async def on_member_remove(self, member):
         guild = member.guild
         welcome_channels = config.channels["welcome"]
-        # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file, so for consistency we use the one on the YAML
+        # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file,
+        # so for consistency we use the one on the YAML
         guild_name: str = config.guilds[guild.id]
         channel_id = welcome_channels.get(guild_name)
         if channel_id is None:
@@ -215,7 +226,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 5. Protect your privacy. Do not share Personally Identifiable Information (i.e phone number, snapchat, etc.).
 6. Outside issues stay outside. Shark & the mods cannot moderate what happens beyond the server — report or block as needed.
 7. Be an adult (18+). Act with maturity and respect.
-            """
+            """  # noqa: E501
             rules_part2 = """
                 8. No racism, bigorty or "jokes" about them. Dark humor is fine but read the room - do not use dark humor to hide racism or hatefulness.
 9. Respect others' space. You'll get the same in return.
@@ -229,13 +240,13 @@ A few notes:
     - Tag requests: If you want updates, select the Shark Update options <#1336429573608574986> — that's how I make sure no one's left out.
 - If shark ever misremembers something about you, it is never intentional. She cares deeply about this community — thank you for your understanding as we keep improving it together.
 
-            """
+            """  # noqa: E501
 
             await message.reply(rules_part1)
             await message.reply(rules_part2)
 
         if message.content.startswith(prefix + "describe game"):
-            send = f"The shark catch game is a game where once every {config.time_per_loop / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"
+            send = f"The shark catch game is a game where once every {config.time_per_loop / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"  # noqa: E501
             await message.reply(send)
 
         if message.content.startswith(prefix + "help"):
@@ -252,7 +263,7 @@ Shark Catch Game:
 7. `?coins` - Tells you the amount of coins you currently have.
 8. `?buy net` - Use this when trying to buy a new net!
 9. `?describe game` - Gives a short description of the game.
-            """
+            """  # noqa: E501
             await message.reply(send)
 
         if message.content.startswith(prefix + "game on"):
@@ -278,7 +289,7 @@ Shark Catch Game:
             owned_nets, about_to_break, broken, net_uses = sg.get_net_availability(str(user))
 
             await message.reply(
-                "Which net do you want to use?🎣 Type `?net name` to use it or send `cancel` to cancel! If you do not own any nets send `?none` to use a basic net. (You have 30 seconds to send one of the two)"
+                "Which net do you want to use?🎣 Type `?net name` to use it or send `cancel` to cancel! If you do not own any nets send `?none` to use a basic net. (You have 30 seconds to send one of the two)"  # noqa: E501
             )
 
             def check(m: discord.Message):
@@ -305,19 +316,19 @@ Shark Catch Game:
                 # print("found it")
                 if follow.content.strip().lower()[1:] in about_to_break and net_uses == 21:
                     await message.reply(
-                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left"
+                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left"  # noqa: E501
                     )
                 elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 16:
                     await message.reply(
-                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 3 more of the same net left"
+                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 3 more of the same net left"  # noqa: E501
                     )
                 elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 11:
                     await message.reply(
-                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 2 more of the same net left"
+                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 2 more of the same net left"  # noqa: E501
                     )
                 elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 6:
                     await message.reply(
-                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 1 more of the same net left"
+                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 1 more of the same net left"  # noqa: E501
                     )
                 elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 1:
                     await message.reply("WARNING: Net is about to break, 1 more use left. This is your last net")
@@ -358,7 +369,7 @@ Shark Catch Game:
                     sg.create_dex(str(user), names[rand_idx], time_caught, net, "normal", net_uses)
                     coin = sg.reward_coins(str(user), shark=True, rare="normal", shark_name=names[rand_idx])
                     await channel.send(
-                        f"Oh lord, you have caught a shark that has randomly stumbled it's way here! 🦈 Congratulations on the {names[rand_idx]}. You have been given {coin} coins."
+                        f"Oh lord, you have caught a shark that has randomly stumbled it's way here! 🦈 Congratulations on the {names[rand_idx]}. You have been given {coin} coins."  # noqa: E501
                     )
                 elif catch_type <= 25:  # large fish 20% chance
                     rarity = random.randint(1, 100)
@@ -598,7 +609,7 @@ Shark Catch Game:
             await message.reply("done")
 
         if message.content.startswith(prefix + "buy net"):
-            send = "Choose a net to buy: (choose within the next 30 seconds) \n To choose type the number of the net or type cancel to cancel \n"
+            send = "Choose a net to buy: (choose within the next 30 seconds) \n To choose type the number of the net or type cancel to cancel \n"  # noqa: E501
 
             nets, prices = sg.get_nets()
 

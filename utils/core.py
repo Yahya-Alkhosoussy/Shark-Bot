@@ -21,6 +21,11 @@ class DiscordNamedObjTypes(Enum):
     CHANNEL = 3
     ROLE_MESSAGE = 4
     LEVEL_ROLE = 5
+    TICKET_ROLE = 6
+    TICKET_CHANNEL = 7
+    CATEGORY_ID = 8
+    EMBED_TITLE = 9
+    EMBED_DESCRIPTION = 10
 
 
 class DiscordNamedObj(ABC, tuple, Generic[DiscordNamedObjType]):
@@ -368,15 +373,17 @@ class BaseConfig(ABC, BaseModel):
 
 
 class AppConfig(BaseConfig):
-    guilds: GuildSet = Field(default_factory=lambda: GuildSet([]))
-    roles: dict[str, RoleSet] = Field(default_factory=dict)
-    channels: dict[str, ChannelSet] = Field(default_factory=dict)
-    guild_role_messages: dict[Guild, RoleMessageSet] = Field(default_factory=dict)
-    birthday_message: dict[str, bool] = Field(default_factory=dict)
+    guilds: GuildSet = Field(default_factory=lambda: GuildSet([]), serialization_alias="guilds")
+    roles: dict[str, RoleSet] = Field(default_factory=dict, serialization_alias="roles")
+    channels: dict[str, ChannelSet] = Field(default_factory=dict, serialization_alias="channels")
+    guild_role_messages: dict[Guild, RoleMessageSet] = Field(default_factory=dict, serialization_alias="guild role messages")
+    birthday_message: dict[str, bool] = Field(default_factory=dict, serialization_alias="birthday message")
     boost: bool = False
-    boost_amount: int = 0
-    time_per_loop: int = 0
-    set_up_done: dict[Guild, bool] = Field(default_factory=dict)
+    boost_amount: int = Field(default=0, serialization_alias="boost amount")
+    time_per_loop: int = Field(default=0, serialization_alias="time per loop")
+    set_up_done: dict[Guild, bool] = Field(default_factory=dict, serialization_alias="set up done")
+
+    model_config = ConfigDict(serialize_by_alias=True)
 
     def __init__(self, confPath: Path, **data):
         super().__init__(confPath=confPath, **data)

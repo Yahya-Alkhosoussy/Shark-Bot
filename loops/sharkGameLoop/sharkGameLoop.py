@@ -20,7 +20,7 @@ class SharkLoops:
         self.check_interval = self.load_interval()
 
     def is_running(self, guild_id: int) -> bool:
-        loop = self._loops[guild_id]
+        loop = self._loops.get(guild_id)  # returns none if it doesn't exist
         return bool(loop and loop.is_running())
 
     def load_interval(self) -> int:
@@ -72,14 +72,17 @@ class SharkLoops:
                 rarity = "normal"
 
             guild_name: str = self.config.guilds[guild_id]
-            channel_id = self.config.get_channel_id(guild_name=guild_name, channel="game")
-            # print(channel_id)
-            channel = c.get_channel(channel_id)
-            # print(channel)
-            if channel and isinstance(channel, discord.TextChannel):
-                await channel.send("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
-            else:
-                raise TypeError(f"Request for Channel ID {channel_id} returned a non-text channel or None")
+            try:
+                channel_id = self.config.get_channel_id(guild_name=guild_name, channel="game")
+                channel = c.get_channel(channel_id)
+                if channel and isinstance(channel, discord.TextChannel):
+                    await channel.send("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
+                else:
+                    print(f"channel could be None, here's channel: {channel} and here's ID {channel_id}")
+                    raise TypeError(f"Request for Channel ID {channel_id} returned a non-text channel or None")
+            except KeyError as e:
+                print("Hey! I got a key error for ya: ", e)
+                raise e
 
             def check(m: discord.Message):
                 return m.channel.id == channel_id and not m.author.bot and m.content.lower().startswith("?catch")

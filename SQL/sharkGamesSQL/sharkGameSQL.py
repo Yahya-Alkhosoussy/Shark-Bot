@@ -264,7 +264,7 @@ def add_rarity():
 
 
 def get_shark_names(rarity: SharkRarity):
-    temp = cursor.execute("SELECT name FROM sharks WHERE rarity = ?", (rarity,))
+    temp = cursor.execute("SELECT name FROM sharks WHERE rarity = ?", (rarity.value,))
 
     names = []
     for item in temp:

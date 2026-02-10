@@ -1,13 +1,11 @@
 import logging
 import sqlite3
-from pathlib import Path
 
 import discord
 
 from ticketingSystem.CloseButton import CloseButton
-from ticketingSystem.MyView import MyView
+from ticketingSystem.MyView import MyView, config
 from ticketingSystem.TicketOptions import TicketOptions
-from utils.read_Yaml import read_config
 
 # ===== LOGGING =====
 handler = logging.FileHandler(filename="tickets.log", encoding="utf-8", mode="a")
@@ -15,11 +13,7 @@ root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
 root_logger.addHandler(handler)
 
-# ===== CONFIG =====
-CONFIG_PATH = Path(r"ticketingSystem\ticketing.yaml")
-config = read_config(CONFIG_PATH)
-MESSAGE_IDS = config["embed message ids"]
-id_to_name: dict = {int(v): k for k, v in config["guild ids"].items()}
+# ===== DATA BASE CONNECTION =====
 conn = sqlite3.connect("databases/Ticket_System.db")
 cur = conn.cursor()
 
@@ -70,11 +64,12 @@ class TicketSystem:
         """
 
         embed = discord.Embed(
-            title=config["embed title"], description=config["embed description"], colour=discord.colour.Color.blue()
+            title="Support ticket",
+            description="This is where you can raise a ticket for tech support or access mod mail",
+            colour=discord.colour.Color.blue(),
         )
 
         message = await channel.send(embed=embed, view=MyView(bot=self.bot))
         logging.info("[TICKETING SYSTEM] Support Ticket Sent")
-        guild_name = id_to_name[channel.guild.id]
-        MESSAGE_IDS[guild_name] = message.id
-        # save_config(CONFIG_PATH, config) ## DISABLED because incompatible with Config class updates, and there is nothing that changes the config in this function anyway?!
+        guild_name = config.guilds[channel.guild.id]
+        config.save_message_id(guild_name, message.id)
