@@ -4,7 +4,10 @@ import discord
 def roles_per_gid(gids: dict[str, int], roles: dict[str, dict[str, int]]):
     ROLES_PER_GUILD: dict[int, dict[str, dict[discord.PartialEmoji, int]]] = {
         gids["test server"]: {
-            "colour": {discord.PartialEmoji(name="🩵"): roles["colour"]["cyan"]},
+            "colour": {
+                discord.PartialEmoji(name="🩵"): roles["colour"]["cyan"],
+                discord.PartialEmoji(name="🧡"): roles["colour"]["orange"],
+            },
             "general": {discord.PartialEmoji(name="❤️"): roles["general"]["red"]},
             "test": {discord.PartialEmoji(name="💚"): roles["test"]["green"]},
         },
