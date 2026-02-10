@@ -253,16 +253,21 @@ A few notes:
             send = """Thank you for asking for help! Here are my commands:
 General:
 1. `?help` - Shows all commands.
+2. `?rules` - Show cases all the rules
+3. `?hello` - The bot greets you :>
 Shark Catch Game:
-1. `?game on` - Start's shark catch game.
-2. `?get dex` - Shows all the sharks you caught and how many you've caught.
-3. `?get dex detailed` - Sends you your detailed dex into your DMs.
-4. `?my nets` - Shows you all the nets you own.
-5. `?catch` - Use this when trying to catch a shark! This will use the default net with a low chance of success
-6. `?catch [net name]` - Use this when trying to use a specific net. If you enter a net you do not own it will ignore that net and use the basic one.
-7. `?coins` - Tells you the amount of coins you currently have.
-8. `?buy net` - Use this when trying to buy a new net!
-9. `?describe game` - Gives a short description of the game.
+1. `?get dex` - Shows all the sharks you caught and how many you've caught.
+2. `?detailed dex ` - Sends you your detailed dex into your DMs.
+3. `?my nets` - Shows you all the nets you own.
+4. `?catch` - Use this when trying to catch a shark! This will use the default net with a low chance of success
+5. `?catch [net name]` - Use this when trying to use a specific net. If you enter a net you do not own it will ignore that net and use the basic one.
+6. `?coins` - Tells you the amount of coins you currently have.
+7. `?buy net` - Use this when trying to buy a new net!
+8. `?describe game` - Gives a short description of the game.
+9. `?fish` - Starts fishing and asks you for a net to use.
+10. `?my baits` - Shows you all the baits you own.
+11. `?[bait name]` - Starts fishing with the bait of your choice.
+12. `?buy bait` - Use this when trying to buy bait!
             """  # noqa: E501
             await message.reply(send)
 
