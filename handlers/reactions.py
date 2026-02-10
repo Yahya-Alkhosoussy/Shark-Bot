@@ -127,6 +127,10 @@ class reaction_handler:
 
     # ======= REACTION ROLES ADD ROLE =======
     async def on_raw_reaction_add_internal(self, payload: discord.RawReactionActionEvent):
+        if payload.member is not None and self.BOT.user is not None:
+            if payload.member.id == self.BOT.user.id:
+                return  # It's the bot's reaction, just ignore
+
         gid = payload.guild_id
 
         if gid is None:
