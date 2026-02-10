@@ -413,9 +413,7 @@ def get_net_availability(username: str):
     broken = []
     i = 0
     try:
-        print("Get net availability:")
         for nets in all_nets[0]:
-            print(f"{nets}: i={i}")
             if nets == 0:
                 i += 1
             else:
@@ -534,7 +532,6 @@ def remove_net_use(username: str, net: str, net_uses: int):
     if row is not None:
         rowid = row[0]
         cursor.execute(f"UPDATE '{username} dex' SET net_uses={net_uses} WHERE rowid = {rowid}")
-        print("removed 1 net use")
         connection.commit()
 
 
@@ -547,9 +544,7 @@ def is_net_available(username: str, net: str):
         return False
     i = 0
     try:
-        print("is net available:")
         for nets in all_nets[0]:
-            print(nets)
             if nets == 0:
                 i += 1
             else:
@@ -684,8 +679,6 @@ def buy_net(username: str, net: int):
                 row: tuple = (None, time_now, None, None, net_to_buy, coins - price[-1], None, None, 5)
                 cursor.execute(f"INSERT INTO '{username} dex' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
             connection.commit()
-            for row in cursor.execute(f"SELECT * FROM '{username} nets'"):
-                print(f"DEBUG after buying {net_to_buy}: {row}")
             logging.info("[SHARK GAME SQL] Net bought successfully!")
             return success, net_to_buy, None  # reason
         elif not is_net_available(username, net_to_buy) and bundle:
