@@ -4,12 +4,6 @@ import logging
 import sqlite3
 from enum import Enum
 
-# ======= Logging =======
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.INFO)
-root_logger.addHandler(handler)
-
 with open("listofsharks.json", "r", encoding="utf-8") as file:
     list_of_sharks: dict = json.load(file)
 

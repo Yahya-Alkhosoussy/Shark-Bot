@@ -2,12 +2,6 @@ import logging
 import sqlite3
 from enum import Enum
 
-# ====== Logging ======
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.INFO)
-root_logger.addHandler(handler)
-
 connection = sqlite3.connect("databases/leveling_shark.db")
 cur = connection.cursor()
 
