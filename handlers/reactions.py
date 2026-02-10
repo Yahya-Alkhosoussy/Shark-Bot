@@ -43,21 +43,21 @@ class reaction_handler:
             # print("current mapping: ",role_mapping)
             # print(f"emoji: ",role_mapping)
 
-            message = None
-            try:
-                message_id = react_role_messages[rr_message.name]
-                if isinstance(channel, discord.TextChannel):
-                    message = await channel.fetch_message(message_id)
-                else:
-                    raise TypeError("[RR] cannot fetch messages from a non-text channel")
-            except (discord.NotFound, discord.Forbidden, discord.HTTPException, TypeError) as e:
-                logging.error(
-                    f"[RR] could not fetch existing react-roles message {rr_message.name} in {guild_name}\nInner Exception: {e}"
-                )
-                continue
-
             if react_role_messages[rr_message.name] != 0:
                 logging.info(f"There is already a react roles message of {rr_message} for {guild_name}")
+                message = None
+                try:
+                    message_id = react_role_messages[rr_message.name]
+                    if isinstance(channel, discord.TextChannel):
+                        message = await channel.fetch_message(message_id)
+                    else:
+                        raise TypeError("[RR] cannot fetch messages from a non-text channel")
+                except (discord.NotFound, discord.Forbidden, discord.HTTPException, TypeError) as e:
+                    logging.error(
+                        f"[RR] could not fetch existing react-roles message {rr_message.name} in {guild_name}\nInner Exception: {e}"
+                    )
+                    continue
+
                 if channel is None:
                     logging.error(f"[RR] No valid channel configured for {guild_name}")
                     continue  # Keep original flow
