@@ -509,49 +509,48 @@ Shark Catch Game:
                 sg.remove_net_use(str(user), net, net_uses - 1)
 
         if message.content.startswith(prefix + "get dex"):
-            basic_dex = sg.get_basic_dex(str(user))
+            basic_dex = sg.get_basic_dex(str(user.name))
             (dex, coins) = basic_dex if basic_dex else (None, None)
 
             if dex is None:
-                await message.reply("You have not caught any sharks yet! You also have 0 coins")
+                await message.reply("You have not caught any sharks yet!")
             else:
-                message_1 = "You have caught these sharks: \n"
-                # back ups in case of the 2000 character limit
-                message_2: str = ""
-                message_3: str = ""
+                all_messages: list[str] = []
+                messages = "You have caught these sharks: \n"
 
+                i = 0
+                amount_of_sharks = 0
                 for shark in dex:
+                    i += 1
                     s = "s" if dex[shark] > 1 else ""
+                    amount_of_sharks += dex[shark]
                     string = f"{dex[shark]} {shark}{s} 🦈 \n"
-                    if len(message_1 + string) < 2000:
-                        message_1 += string
-                    elif len(message_2 + string) < 2000:
-                        message_2 += string
+                    if len(messages + string) < 2000:
+                        messages += string
                     else:
-                        message_3 += string
-
-                if len(message_2) == 0:
-                    message_1 += f"You also have {coins or 0} coins"
-                elif len(message_3) == 0:
-                    message_2 += f"You also have {coins or 0} coins"
+                        all_messages.append(messages)
+                        messages = ""
+                last_message_to_append: str = (
+                    f"That's a total of {amount_of_sharks} shark{'s' if i > 1 else ''}!\nYou also have {coins or 0} coins"  # noqa: E501
+                )
+                if len(messages + last_message_to_append) < 2000:
+                    messages += last_message_to_append
+                    all_messages.append(messages)
                 else:
-                    message_3 += f"You also have {coins or 0} coins"
-
-                await message.reply(message_1)
+                    all_messages.append(messages)
+                    all_messages.append(last_message_to_append)
+                await message.reply(all_messages[0])
                 channel = message.channel
-                if len(message_2) != 0:
-                    await channel.send(message_2)
-                if len(message_3) != 0:
-                    await channel.send(message_3)
+                if len(all_messages) > 1:
+                    for msg in all_messages:
+                        channel.send(msg)
 
-        if message.content.startswith(prefix + "get dex detailed"):
+        if message.content.startswith(prefix + "detailed dex"):
             dex = sg.get_dex(str(user))
 
             if dex:
-                message_1: str = "Here's your sharkdex: \n"
-                # back ups in case the 2000 character limit discord has is reached
-                message_2: str = ""
-                message_3: str = ""
+                all_messages: list[str] = []
+                messages: str = "Here's your sharkdex: \n"
 
                 index = 1
 
@@ -566,20 +565,18 @@ Shark Catch Game:
     coins balance: {item[sharks_index.COINS.value]} 🪙
 
     """
-                    if len(message_1 + string) < 2000:
-                        message_1 += string
-                    elif len(message_2 + string) < 2000:
-                        message_2 += string
+                    if len(messages + string) < 2000:
+                        messages += string
                     else:
-                        message_3 += string
+                        all_messages.append(messages)
+                        messages = ""
 
                     index += 1
+                if len(messages) != 0:
+                    all_messages.append(messages)
+                for msg in all_messages:
+                    await user.send(msg)
 
-                await user.send(message_1)
-                if len(message_2) != 0:
-                    await user.send(message_2)
-                if len(message_3) != 0:
-                    await user.send(message_3)
             else:
                 await user.send("You have not caught a shark so you have no dex, go catch sharks!")
 
