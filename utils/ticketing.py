@@ -14,7 +14,7 @@ class Guild(DiscordNamedObj):
     def __new__(cls, guildName: str, guildId: int):
         return super().__new__(cls, guildName, guildId, cls.objType)
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Self:
         new_instance = type(self)(deepcopy(self.name, memo), deepcopy(self.id, memo))
         memo[id(self)] = new_instance
         return new_instance
@@ -26,7 +26,7 @@ class TicketChannels(DiscordNamedObj):
     def __new__(cls, guildName: str, channelId: int):
         return super().__new__(cls, guildName, channelId, cls.objType)
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Self:
         new_instance = type(self)(deepcopy(self.name, memo), deepcopy(self.id, memo))
         memo[id(self)] = new_instance
         return new_instance
@@ -38,7 +38,7 @@ class CategoryIds(DiscordNamedObj):
     def __new__(cls, channelName: str, channelId: int):
         return super().__new__(cls, channelName, channelId, cls.objType)
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Self:
         new_instance = type(self)(deepcopy(self.name, memo), deepcopy(self.id, memo))
         memo[id(self)] = new_instance
         return new_instance
@@ -62,7 +62,7 @@ class EmbedMessages(DiscordNamedObj):
     def __new__(cls, guildName: str, messageId: int):
         return super().__new__(cls, guildName, messageId, cls.objType)
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Self:
         new_instance = type(self)(deepcopy(self.name, memo), deepcopy(self.id, memo))
         memo[id(self)] = new_instance
         return new_instance
@@ -74,7 +74,7 @@ class LogChannel(DiscordNamedObj):
     def __new__(cls, channelName: str, channelId: int):
         return super().__new__(cls, channelName, channelId, cls.objType)
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Self:
         new_instance = type(self)(deepcopy(self.name, memo), deepcopy(self.id, memo))
         memo[id(self)] = new_instance
         return new_instance
