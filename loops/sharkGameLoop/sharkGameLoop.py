@@ -113,8 +113,10 @@ class SharkLoops:
                     caught_users[msg.author.name] = msg
                     lists_of_after[msg.author.name] = after
                     # Send a message to the user if the net is not available after they send the `?catch` command.
-                    if not sg.is_net_available(user, after):
-                    	await channel.send(f"{user} you do not own {lists_of_after.get(user)}! Defaulting to rope net.")
+                    if not sg.is_net_available(msg.author.name, after):
+                        await channel.send(
+                            f"{msg.author.name} you do not own {lists_of_after.get(msg.author.name)}! Defaulting to rope net."
+                        )
 
             success: list = []
             coins: int = 0
@@ -130,19 +132,19 @@ class SharkLoops:
                         print(net_uses)
                         if net in about_to_break and net_uses == 21:
                             await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left"
+                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left"  # noqa: E501
                             )
                         elif net in about_to_break and net_uses == 16:
                             await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 3 more of the same net left"
+                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 3 more of the same net left"  # noqa: E501
                             )
                         elif net in about_to_break and net_uses == 11:
                             await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 2 more of the same net left"
+                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 2 more of the same net left"  # noqa: E501
                             )
                         elif net in about_to_break and net_uses == 6:
                             await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 1 more of the same net left"
+                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 1 more of the same net left"  # noqa: E501
                             )
                         elif net in about_to_break and net_uses == 1:
                             await channel.send(
