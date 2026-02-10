@@ -112,6 +112,9 @@ class SharkLoops:
                     # print(msg.author.name)
                     caught_users[msg.author.name] = msg
                     lists_of_after[msg.author.name] = after
+                    # Send a message to the user if the net is not available after they send the `?catch` command.
+                    if not sg.is_net_available(user, after):
+                    	await channel.send(f"{user} you do not own {lists_of_after.get(user)}! Defaulting to rope net.")
 
             success: list = []
             coins: int = 0
@@ -201,6 +204,8 @@ class SharkLoops:
                 for person in success:
                     if i < len(success):
                         people += f"{person}, "
+                    elif i - 1 == len(success):
+                        people += f"{person} and "
                     else:
                         people += f"{person}"
                 await channel.send(
