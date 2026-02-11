@@ -606,36 +606,29 @@ def buy_net(username: str, net: int):
     match net:
         case NetTypes.LEATHER_NET.value:
             net_to_buy = "leather net"
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.LEATHER_NET_5.value:
             net_to_buy = "leather net"
             bundle = True
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.GOLD_NET.value:
             net_to_buy = "gold net"
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.GOLD_NET_5.value:
             net_to_buy = "gold net"
             bundle = True
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.TITANIUM_NET.value:
             net_to_buy = "titanium net"
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.TITANIUM_NET_5.value:
             net_to_buy = "titanium net"
             bundle = True
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.NET_OF_DOOM.value:
             net_to_buy = "net of doom"
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.NET_OF_DOOM_5.value:
             net_to_buy = "net of doom"
             bundle = True
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case _:
             logging.info(f"[SHARK GAME SQL] {net} not found when prompted by {username}")
             reason = "I could not find the net you requested"
             return fail, None, reason  # net bought is None
+    logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
 
     for prices in cursor.execute(f"SELECT price FROM 'nets shop' WHERE net='{net_to_buy}'"):
         price.extend(prices)
