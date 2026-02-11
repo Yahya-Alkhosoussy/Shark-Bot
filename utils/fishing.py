@@ -34,7 +34,7 @@ class BaitSet(DiscordNamedObjSet):
 class FishingConfig(BaseConfig):
     boost: bool = False
     boost_amount: int = Field(default=0, serialization_alias="boost amount")
-    baits: BaitSet = Field(default_factory=BaitSet([]), serialization_alias="baits")
+    baits: BaitSet = Field(default_factory=lambda: BaitSet([]), serialization_alias="baits")
 
     model_config = ConfigDict(serialize_by_alias=True)
 
