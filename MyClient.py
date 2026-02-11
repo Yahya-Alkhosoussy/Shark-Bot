@@ -201,9 +201,6 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         if message.guild is None:
             await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
             return
-        elif message.content.startswith(prefix + "emoji"):
-            await message.reply(":ZeroTwoBonkbyliliiet112:")
-            return
 
         # leveling system messages
         if len(message.content) >= 10 and config.guilds[message.guild.id] == "shark squad":
@@ -211,6 +208,20 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "check level") and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.check_level(message)
+
+        if message.content.startswith(prefix + "update shop items"):
+            "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
+            try:
+                self.fishing.add_into_shop_internal(message=message)
+            except Exception as e:
+                await message.reply(str(e))
+
+        if message.content.startswith(prefix + "update shop prices"):
+            "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
+            try:
+                self.fishing.update_shop_prices_internal(message=message)
+            except Exception as e:
+                await message.reply(str(e))
 
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")

@@ -49,6 +49,22 @@ def set_up_shop():
     conn.commit()
 
 
+def add_to_shop(bait: str, price: int):
+    try:
+        cur.execute("INSERT OR IGNORE INTO baits_shop (name, price) VALUES (?, ?)", (price, bait))
+    except sqlite3.OperationalError as e:
+        raise Exception(f"Ran into an error trying to update the shop: {e}")
+    conn.commit()
+
+
+def update_shop_prices(bait: str, price: int):
+    try:
+        cur.execute("UPDATE baits_shop SET price=? WHERE name=?", (price, bait))
+    except sqlite3.OperationalError as e:
+        raise Exception(f"Ran into an error trying to update the shop: {e}")
+    conn.commit()
+
+
 def get_baits(username: str):
     """
     Returns available baits and the number of uses left.
@@ -75,3 +91,4 @@ def get_baits(username: str):
 
 cur.execute("INSERT OR IGNORE INTO baits (username, chum, mackerel) VALUES (?, ?, ?)", ("spiderbyte2007", 2, 15))
 get_baits("spiderbyte2007")
+print(cur.execute("SELECT * FROM baits_shop").fetchall())

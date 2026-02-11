@@ -2,11 +2,13 @@ import asyncio
 import datetime as dt
 import logging
 import random
+from pathlib import Path
 
 import discord
 
 import SQL.sharkGamesSQL.sharkGameSQL as sg
-from utils.core import AppConfig
+from SQL.fishingSQL.baits import add_to_shop, update_shop_prices
+from utils.fishing import FishingConfig
 
 
 class Fishing:
@@ -14,7 +16,8 @@ class Fishing:
         self.client = client
         super().__init__()
 
-    async def fish(self, message: discord.Message, config: AppConfig):
+    async def fish(self, message: discord.Message, bait: str | None = None):
+        config = FishingConfig(Path(r"fishing\fishing.yaml"))
         user = message.author
 
         owned_nets, about_to_break, broken, net_uses = sg.get_net_availability(str(user))
@@ -238,3 +241,149 @@ class Fishing:
             await channel.send("Unfortunate, you have not caught anything. 😞")
         if net != "rope net" and net is not None:
             sg.remove_net_use(str(user), net, net_uses - 1)
+
+    async def add_into_shop_internal(self, message: discord.Message):
+        await message.reply(
+            "Please send the name of the bait you want to add, you have 30 seconds to send it! (WARNING: ONLY THE NAME SHOULD BE SENT)"  # noqa: E501
+        )
+        channel = message.channel
+        await channel.send("Or cancel please send `?cancel`")
+
+        def check(m: discord.Message):
+            return m.author.id == message.author.id and m.channel.id == message.channel.id
+
+        try:
+            follow = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?update shop items`")
+            return
+
+        if follow.content.strip().lower == "?cancel":
+            await follow.reply("Cancelled.")
+            return
+
+        await follow.reply(
+            f"To confirm you want {follow.content} to be the name of the bait. Send `?confirm` to confirm and send anything else to cancel."  # noqa: E501
+        )
+
+        try:
+            follow_up = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await follow.reply("Timed out, try again with `?update shop items`")
+            return
+
+        if follow_up.content != "?confirm":
+            await follow_up.reply("Cancelled your request.")
+            return
+
+        await follow_up.reply(
+            f"Bait name will be {follow.content}. Send the price of the bait or send `?cancel` to cancel! You have 30 seconds!"
+        )
+        bait_name = follow.content
+        channel.send("Please only send the number!")
+        try:
+            follow_up_2 = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await follow_up.reply("Timed out, try again with `?update shop items`")
+            return
+
+        if follow_up_2.content == "?cancel":
+            await follow_up_2.reply("Cancelled your request.")
+            return
+
+        try:
+            await follow_up_2.reply(
+                f"{follow_up.content} will cost {int(follow_up_2.content)} coins, to confirm send `?confirm` and anything else to cancel"  # noqa E501
+            )
+        except ValueError as e:
+            raise f"Ran into an issue updating the shop items: {e}"
+
+        try:
+            follow_up_3 = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await follow_up_2.reply("Timed out, try again with `?update shop items`")
+            return
+
+        if follow_up_3.content != "?confirm":
+            await follow_up_3.reply("Cancelled your request.")
+
+        await follow_up_3.reply("Adding bait to shop...")
+        price = int(follow_up_2.content)
+        try:
+            add_to_shop(bait=bait_name, price=price)
+            await follow_up_3.reply("Bait added to the shop!")
+        except Exception as e:
+            raise e  # custom message from add_to_shop
+
+    async def update_shop_prices_internal(self, message: discord.Message):
+        await message.reply(
+            "Please send the name of the bait you want to edit the price of, you have 30 seconds to send it! (WARNING: ONLY THE NAME SHOULD BE SENT)"  # noqa: E501
+        )
+        channel = message.channel
+        await channel.send("Or cancel please send `?cancel`")
+
+        def check(m: discord.Message):
+            return m.author.id == message.author.id and m.channel.id == message.channel.id
+
+        try:
+            follow = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?update shop items`")
+            return
+
+        if follow.content.strip().lower == "?cancel":
+            await follow.reply("Cancelled.")
+            return
+
+        await follow.reply(
+            f"To confirm you want to edit the following bait: {follow.content}. Send `?confirm` to confirm and send anything else to cancel."  # noqa: E501
+        )
+
+        try:
+            follow_up = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await follow.reply("Timed out, try again with `?update shop items`")
+            return
+
+        if follow_up.content != "?confirm":
+            await follow_up.reply("Cancelled your request.")
+            return
+
+        await follow_up.reply(
+            f"Bait that will be edited is: {follow.content}. Send the price of the bait or send `?cancel` to cancel! You have 30 seconds!"  # noqa: E501
+        )
+        bait_name = follow.content
+        channel.send("Please only send the number!")
+        try:
+            follow_up_2 = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await follow_up.reply("Timed out, try again with `?update shop items`")
+            return
+
+        if follow_up_2.content == "?cancel":
+            await follow_up_2.reply("Cancelled your request.")
+            return
+
+        try:
+            await follow_up_2.reply(
+                f"{follow_up.content} will cost {int(follow_up_2.content)} coins, to confirm send `?confirm` and anything else to cancel"  # noqa E501
+            )
+        except ValueError as e:
+            raise f"Ran into an issue updating the shop items: {e}"
+
+        try:
+            follow_up_3 = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await follow_up_2.reply("Timed out, try again with `?update shop items`")
+            return
+
+        if follow_up_3.content != "?confirm":
+            await follow_up_3.reply("Cancelled your request.")
+
+        await follow_up_3.reply("Editing bait price in the shop...")
+        price = int(follow_up_2.content)
+        try:
+            update_shop_prices(bait=bait_name, price=price)
+            await follow_up_3.reply("Price updated in the shop!")
+        except Exception as e:
+            raise e  # custom message from update_shop_prices
