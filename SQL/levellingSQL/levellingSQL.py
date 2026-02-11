@@ -2,12 +2,6 @@ import logging
 import sqlite3
 from enum import Enum
 
-# ====== Logging ======
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.INFO)
-root_logger.addHandler(handler)
-
 connection = sqlite3.connect("databases/leveling_shark.db")
 cur = connection.cursor()
 
@@ -41,7 +35,7 @@ def check_level(username: str):
         level_up = True
         info[indicies.LEVEL.value] += 1
         info[indicies.EXP.value] = 0
-        info[indicies.UNTIL_NEXT_LEVEL.value] += calculate_xp_needed(username=username)
+        info[indicies.UNTIL_NEXT_LEVEL.value] = calculate_xp_needed(username=username)
         cur.execute(f"UPDATE level SET level={info[indicies.LEVEL.value]} WHERE username='{username}'")
         cur.execute(f"UPDATE level SET exp={info[indicies.EXP.value]} WHERE username='{username}'")
         cur.execute(f"UPDATE level SET until_next_level={info[indicies.UNTIL_NEXT_LEVEL.value]} WHERE username='{username}'")
@@ -57,135 +51,11 @@ def calculate_xp_needed(username: str) -> int:
     :param username: The user's username
     :type username: str
     """
-    level, xp_needed = cur.execute("SELECT level, until_next_level FROM level WHERE username=?", (username,)).fetchone()
+    xp_needed = cur.execute("SELECT until_next_level FROM level WHERE username=?", (username,)).fetchone()[0]
 
-    if level >= 0 and level <= 4:
-        xp_needed += 10
-    elif level > 4 and level <= 8:
-        xp_needed += 20
-    elif level > 8 and level <= 12:
-        xp_needed += 30
-    elif level > 12 and level <= 16:
-        xp_needed += 40
-    elif level > 16 and level <= 20:
-        xp_needed += 50
-    elif level > 20 and level <= 24:
-        xp_needed += 60
-    elif level > 24 and level <= 28:
-        xp_needed += 70
-    elif level > 28 and level <= 32:
-        xp_needed += 80
-    elif level > 32 and level <= 36:
-        xp_needed += 90
-    elif level > 36 and level % 4 == 0:
-        xp_needed += 100
+    xp_needed += 50
 
     return xp_needed
-
-
-"""
-The result of the function above:
-30
-40
-50
-60
-70
-90
-110
-130
-150
-180
-210
-240
-270
-310
-350
-390
-430
-480
-530
-580
-630
-690
-750
-810
-870
-940
-1010
-1080
-1150
-1230
-1310
-1390
-1470
-1560
-1650
-1740
-1830
-1830
-1830
-1830
-1930
-1930
-1930
-1930
-2030
-2030
-2030
-2030
-2130
-2130
-2130
-2130
-2230
-2230
-2230
-2230
-2330
-2330
-2330
-2330
-2430
-2430
-2430
-2430
-2530
-2530
-2530
-2530
-2630
-2630
-2630
-2630
-2730
-2730
-2730
-2730
-2830
-2830
-2830
-2830
-2930
-2930
-2930
-2930
-3030
-3030
-3030
-3030
-3130
-3130
-3130
-3130
-3230
-3230
-3230
-3230
-3330
-3330
-3330
-3330
-"""
 
 
 def get_info(username: str):
@@ -215,7 +85,7 @@ def add_user(username: str):
     :param username: The user's username
     :type username: str
     """
-    rows: tuple = (username, 0, 0, 30)
+    rows: tuple = (username, 0, 0, 50)
     cur.execute("INSERT OR IGNORE INTO level (username, level, exp, until_next_level) VALUES (?, ?, ?, ?)", rows)
     connection.commit()
     if cur.rowcount > 0:
@@ -268,6 +138,49 @@ def get_leaderboard():
         rows.extend(row)
     return rows
 
+
+def reset_levels():
+    cur.execute("SELECT * FROM level")
+    rows: list = cur.fetchall()
+    levels_gained: dict[str, int] = {}  # username: level
+    exp_gained: dict[str, int] = {}  # username: exp
+
+    for row in rows:
+        levels_gained[row[indicies.USERNAME.value]] = row[indicies.LEVEL.value]
+        exp_gained[row[indicies.USERNAME.value]] = row[indicies.EXP.value]
+    print(levels_gained)
+    print(exp_gained)
+    for user in levels_gained:
+        print("This is for user: ", user)
+        xp_from_levels = 30
+        for i in range(1, levels_gained[user]):
+            if i < 4:
+                xp_from_levels += xp_from_levels + 10
+            else:
+                xp_from_levels += xp_from_levels + 20
+            print(xp_from_levels)
+            exp_gained[user] += xp_from_levels
+        print("This is exp_gained after applying xp from levels: ", exp_gained[user])
+
+    list_of_levels = [50 * i for i in range(1, 100)]
+
+    for user in exp_gained:
+        print("This is for user: ", user)
+        level = 0
+        for i in range(0, exp_gained[user], 2):
+            if i == list_of_levels[level]:
+                level += 1
+        exp_gained[user] = exp_gained[user] - list_of_levels[level - 1]
+        print("reached level: ", level)
+        print("xp gained: ", exp_gained[user], "xp needed for next level: ", list_of_levels[level] - exp_gained[user])
+        cur.execute("UPDATE level SET level=? WHERE username=?", (level, user))
+        cur.execute("UPDATE level SET exp=? WHERE username=?", (exp_gained[user], user))
+        cur.execute("UPDATE level SET until_next_level=? WHERE username=?", (list_of_levels[level], user))
+        connection.commit()
+
+
+# reset_levels()
+print(cur.execute("SELECT * FROM level").fetchall())
 
 # add_user("spiderbyte2007")
 # add_to_level("spiderbyte2007", False, 2)
