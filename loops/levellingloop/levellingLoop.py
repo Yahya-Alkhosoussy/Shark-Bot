@@ -7,7 +7,7 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 
 import SQL.levellingSQL.levellingSQL as ls
-from utils.leveling import LevelingConfig, LevelRole, LevelRoleSet
+from utils.leveling import LevelingConfig, LevelRoleSet
 
 # ================== LOGGING AND CONFIG ===================
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -132,8 +132,32 @@ class levelingLoop:
     async def add_role(self, user: discord.Member):
         level, _, _, _ = ls.get_info(username=user.name)
 
-        level_role: LevelRole = ROLES_SHARK_SQUAD[level]
-        role = user.guild.get_role(level_role.id)
+        level_role_id = ROLES_SHARK_SQUAD[str(level)]
+        guild = user.guild
+        role = guild.get_role(level_role_id)
+        if level >= 5:
+            role_found = False
+            user_roles = user.roles
+            for role in user_roles:
+                if role.id == ROLES_SHARK_SQUAD["4"]:
+                    await user.remove_roles(guild.get_role(ROLES_SHARK_SQUAD["4"]))
+                elif role.id == ROLES_SHARK_SQUAD["3"]:
+                    await user.remove_roles(guild.get_role(ROLES_SHARK_SQUAD["3"]))
+                elif role.id == ROLES_SHARK_SQUAD["2"]:
+                    await user.remove_roles(guild.get_role(ROLES_SHARK_SQUAD["2"]))
+                elif role.id == ROLES_SHARK_SQUAD["1"]:
+                    await user.remove_roles(guild.get_role(ROLES_SHARK_SQUAD["1"]))
+                elif role.id == ROLES_SHARK_SQUAD["0"]:
+                    await user.remove_roles(guild.get_role(ROLES_SHARK_SQUAD["0"]))
+                elif role.id != ROLES_SHARK_SQUAD["5"]:
+                    continue
+                else:
+                    role_found = True
+            if role_found:
+                return
+            else:
+                role = guild.get_role(ROLES_SHARK_SQUAD["5"])
+
         if role is None:
             if level <= 5:
                 logging.warning(f"[LEVELLING SYSTEM] ROLE 'level {level}' is not registered for guild {user.guild.name}")
@@ -141,6 +165,7 @@ class levelingLoop:
 
         try:
             await user.add_roles(role)
+            await user.remove_roles(ROLES_SHARK_SQUAD[str(level - 1)])
             logging.info(f"Added role {role} to {user.name}")
         except discord.HTTPException:
             logging.error("No can do, HTTPException")
