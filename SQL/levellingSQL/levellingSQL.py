@@ -148,7 +148,10 @@ def reset_levels():
     for row in rows:
         levels_gained[row[indicies.USERNAME.value]] = row[indicies.LEVEL.value]
         exp_gained[row[indicies.USERNAME.value]] = row[indicies.EXP.value]
-        # cur.execute(f"UPDATE level SET level=0 WHERE username='{row[indicies.USERNAME.value]}'")
+    cur.execute(f"UPDATE level SET level=0 WHERE username='{row[indicies.USERNAME.value]}'")
+    cur.execute(f"UPDATE level SET exp=0 WHERE username='{row[indicies.USERNAME.value]}'")
+    cur.execute(f"UPDATE level SET until_next_level=0 WHERE username='{row[indicies.USERNAME.value]}'")
+    connection.commit()
     print(levels_gained)
     print(exp_gained)
     for user in levels_gained:
@@ -163,8 +166,25 @@ def reset_levels():
             exp_gained[user] += xp_from_levels
         print("This is exp_gained after applying xp from levels: ", exp_gained[user])
 
+    list_of_levels = [50 * i for i in range(1, 100)]
 
-reset_levels()
+    for user in exp_gained:
+        print("This is for user: ", user)
+        level = 0
+        for i in range(0, exp_gained[user], 2):
+            if i == list_of_levels[level]:
+                level += 1
+        exp_gained[user] = exp_gained[user] - list_of_levels[level - 1]
+        print("reached level: ", level)
+        print("xp gained: ", exp_gained[user], "xp needed for next level: ", list_of_levels[level] - exp_gained[user])
+        cur.execute("UPDATE level SET level=? WHERE username=?", (level, user))
+        cur.execute("UPDATE level SET exp=? WHERE username=?", (exp_gained[user], user))
+        cur.execute("UPDATE level SET until_next_level=? WHERE username=?", (list_of_levels[level], user))
+        connection.commit()
+
+
+# reset_levels()
+print(cur.execute("SELECT * FROM level").fetchall())
 
 # add_user("spiderbyte2007")
 # add_to_level("spiderbyte2007", False, 2)
