@@ -1,8 +1,2 @@
 boost: false
 boost amount: 3
-baits:
-  chum: 15
-  bait ball: 30
-  mackerel: 45
-  stingray: 60
-  barracuda: 75
