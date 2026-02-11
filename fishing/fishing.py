@@ -2,12 +2,11 @@ import asyncio
 import datetime as dt
 import logging
 import random
-from pathlib import Path
 
 import discord
 
 import SQL.sharkGamesSQL.sharkGameSQL as sg
-from utils.fishing import FishingConfig
+from utils.core import AppConfig
 
 
 class Fishing:
@@ -15,8 +14,7 @@ class Fishing:
         self.client = client
         super().__init__()
 
-    async def fish(self, message: discord.Message, bait: str | None = None):
-        config = FishingConfig(Path(r"fishing\fishing.yaml"))
+    async def fish(self, message: discord.Message, config: AppConfig):
         user = message.author
 
         owned_nets, about_to_break, broken, net_uses = sg.get_net_availability(str(user))
