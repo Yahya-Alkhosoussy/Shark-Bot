@@ -148,10 +148,6 @@ def reset_levels():
     for row in rows:
         levels_gained[row[indicies.USERNAME.value]] = row[indicies.LEVEL.value]
         exp_gained[row[indicies.USERNAME.value]] = row[indicies.EXP.value]
-    cur.execute(f"UPDATE level SET level=0 WHERE username='{row[indicies.USERNAME.value]}'")
-    cur.execute(f"UPDATE level SET exp=0 WHERE username='{row[indicies.USERNAME.value]}'")
-    cur.execute(f"UPDATE level SET until_next_level=0 WHERE username='{row[indicies.USERNAME.value]}'")
-    connection.commit()
     print(levels_gained)
     print(exp_gained)
     for user in levels_gained:
