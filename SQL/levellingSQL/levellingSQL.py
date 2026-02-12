@@ -180,6 +180,21 @@ def reset_levels():
 
 
 # reset_levels()
+def level_0_xp_reset():
+    cur.execute("SELECT username, exp FROM level WHERE level=0")
+    info = cur.fetchall()
+    user_to_xp: dict[str, int] = {}  # username to xp gained
+    for user, exp in info:
+        user_to_xp[user] = exp
+
+        if user_to_xp[user] < 0:
+            user_to_xp[user] *= -1
+            cur.execute("UPDATE level SET exp=? WHERE username=?", (user_to_xp[user], user))
+            check_level(username=user)
+
+    connection.commit()
+
+
 print(cur.execute("SELECT * FROM level").fetchall())
 
 # add_user("spiderbyte2007")
