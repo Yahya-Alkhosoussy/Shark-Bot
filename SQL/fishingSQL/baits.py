@@ -163,6 +163,8 @@ def add_fish_caught(username: str, size: str, rarity: str):
                             "UPDATE fish SET small_legendary_fish = small_legendary_fish + 1 WHERE username = ?", (username,)
                         )
 
+    conn.commit()
+
 
 def get_fish_caught(username: str):
     cur.execute("SELECT * FROM fish WHERE username=?", (username,))
@@ -246,5 +248,6 @@ def buy_baits(username: str, bait: int):
 
 
 def use_bait(username: str, bait: str):
-    cur.execute(f"UPDATE baits SET {bait}= {bait} - 1 WHERE username = ?", (username,))
+
+    cur.execute(f"UPDATE baits SET {bait.replace(' ', '_')}= {bait.replace(' ', '_')} - 1 WHERE username = ?", (username,))
     conn.commit()
