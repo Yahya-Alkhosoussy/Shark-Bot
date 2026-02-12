@@ -214,14 +214,14 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         if message.content.startswith(prefix + "update shop items"):
             "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
             try:
-                self.fishing.add_into_shop_internal(message=message)
+                await self.fishing.add_into_shop_internal(message=message)
             except Exception as e:
                 await message.reply(str(e))
 
         if message.content.startswith(prefix + "update shop prices"):
             "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
             try:
-                self.fishing.update_shop_prices_internal(message=message)
+                await self.fishing.update_shop_prices_internal(message=message)
             except Exception as e:
                 await message.reply(str(e))
 
@@ -314,7 +314,7 @@ Shark Catch Game:
 
         if message.content.startswith(prefix + "buy bait"):
             try:
-                self.fishing.buy_bait(message)
+                await self.fishing.buy_bait(message)
             except ex.ItemNotFound as e:
                 await message.reply(f"Had issues buying bait. Error: {e}")
 

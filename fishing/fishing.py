@@ -552,7 +552,7 @@ class Fishing:
             raise e  # custom message from update_shop_prices
 
     async def buy_bait(self, message: discord.Message):
-        baits = baits_in_shop
+        baits = baits_in_shop()
         send = "Choose a bait to buy (choose within the next 30 seconds) \n To choose type the number of the bait or type cancel to cancel \n"  # noqa: E501
         i = 0
         for bait in baits:
