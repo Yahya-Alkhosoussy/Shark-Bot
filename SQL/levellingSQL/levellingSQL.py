@@ -148,8 +148,8 @@ def reset_levels():
     for row in rows:
         levels_gained[row[indicies.USERNAME.value]] = row[indicies.LEVEL.value]
         exp_gained[row[indicies.USERNAME.value]] = row[indicies.EXP.value]
-    print(levels_gained)
-    print(exp_gained)
+    logging.info(f"Here are the levels gained: {levels_gained}")
+    logging.info(f"Here's the exp gained: {exp_gained}")
     for user in levels_gained:
         print("This is for user: ", user)
         xp_from_levels = 30
