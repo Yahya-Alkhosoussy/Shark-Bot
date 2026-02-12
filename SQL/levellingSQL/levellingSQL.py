@@ -188,7 +188,7 @@ def level_0_xp_reset():
         user_to_xp[user] = exp
 
         if user_to_xp[user] < 0:
-            user_to_xp[user] *= -1
+            user_to_xp[user] += 5000
             cur.execute("UPDATE level SET exp=? WHERE username=?", (user_to_xp[user], user))
             check_level(username=user)
 
