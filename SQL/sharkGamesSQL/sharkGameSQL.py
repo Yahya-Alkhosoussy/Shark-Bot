@@ -4,12 +4,6 @@ import logging
 import sqlite3
 from enum import Enum
 
-# ======= Logging =======
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.INFO)
-root_logger.addHandler(handler)
-
 with open("listofsharks.json", "r", encoding="utf-8") as file:
     list_of_sharks: dict = json.load(file)
 
@@ -413,9 +407,7 @@ def get_net_availability(username: str):
     broken = []
     i = 0
     try:
-        print("Get net availability:")
         for nets in all_nets[0]:
-            print(f"{nets}: i={i}")
             if nets == 0:
                 i += 1
             else:
@@ -534,7 +526,6 @@ def remove_net_use(username: str, net: str, net_uses: int):
     if row is not None:
         rowid = row[0]
         cursor.execute(f"UPDATE '{username} dex' SET net_uses={net_uses} WHERE rowid = {rowid}")
-        print("removed 1 net use")
         connection.commit()
 
 
@@ -547,9 +538,7 @@ def is_net_available(username: str, net: str):
         return False
     i = 0
     try:
-        print("is net available:")
         for nets in all_nets[0]:
-            print(nets)
             if nets == 0:
                 i += 1
             else:
@@ -578,7 +567,7 @@ def is_net_available(username: str, net: str):
         return False
 
 
-def check_currency(username: str):
+def check_currency(username: str) -> int:
     rows = []
     try:
         for row in cursor.execute(f"SELECT coins FROM '{username} dex' ORDER BY time DESC LIMIT 1"):
@@ -617,36 +606,29 @@ def buy_net(username: str, net: int):
     match net:
         case NetTypes.LEATHER_NET.value:
             net_to_buy = "leather net"
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.LEATHER_NET_5.value:
             net_to_buy = "leather net"
             bundle = True
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.GOLD_NET.value:
             net_to_buy = "gold net"
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.GOLD_NET_5.value:
             net_to_buy = "gold net"
             bundle = True
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.TITANIUM_NET.value:
             net_to_buy = "titanium net"
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.TITANIUM_NET_5.value:
             net_to_buy = "titanium net"
             bundle = True
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.NET_OF_DOOM.value:
             net_to_buy = "net of doom"
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case NetTypes.NET_OF_DOOM_5.value:
             net_to_buy = "net of doom"
             bundle = True
-            logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
         case _:
             logging.info(f"[SHARK GAME SQL] {net} not found when prompted by {username}")
             reason = "I could not find the net you requested"
             return fail, None, reason  # net bought is None
+    logging.info(f"[SHARK GAME SQL] Selected net ({net_to_buy}, bundle={bundle}) for {username}")
 
     for prices in cursor.execute(f"SELECT price FROM 'nets shop' WHERE net='{net_to_buy}'"):
         price.extend(prices)
@@ -684,8 +666,6 @@ def buy_net(username: str, net: int):
                 row: tuple = (None, time_now, None, None, net_to_buy, coins - price[-1], None, None, 5)
                 cursor.execute(f"INSERT INTO '{username} dex' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
             connection.commit()
-            for row in cursor.execute(f"SELECT * FROM '{username} nets'"):
-                print(f"DEBUG after buying {net_to_buy}: {row}")
             logging.info("[SHARK GAME SQL] Net bought successfully!")
             return success, net_to_buy, None  # reason
         elif not is_net_available(username, net_to_buy) and bundle:
@@ -1012,6 +992,22 @@ def add_coins(username: str, coins_to_add: int):
 
     cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins, latest_catch))
 
+    connection.commit()
+
+
+def remove_coins(username: str, coins_to_remove: int):
+    coins = check_currency(username)
+    coins = coins if coins else 0
+
+    coins -= coins_to_remove
+
+    catches = []
+    latest_catch: str
+    for catch in cursor.execute(f"SELECT time FROM '{username} dex' ORDER BY time DESC"):
+        catches.extend(catch)
+    latest_catch = catches[0]
+
+    cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins, latest_catch))
     connection.commit()
 
 

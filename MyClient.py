@@ -1,8 +1,6 @@
 import asyncio
-import datetime as dt
 import logging
 import os
-import random
 from enum import Enum
 from pathlib import Path
 
@@ -11,10 +9,13 @@ from dotenv import load_dotenv
 from pydantic import ValidationError
 
 from data.gids import roles_per_gid
+from exceptions import exceptions as ex
+from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
+from SQL.fishingSQL.baits import get_baits
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
 from utils.ticketing import TicketingConfig
@@ -65,6 +66,7 @@ class MyClient(discord.Client):
         self.ticket_system = TicketSystem(self)
         self._ticket_setup_done: dict = config.set_up_done
         self.reaction_handler = reaction_handler(config=config, roles_per_guild=roles_per_gid(GIDS, ROLES), bot=self)
+        self.fishing = Fishing(self)
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -201,9 +203,6 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         if message.guild is None:
             await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
             return
-        elif message.content.startswith(prefix + "emoji"):
-            await message.reply(":ZeroTwoBonkbyliliiet112:")
-            return
 
         # leveling system messages
         if len(message.content) >= 10 and config.guilds[message.guild.id] == "shark squad":
@@ -211,6 +210,20 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "check level") and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.check_level(message)
+
+        if message.content.startswith(prefix + "update shop items"):
+            "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
+            try:
+                await self.fishing.add_into_shop_internal(message=message)
+            except Exception as e:
+                await message.reply(str(e))
+
+        if message.content.startswith(prefix + "update shop prices"):
+            "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
+            try:
+                await self.fishing.update_shop_prices_internal(message=message)
+            except Exception as e:
+                await message.reply(str(e))
 
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")
@@ -253,16 +266,21 @@ A few notes:
             send = """Thank you for asking for help! Here are my commands:
 General:
 1. `?help` - Shows all commands.
+2. `?rules` - Show cases all the rules
+3. `?hello` - The bot greets you :>
 Shark Catch Game:
-1. `?game on` - Start's shark catch game.
-2. `?get dex` - Shows all the sharks you caught and how many you've caught.
-3. `?get dex detailed` - Sends you your detailed dex into your DMs.
-4. `?my nets` - Shows you all the nets you own.
-5. `?catch` - Use this when trying to catch a shark! This will use the default net with a low chance of success
-6. `?catch [net name]` - Use this when trying to use a specific net. If you enter a net you do not own it will ignore that net and use the basic one.
-7. `?coins` - Tells you the amount of coins you currently have.
-8. `?buy net` - Use this when trying to buy a new net!
-9. `?describe game` - Gives a short description of the game.
+1. `?get dex` - Shows all the sharks you caught and how many you've caught.
+2. `?detailed dex ` - Sends you your detailed dex into your DMs.
+3. `?my nets` - Shows you all the nets you own.
+4. `?catch` - Use this when trying to catch a shark! This will use the default net with a low chance of success
+5. `?catch [net name]` - Use this when trying to use a specific net. If you enter a net you do not own it will ignore that net and use the basic one.
+6. `?coins` - Tells you the amount of coins you currently have.
+7. `?buy net` - Use this when trying to buy a new net!
+8. `?describe game` - Gives a short description of the game.
+9. `?fish` - Starts fishing and asks you for a net to use.
+10. `?my baits` - Shows you all the baits you own.
+11. `?[bait name]` - Starts fishing with the bait of your choice.
+12. `?buy bait` - Use this when trying to buy bait!
             """  # noqa: E501
             await message.reply(send)
 
@@ -284,274 +302,80 @@ Shark Catch Game:
                 await message.reply("Huh? I'm not running.")
 
         if message.content.startswith(prefix + "fish"):
-            user = message.author
-
-            owned_nets, about_to_break, broken, net_uses = sg.get_net_availability(str(user))
-
-            await message.reply(
-                "Which net do you want to use?🎣 Type `?net name` to use it or send `cancel` to cancel! If you do not own any nets send `?none` to use a basic net. (You have 30 seconds to send one of the two)"  # noqa: E501
-            )
-
-            def check(m: discord.Message):
-                return (
-                    m.author.id == user.id
-                    and m.channel.id == message.channel.id
-                    and (m.content.strip().lower() == "cancel" or m.content.strip().startswith(prefix))
-                )
-
+            after: str | None = None if len(message.content[6:]) == 0 else message.content[6:]
+            baits, _ = get_baits(message.author.name)
+            if after not in baits and after is not None:
+                await message.reply(f"You do not own the bait ({after}) or it is an invalid bait, try the command again")
+                return
             try:
-                follow = await client.wait_for("message", check=check, timeout=30)
-            except asyncio.TimeoutError:
-                await message.reply("Timed out, try again with `?fish`")
+                await self.fishing.fish(message=message, bait=after)
+            except ex.ItemNotFound as e:
+                await message.channel.send(f"{message.author.mention} {str(e)}")
+
+        if message.content.startswith(prefix + "buy bait"):
+            try:
+                await self.fishing.buy_bait(message)
+            except ex.ItemNotFound as e:
+                await message.reply(f"Had issues buying bait. Error: {e}")
+
+        if message.content.startswith(prefix + "my baits"):
+            bait_names, uses = get_baits(username=message.author.name)
+            if not bait_names:
+                await message.reply("You do not own any baits")
                 return
+            send = "Here are the baits you own:\n"
+            i = 0
+            for bait in bait_names:
+                i += 1
+                send += f"{i}. {bait} - {uses[i - 1]} use{'s' if uses[i - 1] > 1 else ''} \n"
+            await message.reply(send)
 
-            logging.info(follow.content.strip().lower()[1:])
-
-            if follow.content.strip().lower() == "cancel":
-                await follow.reply("Cancelled.")
-                return
-            # print(nets)
-            channel = message.channel
-            if follow.content.strip().lower()[1:] in owned_nets:
-                # print("found it")
-                if follow.content.strip().lower()[1:] in about_to_break and net_uses == 21:
-                    await message.reply(
-                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left"  # noqa: E501
-                    )
-                elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 16:
-                    await message.reply(
-                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 3 more of the same net left"  # noqa: E501
-                    )
-                elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 11:
-                    await message.reply(
-                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 2 more of the same net left"  # noqa: E501
-                    )
-                elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 6:
-                    await message.reply(
-                        "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 1 more of the same net left"  # noqa: E501
-                    )
-                elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 1:
-                    await message.reply("WARNING: Net is about to break, 1 more use left. This is your last net")
-
-                if follow.content.strip().lower()[1:] in broken and net_uses == 20:
-                    await message.reply("WARNING: Net broken, don't worry through because you have 4 more of the same net left")
-                elif follow.content.strip().lower()[1:] in broken and net_uses == 15:
-                    await message.reply("WARNING: Net broken, don't worry through because you have 3 more of the same net left")
-                elif follow.content.strip().lower()[1:] in broken and net_uses == 10:
-                    await message.reply("WARNING: Net broken, don't worry through because you have 2 more of the same net left")
-                elif follow.content.strip().lower()[1:] in broken and net_uses == 5:
-                    await message.reply("WARNING: Net broken, don't worry through because you have 1 more of the same net left")
-                elif follow.content.strip().lower()[1:] in broken and net_uses == 0:
-                    await message.reply("WARNING: Net broken. You have no more uses of the same net left")
-
-                await message.reply("Net found, fishing now! 🎣")
-                net = follow.content.strip().lower()[1:]
-            elif follow.content.strip().lower()[1:] == "none":
-                await channel.send("Using basic net. Fishing now! 🎣")
-                net = "rope net"
-            else:
-                await channel.send("Net not found, defaulting to basic net. Fishing now!🎣")
-                net = "rope net"
-
-            fish_odds = sg.fishing_odds_fish(username=str(user), net_used=net)
-
-            boost = config["boost"]
-            boost_amount = config["boost amount"]
-
-            rand_int = random.randint(0, 99)
-            if rand_int <= fish_odds:  # did it catch anything
-                catch_type = random.randint(1, 100)
-                if catch_type <= 5:
-                    names = sg.get_shark_names(sg.SharkRarity.VERY_COMMON)
-                    rand_idx = random.randint(0, len(names) - 1)
-                    current_time = dt.datetime.now()
-                    time_caught: str = f"{current_time.date()} {current_time.hour}"
-                    sg.create_dex(str(user), names[rand_idx], time_caught, net, "normal", net_uses)
-                    coin = sg.reward_coins(str(user), shark=True, rare="normal", shark_name=names[rand_idx])
-                    await channel.send(
-                        f"Oh lord, you have caught a shark that has randomly stumbled it's way here! 🦈 Congratulations on the {names[rand_idx]}. You have been given {coin} coins."  # noqa: E501
-                    )
-                elif catch_type <= 25:  # large fish 20% chance
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "legendary",
-                            size="large",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "legendary")
-                        await channel.send(
-                            f"Congratulations! You have caught a large legendary fish! 🐟 You have been rewarded {coin} coins."
-                        )
-                    elif rarity <= 40:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "shiny",
-                            size="large",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "shiny")
-                        await channel.send(
-                            f"Congratulations! You have caught a large shiny fish! 🐟 You have been rewarded {coin} coins"
-                        )
-                    else:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "normal",
-                            size="large",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "common")
-                        await channel.send(
-                            f"Congratulations! You have caught a large normal fish! 🐟 You have been rewarded {coin} coins"
-                        )
-                elif catch_type <= 50:  # medium fish 25% chance
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "legendary",
-                            size="medium",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "legendary")
-                        await channel.send(
-                            f"Congratulations! You have caught a medium legendary fish! 🐟 You have been rewarded {coin} coins"
-                        )
-                    elif rarity <= 40:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "shiny",
-                            size="medium",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "shiny")
-                        await channel.send(
-                            f"Congratulations! You have caught a medium shiny fish! 🐟 You have been rewarded {coin} coins"
-                        )
-                    else:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "normal",
-                            size="medium",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "common")
-                        await channel.send(
-                            f"Congratulations! You have caught a medium normal fish! 🐟 You have been rewarded {coin} coins"
-                        )
-                elif catch_type <= 80:  # small fish 30%
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "legendary",
-                            size="small",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "legendary")
-                        await channel.send(
-                            f"Congratulations! You have caught a small legendary fish! 🐟 You have been rewarded {coin} coins"
-                        )
-                    elif rarity <= 40:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "shiny",
-                            size="small",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "shiny")
-                        await channel.send(
-                            f"Congratulations! You have caught a small shiny fish! 🐟 You have been rewarded {coin} coins"
-                        )
-                    else:
-                        coin = sg.reward_coins(
-                            str(user),
-                            False,
-                            "normal",
-                            size="small",
-                            boost=boost,
-                            boost_amount=boost_amount,
-                        )
-                        sg.fish_caught(str(user), "common")
-                        await channel.send(
-                            f"Congratulations! You have caught a small normal fish! 🐟 You have been rewarded {coin} coins"
-                        )
-                else:
-                    coin = sg.reward_coins(
-                        str(user),
-                        False,
-                        "trash",
-                        boost=boost,
-                        boost_amount=boost_amount,
-                    )
-                    await channel.send(f"Oh no! You have caught trash 🗑️. You have been rewarded {coin} coins")
-            else:
-                await channel.send("Unfortunate, you have not caught anything. 😞")
-            if net != "rope net" and net is not None:
-                sg.remove_net_use(str(user), net, net_uses - 1)
+        if message.content.startswith(prefix + "my fish"):
+            await self.fishing.get_fish(message=message)
 
         if message.content.startswith(prefix + "get dex"):
-            basic_dex = sg.get_basic_dex(str(user))
+            basic_dex = sg.get_basic_dex(str(user.name))
             (dex, coins) = basic_dex if basic_dex else (None, None)
 
             if dex is None:
-                await message.reply("You have not caught any sharks yet! You also have 0 coins")
+                await message.reply("You have not caught any sharks yet!")
             else:
-                message_1 = "You have caught these sharks: \n"
-                # back ups in case of the 2000 character limit
-                message_2: str = ""
-                message_3: str = ""
+                all_messages: list[str] = []
+                messages = "You have caught these sharks: \n"
 
+                i = 0
+                amount_of_sharks = 0
                 for shark in dex:
+                    i += 1
                     s = "s" if dex[shark] > 1 else ""
+                    amount_of_sharks += dex[shark]
                     string = f"{dex[shark]} {shark}{s} 🦈 \n"
-                    if len(message_1 + string) < 2000:
-                        message_1 += string
-                    elif len(message_2 + string) < 2000:
-                        message_2 += string
+                    if len(messages + string) < 2000:
+                        messages += string
                     else:
-                        message_3 += string
-
-                if len(message_2) == 0:
-                    message_1 += f"You also have {coins or 0} coins"
-                elif len(message_3) == 0:
-                    message_2 += f"You also have {coins or 0} coins"
+                        all_messages.append(messages)
+                        messages = ""
+                last_message_to_append: str = (
+                    f"That's a total of {amount_of_sharks} shark{'s' if i > 1 else ''}!\nYou also have {coins or 0} coins"  # noqa: E501
+                )
+                if len(messages + last_message_to_append) < 2000:
+                    messages += last_message_to_append
+                    all_messages.append(messages)
                 else:
-                    message_3 += f"You also have {coins or 0} coins"
-
-                await message.reply(message_1)
+                    all_messages.append(messages)
+                    all_messages.append(last_message_to_append)
+                await message.reply(all_messages[0])
                 channel = message.channel
-                if len(message_2) != 0:
-                    await channel.send(message_2)
-                if len(message_3) != 0:
-                    await channel.send(message_3)
+                if len(all_messages) > 1:
+                    for msg in all_messages:
+                        channel.send(msg)
 
-        if message.content.startswith(prefix + "get dex detailed"):
+        if message.content.startswith(prefix + "detailed dex"):
             dex = sg.get_dex(str(user))
 
             if dex:
-                message_1: str = "Here's your sharkdex: \n"
-                # back ups in case the 2000 character limit discord has is reached
-                message_2: str = ""
-                message_3: str = ""
+                all_messages: list[str] = []
+                messages: str = "Here's your sharkdex: \n"
 
                 index = 1
 
@@ -566,20 +390,18 @@ Shark Catch Game:
     coins balance: {item[sharks_index.COINS.value]} 🪙
 
     """
-                    if len(message_1 + string) < 2000:
-                        message_1 += string
-                    elif len(message_2 + string) < 2000:
-                        message_2 += string
+                    if len(messages + string) < 2000:
+                        messages += string
                     else:
-                        message_3 += string
+                        all_messages.append(messages)
+                        messages = ""
 
                     index += 1
+                if len(messages) != 0:
+                    all_messages.append(messages)
+                for msg in all_messages:
+                    await user.send(msg)
 
-                await user.send(message_1)
-                if len(message_2) != 0:
-                    await user.send(message_2)
-                if len(message_3) != 0:
-                    await user.send(message_3)
             else:
                 await user.send("You have not caught a shark so you have no dex, go catch sharks!")
 
