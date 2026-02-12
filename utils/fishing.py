@@ -15,7 +15,7 @@ class FishingConfig(BaseConfig):
         super().__init__(confPath=confPath, **data)
 
     def _validate_config(self):
-        self._assert_populated(self.baits)
+        pass
 
     def loadConfig(self, confPath: Path):
         fromYaml = self._loadYamlDict(confPath)
