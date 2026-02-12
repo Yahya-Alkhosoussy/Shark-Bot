@@ -14,6 +14,7 @@ class ItemNotFound(SharkBotException):
         :type error_code: int
         """
         super().__init__(message)
+        self.message = message
         self.error_code = error_code
 
     def __str__(self):
