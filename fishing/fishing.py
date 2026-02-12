@@ -2,13 +2,24 @@ import asyncio
 import datetime as dt
 import logging
 import random
+from enum import Enum
 from pathlib import Path
 
 import discord
 
 import exceptions.exceptions as ex
 import SQL.sharkGamesSQL.sharkGameSQL as sg
-from SQL.fishingSQL.baits import add_to_shop, baits_in_shop, buy_baits, update_shop_prices
+from SQL.fishingSQL.baits import (
+    add_fish_caught,
+    add_to_shop,
+    baits_in_shop,
+    buy_baits,
+    check_user_is_in_baits,
+    get_baits,
+    get_fish_caught,
+    update_shop_prices,
+    use_bait,
+)
 from utils.fishing import FishingConfig
 
 
@@ -50,6 +61,24 @@ class Fishing:
         if follow.content.strip().lower()[1:] not in owned_nets:
             await channel.send("Net not found, defaulting to basic net. Fishing now!🎣")
             net = "rope net"
+        if bait is not None:
+            use_bait(message.author.name, bait=bait)
+            baits, uses = get_baits(username=message.author.name)
+            use = 0
+            i = 0
+            for name in baits:
+                if name != bait:
+                    i += 1
+                    continue
+                use = uses[i]
+                break
+            if use > 1:
+                await channel.send(f"Bait {bait} used! you now have {use} uses left!")
+            elif use == 1:
+                await channel.send(f"Bait {bait} used! Becareful! you now have {use} use left!")
+            else:
+                await channel.send(f"Bait {bait} used! Becareful! you now have no more uses left!")
+
         if follow.content.strip().lower()[1:] in owned_nets:
             # print("found it")
             if follow.content.strip().lower()[1:] in about_to_break and net_uses == 21:
@@ -95,6 +124,7 @@ class Fishing:
 
         rand_int = random.randint(0, 99)
         if bait is None:
+            check_user_is_in_baits(username=message.author.name)
             if rand_int <= fish_odds:  # did it catch anything
                 catch_type = random.randint(1, 100)
                 if catch_type <= 5:
@@ -119,6 +149,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "legendary")
+                        add_fish_caught(username=user.name, size="large", rarity="legendary")
                         await channel.send(
                             f"Congratulations! You have caught a large legendary fish! 🐟 You have been rewarded {coin} coins."
                         )
@@ -132,6 +163,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "shiny")
+                        add_fish_caught(username=user.name, size="large", rarity="shiny")
                         await channel.send(
                             f"Congratulations! You have caught a large shiny fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -145,6 +177,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "common")
+                        add_fish_caught(username=user.name, size="large", rarity="common")
                         await channel.send(
                             f"Congratulations! You have caught a large normal fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -160,6 +193,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "legendary")
+                        add_fish_caught(username=user.name, size="medium", rarity="legendary")
                         await channel.send(
                             f"Congratulations! You have caught a medium legendary fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -173,6 +207,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "shiny")
+                        add_fish_caught(username=user.name, size="medium", rarity="shiny")
                         await channel.send(
                             f"Congratulations! You have caught a medium shiny fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -186,6 +221,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "common")
+                        add_fish_caught(username=user.name, size="medium", rarity="common")
                         await channel.send(
                             f"Congratulations! You have caught a medium normal fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -201,6 +237,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "legendary")
+                        add_fish_caught(username=user.name, size="small", rarity="legendary")
                         await channel.send(
                             f"Congratulations! You have caught a small legendary fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -214,6 +251,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "shiny")
+                        add_fish_caught(username=user.name, size="small", rarity="shiny")
                         await channel.send(
                             f"Congratulations! You have caught a small shiny fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -227,6 +265,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "common")
+                        add_fish_caught(username=user.name, size="small", rarity="common")
                         await channel.send(
                             f"Congratulations! You have caught a small normal fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -256,7 +295,7 @@ class Fishing:
                     rarity = sg.SharkRarity.ULTRA_RARE
                 case _:
                     raise ex.ItemNotFound(f"Could not find bait ({bait}) in list", 1001)
-            if rand_int <= fish_odds:  # did it catch anything
+            if rand_int <= fish_odds + 10:  # did it catch anything
                 catch_type = random.randint(1, 100)
                 if catch_type <= 35:
                     names = sg.get_shark_names(rarity=rarity)
@@ -280,6 +319,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "legendary")
+                        add_fish_caught(username=user.name, size="large", rarity="legendary")
                         await channel.send(
                             f"Congratulations! You have caught a large legendary fish! 🐟 You have been rewarded {coin} coins."
                         )
@@ -293,6 +333,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "shiny")
+                        add_fish_caught(username=user.name, size="large", rarity="shiny")
                         await channel.send(
                             f"Congratulations! You have caught a large shiny fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -306,6 +347,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "common")
+                        add_fish_caught(username=user.name, size="large", rarity="common")
                         await channel.send(
                             f"Congratulations! You have caught a large normal fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -321,6 +363,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "legendary")
+                        add_fish_caught(username=user.name, size="medium", rarity="legendary")
                         await channel.send(
                             f"Congratulations! You have caught a medium legendary fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -334,6 +377,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "shiny")
+                        add_fish_caught(username=user.name, size="medium", rarity="shiny")
                         await channel.send(
                             f"Congratulations! You have caught a medium shiny fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -347,6 +391,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "common")
+                        add_fish_caught(username=user.name, size="medium", rarity="common")
                         await channel.send(
                             f"Congratulations! You have caught a medium normal fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -362,6 +407,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "legendary")
+                        add_fish_caught(username=user.name, size="small", rarity="legendary")
                         await channel.send(
                             f"Congratulations! You have caught a small legendary fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -375,6 +421,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "shiny")
+                        add_fish_caught(username=user.name, size="small", rarity="shiny")
                         await channel.send(
                             f"Congratulations! You have caught a small shiny fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -388,6 +435,7 @@ class Fishing:
                             boost_amount=boost_amount,
                         )
                         sg.fish_caught(str(user), "common")
+                        add_fish_caught(username=user.name, size="small", rarity="common")
                         await channel.send(
                             f"Congratulations! You have caught a small normal fish! 🐟 You have been rewarded {coin} coins"
                         )
@@ -559,13 +607,13 @@ class Fishing:
             name = bait[0]
             price = bait[1]
             i += 1
-            send += f"{i}. {name} that costs {price} per piece.\n"
+            send += f"{i}. {name} - {price} coins.\n"
 
         for bait in baits:
-            name = bait[0] + "x 5"
+            name = bait[0] + " x 5"
             price = bait[1] * 5
             i += 1
-            send += f"{i}. {name} that costs {price} per 5 pieces.\n"
+            send += f"{i}. {name} - {price} coins.\n"
 
         await message.reply(send)
 
@@ -597,11 +645,41 @@ class Fishing:
                 await follow.reply("Cancelled.")
                 return
         try:
-            success, bait_bought, reason = buy_baits(username=message.author.name, bait=follow)
+            check_user_is_in_baits(username=message.author.name)
+            success, bait_bought, reason = buy_baits(username=message.author.name, bait=int(follow.content))
         except ex.ItemNotFound as e:
             raise e
+        except ValueError:
+            raise ex.ItemNotFound("Bait not found!!", error_code=1002)
 
         if not success:
             await follow.reply(f"Coult not buy net because {reason}")
         else:
             await follow.reply(f"Successfully bought {bait_bought}!")
+
+    async def get_fish(self, message: discord.Message):
+        class fish_indicies(Enum):
+            USERNAME = 0
+            LARGE_COMMON_FISH = 1
+            LARGE_SHINY_FISH = 2
+            LARGE_LEGENDARY_FISH = 3
+            MEDIUM_COMMON_FISH = 4
+            MEDIUM_SHINY_FISH = 5
+            MEDIUM_LEGENDARY_FISH = 6
+            SMALL_COMMON_FISH = 7
+            SMALL_SHINY_FISH = 8
+            SMALL_LEGENDARY_FISH = 9
+
+        fish = get_fish_caught(message.author.name)
+        send = f"""This is a list of the fish you caught:
+Large common fish: {fish[fish_indicies.LARGE_COMMON_FISH.value]}
+Large shiny fish: {fish[fish_indicies.LARGE_SHINY_FISH.value]}
+Large legendary fish: {fish[fish_indicies.LARGE_LEGENDARY_FISH.value]}
+Medium common fish: {fish[fish_indicies.MEDIUM_COMMON_FISH.value]}
+Medium shiny fish: {fish[fish_indicies.MEDIUM_SHINY_FISH.value]}
+Medium legendary fish: {fish[fish_indicies.MEDIUM_LEGENDARY_FISH.value]}
+Small common fish: {fish[fish_indicies.SMALL_COMMON_FISH.value]}
+Small shiny fish: {fish[fish_indicies.SMALL_SHINY_FISH.value]}
+Small legendary fish: {fish[fish_indicies.SMALL_LEGENDARY_FISH.value]}
+"""
+        await message.reply(send)
