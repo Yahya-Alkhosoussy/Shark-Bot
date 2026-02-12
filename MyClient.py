@@ -304,11 +304,11 @@ Shark Catch Game:
         if message.content.startswith(prefix + "fish"):
             after: str | None = None if len(message.content[6:]) == 0 else message.content[6:]
             baits, _ = get_baits(message.author.name)
-            if after not in baits:
+            if after not in baits and after is not None:
                 await message.reply(f"You do not own the bait ({after}) or it is an invalid bait, try the command again")
                 return
             try:
-                await self.fishing.fish(message=message, config=config, bait=after)
+                await self.fishing.fish(message=message, bait=after)
             except ex.ItemNotFound as e:
                 await message.channel.send(f"{message.author.mention} {str(e)}")
 
@@ -317,6 +317,21 @@ Shark Catch Game:
                 await self.fishing.buy_bait(message)
             except ex.ItemNotFound as e:
                 await message.reply(f"Had issues buying bait. Error: {e}")
+
+        if message.content.startswith(prefix + "my baits"):
+            bait_names, uses = get_baits(username=message.author.name)
+            if not bait_names:
+                await message.reply("You do not own any baits")
+                return
+            send = "Here are the baits you own:\n"
+            i = 0
+            for bait in bait_names:
+                i += 1
+                send += f"{i}. {bait} - {uses[i - 1]} use{'s' if uses[i - 1] > 1 else ''} \n"
+            await message.reply(send)
+
+        if message.content.startswith(prefix + "my fish"):
+            await self.fishing.get_fish(message=message)
 
         if message.content.startswith(prefix + "get dex"):
             basic_dex = sg.get_basic_dex(str(user.name))
