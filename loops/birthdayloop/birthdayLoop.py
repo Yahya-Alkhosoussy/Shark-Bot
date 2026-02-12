@@ -1,5 +1,6 @@
 import datetime as dt
 import logging
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import discord
@@ -9,7 +10,7 @@ from pydantic import ValidationError
 from utils.core import AppConfig
 
 try:
-    config_a = AppConfig(r"config.YAML")
+    config_a = AppConfig(Path(r"config.YAML"))
 except ValidationError as e:
     print(e)
 
