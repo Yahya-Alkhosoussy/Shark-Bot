@@ -85,14 +85,14 @@ class MyClient(discord.Client):
                     try:
                         user_added = await self.leveling_loop.add_users(user=member)
                     except Exception as e:
-                        raise e
+                        logging.error(str(e))
 
                     try:
                         role_added = await self.leveling_loop.add_role(user=member)
                         if role_added is None:
                             logging.warning(f"Failed to add role to member {member}, returned None")
                     except Exception as e:
-                        raise e
+                        logging.error(str(e))
 
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
