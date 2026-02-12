@@ -109,7 +109,7 @@ def baits_in_shop() -> list[tuple[str, int]]:
     Returns the names and prices of the baits in the shop
     """
     baits: list[tuple[str, int]] = [
-        (name, price) for name, price in cur.execute("SELECT name, price FROM baits_shop").fetchall()
+        (name.replace("_", " "), price) for name, price in cur.execute("SELECT name, price FROM baits_shop").fetchall()
     ]
     return baits
 
@@ -125,6 +125,61 @@ class baitTypes(Enum):
     MACKEREL_5X = 8
     STINGRAY_5X = 9
     BARRACUDA_5X = 10
+
+
+def add_fish_caught(username: str, size: str, rarity: str):
+    if isinstance(check_user_is_in_baits(username), bool):
+        match size:
+            case "large":
+                match rarity:
+                    case "common":
+                        cur.execute("UPDATE fish SET large_common_fish = large_common_fish + 1 WHERE username = ?", (username,))
+                    case "shiny":
+                        cur.execute("UPDATE fish SET large_shiny_fish = large_shiny_fish + 1 WHERE username = ?", (username,))
+                    case "legendary":
+                        cur.execute(
+                            "UPDATE fish SET large_legendary_fish = large_legendary_fish + 1 WHERE username = ?", (username,)
+                        )
+            case "medium":
+                match rarity:
+                    case "common":
+                        cur.execute(
+                            "UPDATE fish SET medium_common_fish = medium_common_fish + 1 WHERE username = ?", (username,)
+                        )
+                    case "shiny":
+                        cur.execute("UPDATE fish SET medium_shiny_fish = medium_shiny_fish + 1 WHERE username = ?", (username,))
+                    case "legendary":
+                        cur.execute(
+                            "UPDATE fish SET medium_legendary_fish = medium_legendary_fish + 1 WHERE username = ?", (username,)
+                        )
+            case "small":
+                match rarity:
+                    case "common":
+                        cur.execute("UPDATE fish SET small_common_fish = small_common_fish + 1 WHERE username = ?", (username,))
+                    case "shiny":
+                        cur.execute("UPDATE fish SET small_shiny_fish = small_shiny_fish + 1 WHERE username = ?", (username,))
+                    case "legendary":
+                        cur.execute(
+                            "UPDATE fish SET small_legendary_fish = small_legendary_fish + 1 WHERE username = ?", (username,)
+                        )
+
+
+def get_fish_caught(username: str):
+    cur.execute("SELECT * FROM fish WHERE username=?", (username,))
+    row = cur.fetchone()
+    return row
+
+
+def check_user_is_in_baits(username: str) -> bool | str:
+    cur.execute("SELECT EXISTS(SELECT 1 FROM baits WHERE username = ?)", (username,))
+    exists = cur.fetchone()[0]  # Returns 1 if exists, 0 if not
+    if exists:
+        return True
+    else:
+        cur.execute("INSERT OR IGNORE INTO baits (username) VALUES (?)", (username,))
+        cur.execute("INSERT OR IGNORE INTO fish (username) VALUES (?)", (username,))
+        conn.commit()
+        return f"Added {username} to baits table"
 
 
 def buy_baits(username: str, bait: int):
@@ -171,7 +226,7 @@ def buy_baits(username: str, bait: int):
             bundle = True
         case _:
             logging.error(f"[BAIT SQL] {bait} could not be found when prompted by {username}")
-            raise ex.ItemNotFound("Bait not found!!", 1002)
+            raise ex.ItemNotFound("Bait not found!!", 1001)
 
     logging.info(f"[BAITS SQL] user ({username}) has selected a bait to buy (name={bait_bought}, bundle={bundle})")
 
@@ -185,5 +240,11 @@ def buy_baits(username: str, bait: int):
 
     amount = 1 if not bundle else 5
     cur.execute(f"UPDATE baits SET {bait_bought} = {bait_bought} + ? WHERE username = ?", (amount, username))
-
+    conn.commit()
+    bait_bought = bait_bought.replace("_", " ")
     return success, bait_bought, None
+
+
+def use_bait(username: str, bait: str):
+    cur.execute(f"UPDATE baits SET {bait}= {bait} - 1 WHERE username = ?", (username,))
+    conn.commit()
