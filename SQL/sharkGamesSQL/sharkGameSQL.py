@@ -567,7 +567,7 @@ def is_net_available(username: str, net: str):
         return False
 
 
-def check_currency(username: str):
+def check_currency(username: str) -> int:
     rows = []
     try:
         for row in cursor.execute(f"SELECT coins FROM '{username} dex' ORDER BY time DESC LIMIT 1"):
@@ -992,6 +992,22 @@ def add_coins(username: str, coins_to_add: int):
 
     cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins, latest_catch))
 
+    connection.commit()
+
+
+def remove_coins(username: str, coins_to_remove: int):
+    coins = check_currency(username)
+    coins = coins if coins else 0
+
+    coins -= coins_to_remove
+
+    catches = []
+    latest_catch: str
+    for catch in cursor.execute(f"SELECT time FROM '{username} dex' ORDER BY time DESC"):
+        catches.extend(catch)
+    latest_catch = catches[0]
+
+    cursor.execute(f"UPDATE '{username} dex' SET coins=? WHERE time=?", (coins, latest_catch))
     connection.commit()
 
 
