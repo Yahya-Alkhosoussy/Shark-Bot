@@ -1,31 +1,18 @@
 import datetime as dt
 import logging
 from zoneinfo import ZoneInfo
-from pydantic import ValidationError
-from utils.core import AppConfig
 
 import discord
 from discord.ext import tasks
+from pydantic import ValidationError
 
 from utils.core import AppConfig
 
-
-raw_config: dict = RY.read_config(CONFIG_PATH)
-
 try:
-    config_a = AppConfig.model_construct(
-        guilds = raw_config["guilds"],
-        roles = raw_config["roles"],
-        channels = raw_config["channels"],
-        guild_role_messages = raw_config["guild role messages"],
-        birthday_message = raw_config["birthday message"],
-        boost = raw_config["boost"],
-        boost_amount = raw_config["boost amount"],
-        time_per_loop = raw_config["time per loop"],
-        set_up_done = raw_config["set up done"]
-    )
+    config_a = AppConfig(r"config.YAML")
 except ValidationError as e:
     print(e)
+
 
 class BirthdayLoop:
     def __init__(self, client: discord.Client, config: AppConfig):
@@ -56,7 +43,7 @@ class BirthdayLoop:
             if str(current_date) in firsts and not birthday_messages[month]:
                 guild_name: str = self.config.guilds[guild_id]
                 channel_id: int = self.config.get_channel_id(guild_name=guild_name, channel="chatting")
-                channel = c.get_channel(channel_id)
+                channel = self.client.get_channel(channel_id)
 
                 if not (channel and isinstance(channel, discord.TextChannel)):
                     logging.error(f"Channel not found for channelId: {channel_id}, or channel is not a TextChannel")
