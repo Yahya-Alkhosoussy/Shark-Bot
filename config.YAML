@@ -83,7 +83,7 @@ guild role messages:
     friend: 1459553811604705432
 birthday message:
   January: false
-  February: false
+  February: true
   March: false
   April: false
   May: false

@@ -2,6 +2,8 @@ import logging, discord, datetime as dt
 from discord.ext import tasks
 from ..sharkGameLoop.sharkGameLoop import get_channel_id, RY, CONFIG_PATH, SharkLoops, sg
 from zoneinfo import ZoneInfo
+from pydantic import ValidationError
+from utils.core import AppConfig
 
 def mark_reminder_as_done(month: str):
     cfg: dict = RY.read_config(CONFIG=CONFIG_PATH)
@@ -15,8 +17,25 @@ def mark_reminder_as_done(month: str):
     else:
         logging.warning(f"{month} was not found in YAML config")
 
+raw_config: dict = RY.read_config(CONFIG_PATH)
+
+try:
+    config_a = AppConfig.model_construct(
+        guilds = raw_config["guilds"],
+        roles = raw_config["roles"],
+        channels = raw_config["channels"],
+        guild_role_messages = raw_config["guild role messages"],
+        birthday_message = raw_config["birthday message"],
+        boost = raw_config["boost"],
+        boost_amount = raw_config["boost amount"],
+        time_per_loop = raw_config["time per loop"],
+        set_up_done = raw_config["set up done"]
+    )
+except ValidationError as e:
+    print(e)
+
 class BirthdayLoop:
-    def __init__(self, client: discord.client):
+    def __init__(self, client: discord.Client):
         self.client = client
         self._loops: dict[int, tasks.Loop] = {} # Guild_id --> Loop
 
@@ -32,9 +51,8 @@ class BirthdayLoop:
 
         current_year = dt.datetime.now(central).year
 
-        firsts = [f"{current_year}-{str(i)}-01" for i in range(1, 13, 1)]
+        firsts = [f"{current_year}-{str(i).zfill(2)}-01" for i in range(1, 13, 1)]
         # print(firsts)
-        c = self.client
 
         async def _tick():
             config: dict = RY.read_config(CONFIG_PATH)
@@ -45,8 +63,8 @@ class BirthdayLoop:
             if str(current_date) in firsts and not birthday_messages.get(month):
                 id_to_name: dict = {int(v): k for k, v in config["guilds"].items()}
                 guild_name: str  = id_to_name.get(guild_id)
-                channel_id: int  = get_channel_id(guild_name=guild_name, channel="chatting")
-                channel = c.get_channel(channel_id)
+                channel_id: int  = get_channel_id(config=config_a, guild_name=guild_name, channel="chatting")
+                channel = self.client.get_channel(channel_id)
 
                 current_month = current_date.month
                 print(current_month)
