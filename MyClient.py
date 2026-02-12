@@ -9,11 +9,13 @@ from dotenv import load_dotenv
 from pydantic import ValidationError
 
 from data.gids import roles_per_gid
+from exceptions import exceptions as ex
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
+from SQL.fishingSQL.baits import get_baits
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
 from utils.ticketing import TicketingConfig
@@ -300,7 +302,21 @@ Shark Catch Game:
                 await message.reply("Huh? I'm not running.")
 
         if message.content.startswith(prefix + "fish"):
-            await self.fishing.fish(message=message, config=config)
+            after: str | None = None if len(message.content[6:]) == 0 else message.content[6:]
+            baits, _ = get_baits(message.author.name)
+            if after not in baits:
+                await message.reply(f"You do not own the bait ({after}) or it is an invalid bait, try the command again")
+                return
+            try:
+                await self.fishing.fish(message=message, config=config, bait=after)
+            except ex.ItemNotFound as e:
+                await message.channel.send(f"{message.author.mention} {str(e)}")
+
+        if message.content.startswith(prefix + "buy bait"):
+            try:
+                self.fishing.buy_bait(message)
+            except ex.ItemNotFound as e:
+                await message.reply(f"Had issues buying bait. Error: {e}")
 
         if message.content.startswith(prefix + "get dex"):
             basic_dex = sg.get_basic_dex(str(user.name))
