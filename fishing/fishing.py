@@ -567,6 +567,8 @@ class Fishing:
             i += 1
             send += f"{i}. {name} that costs {price} per 5 pieces.\n"
 
+        await message.reply(send)
+
         def check(m: discord.Message):
             isInt: bool = False
 
