@@ -132,10 +132,11 @@ class levelingLoop:
     async def add_role(self, user: discord.Member):
         level, _, _, _ = ls.get_info(username=user.name)
 
-        level_role_id = ROLES_SHARK_SQUAD[str(level)]
+        level_role_id = ROLES_SHARK_SQUAD[f"{level}"]
         guild = user.guild
         role = guild.get_role(level_role_id)
         if level >= 5:
+            print(f"User {user.name} is higher than level 5!")
             role_found = False
             user_roles = user.roles
             for role in user_roles:
