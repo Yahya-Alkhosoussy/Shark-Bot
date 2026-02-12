@@ -104,6 +104,16 @@ def get_baits(username: str):
     return available_baits, uses_per_bait
 
 
+def baits_in_shop() -> list[tuple[str, int]]:
+    """
+    Returns the names and prices of the baits in the shop
+    """
+    baits: list[tuple[str, int]] = [
+        (name, price) for name, price in cur.execute("SELECT name, price FROM baits_shop").fetchall()
+    ]
+    return baits
+
+
 class baitTypes(Enum):
     CHUM = 1
     BAIT_BALL = 2
