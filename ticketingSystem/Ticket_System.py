@@ -1,7 +1,11 @@
-import discord, logging, sqlite3
-from pathlib import Path
-from ticketingSystem.MyView import MyView, CloseButton, TicketOptions
-from utils.read_Yaml import read_config, save_config
+import logging
+import sqlite3
+
+import discord
+
+from ticketingSystem.CloseButton import CloseButton
+from ticketingSystem.MyView import MyView, config
+from ticketingSystem.TicketOptions import TicketOptions
 
 # ===== LOGGING =====
 handler = logging.FileHandler(filename="tickets.log", encoding="utf-8", mode="a")
@@ -9,13 +13,10 @@ root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
 root_logger.addHandler(handler)
 
-# ===== CONFIG =====
-CONFIG_PATH = Path(r"ticketingSystem\ticketing.yaml")
-config = read_config(CONFIG_PATH)
-MESSAGE_IDS = config["embed message ids"]
-id_to_name: dict = {int(v): k for k, v in config["guild ids"].items()}
+# ===== DATA BASE CONNECTION =====
 conn = sqlite3.connect("databases/Ticket_System.db")
 cur = conn.cursor()
+
 
 class TicketSystem:
     def __init__(self, bot: discord.Client):
@@ -29,7 +30,7 @@ class TicketSystem:
                     ticket_channel INTEGER,
                     ticket_type TEXT
             );""")
-        
+
         # Maybe used later
         cur.execute("""CREATE TABLE IF NOT EXISTS 'ticket history'(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,10 +47,10 @@ class TicketSystem:
     async def setup_hook(self):
         """
         Docstring for setup_hook
-        
+
         :param self: Description
         """
-        #Register the persistence views
+        # Register the persistence views
         self.bot.add_view(MyView(bot=self.bot))
         self.bot.add_view(CloseButton(bot=self.bot))
         self.bot.add_view(TicketOptions(bot=self.bot))
@@ -58,19 +59,17 @@ class TicketSystem:
     async def send_ticket_panel(self, channel: discord.TextChannel):
         """
         Docstring for send_ticket_panel
-        
-        :param self: 
+
+        :param self:
         """
 
         embed = discord.Embed(
-            title=config["embed title"],
-            description=config["embed description"],
-            colour=discord.colour.Color.blue()
+            title="Support ticket",
+            description="This is where you can raise a ticket for tech support or access mod mail",
+            colour=discord.colour.Color.blue(),
         )
 
         message = await channel.send(embed=embed, view=MyView(bot=self.bot))
         logging.info("[TICKETING SYSTEM] Support Ticket Sent")
-        guild_name = id_to_name[channel.guild.id]
-        MESSAGE_IDS[guild_name] = message.id
-        save_config(CONFIG_PATH, config)
-
+        guild_name = config.guilds[channel.guild.id]
+        config.save_message_id(guild_name, message.id)
