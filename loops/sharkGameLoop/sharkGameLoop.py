@@ -111,9 +111,9 @@ class SharkLoops:
                     caught_users[msg.author.name] = msg
                     lists_of_after[msg.author.name] = after
                     # Send a message to the user if the net is not available after they send the `?catch` command.
-                    if not sg.is_net_available(msg.author.name, after):
+                    if not sg.is_net_available(msg.author.name, after) and after:
                         await channel.send(
-                            f"{msg.author.name} you do not own {lists_of_after.get(msg.author.name)}! Defaulting to rope net."
+                            f"{msg.author.mention} you do not own {lists_of_after.get(msg.author.name)}! Defaulting to rope net."
                         )
                         lists_of_after[msg.author.name] = "rope net"
 
@@ -123,7 +123,7 @@ class SharkLoops:
             odds = sg.fishing_odds_shark
             for user in caught_users:  # looks through all the keys
                 num = random.randint(0, 100)
-                net = lists_of_after[user]
+                net = lists_of_after[user] if lists_of_after[user] else "rope net"
                 net_uses = 0
                 if net != "rope net":
                     available_nets, about_to_break, broken_nets, net_uses = sg.get_net_availability(user)
