@@ -195,7 +195,7 @@ def level_0_xp_reset():
     connection.commit()
 
 
-print(cur.execute("SELECT * FROM level").fetchall())
+# print(cur.execute("SELECT * FROM level").fetchall())
 
 # add_user("spiderbyte2007")
 # add_to_level("spiderbyte2007", False, 2)
