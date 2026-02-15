@@ -380,6 +380,7 @@ class AppConfig(BaseConfig):
     guild_role_messages: dict[Guild, RoleMessageSet] = Field(default_factory=dict, serialization_alias="guild role messages")
     birthday_message: dict[str, bool] = Field(default_factory=dict, serialization_alias="birthday message")
     time_per_loop: int = Field(default=0, serialization_alias="time per loop")
+    window_time: int = Field(default=0, serialization_alias="window time")
     set_up_done: dict[Guild, bool] = Field(default_factory=dict, serialization_alias="set up done")
 
     model_config = ConfigDict(serialize_by_alias=True)
@@ -449,6 +450,9 @@ class AppConfig(BaseConfig):
                                     guild = self.guilds.get(key)
                                     new_set_up_done[guild] = value
                         self.set_up_done = new_set_up_done
+                case "window time":
+                    if confvalue and isinstance(confvalue, int):
+                        self.window_time = confvalue
 
         self._afterLoad(confPath)
 
