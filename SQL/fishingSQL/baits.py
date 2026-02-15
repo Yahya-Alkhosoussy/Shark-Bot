@@ -96,11 +96,13 @@ def get_baits(username: str):
 
     available_baits: list[str] = []
     uses_per_bait: list[int] = []
-    for i in range(len(all_baits[0])):
-        if all_baits[0][i] > 0:
-            available_baits.append(baits[i + 1])
-            uses_per_bait.append(all_baits[0][i])
-
+    try:
+        for i in range(len(all_baits[0])):
+            if all_baits[0][i] > 0:
+                available_baits.append(baits[i + 1])
+                uses_per_bait.append(all_baits[0][i])
+    except IndexError as e:
+        raise e
     return available_baits, uses_per_bait
 
 

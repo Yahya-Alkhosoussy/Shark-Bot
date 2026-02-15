@@ -16,7 +16,6 @@ from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from SQL.fishingSQL.baits import get_baits
-from SQL.levellingSQL.levellingSQL import cur
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
 from utils.ticketing import TicketingConfig
@@ -277,7 +276,7 @@ Shark Catch Game:
 8. `?describe game` - Gives a short description of the game.
 9. `?fish` - Starts fishing and asks you for a net to use.
 10. `?my baits` - Shows you all the baits you own.
-11. `?[bait name]` - Starts fishing with the bait of your choice.
+11. `?fish [bait name]` - Starts fishing with the bait of your choice.
 12. `?buy bait` - Use this when trying to buy bait!
             """  # noqa: E501
             await message.reply(send)
@@ -301,10 +300,11 @@ Shark Catch Game:
 
         if message.content.startswith(prefix + "fish"):
             after: str | None = None if len(message.content[6:]) == 0 else message.content[6:]
-            baits, _ = get_baits(message.author.name)
-            if after not in baits and after is not None:
-                await message.reply(f"You do not own the bait ({after}) or it is an invalid bait, try the command again")
-                return
+            if after is not None:
+                baits, _ = get_baits(message.author.name)
+                if after not in baits:
+                    await message.reply(f"You do not own the bait ({after}) or it is an invalid bait, try the command again")
+                    return
             try:
                 await self.fishing.fish(message=message, bait=after)
             except ex.ItemNotFound as e:
