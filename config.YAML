@@ -95,8 +95,8 @@ birthday message:
   October: false
   November: false
   December: false
-time per loop: 1800
-window time: 120
+time per loop: 12
+window time: 10
 set up done:
   test server: true
   shark squad: true

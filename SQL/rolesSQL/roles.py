@@ -1,8 +1,13 @@
 import sqlite3
 from collections import namedtuple
 from enum import Enum
+from pathlib import Path
 
 import discord
+
+from utils.core import AppConfig
+
+config = AppConfig(Path(r"config.YAML"))
 
 conn = sqlite3.connect("databases/roles.db")
 cur = conn.cursor()
@@ -12,13 +17,13 @@ Emoji_Result = namedtuple(
 emojiResults: list[Emoji_Result] = []
 # Create the table
 cur.execute("""CREATE TABLE IF NOT EXISTS emojis
-                        (id INTEGER PRIMARY KEY, animated BOOLEAN, name TEXT, discord_id BIGINT)""")
+                        (id INTEGER PRIMARY KEY, animated BOOLEAN, name TEXT UNIQUE, discord_id BIGINT)""")
 cur.execute("""CREATE TABLE IF NOT EXISTS guilds
-                        (id INTEGER PRIMARY KEY, name TEXT)""")
+                        (id INTEGER PRIMARY KEY, name TEXT UNIQUE)""")
 cur.execute("""CREATE TABLE IF NOT EXISTS roleSets
-                        (id INTEGER PRIMARY KEY, name TEXT)""")
+                        (id INTEGER PRIMARY KEY, name TEXT UNIQUE)""")
 cur.execute("""CREATE TABLE IF NOT EXISTS roles
-                        (id INTEGER PRIMARY KEY, name TEXT, role_id INTEGER, emoji_id INTEGER, guild_id INTEGER, roleSet_ID INTEGER)""")  # noqa: E501
+                        (id INTEGER PRIMARY KEY, name TEXT UNIQUE, role_id INTEGER, emoji_id INTEGER, guild_id INTEGER, roleSet_ID INTEGER)""")  # noqa: E501
 
 
 class indicies(Enum):
@@ -28,6 +33,7 @@ class indicies(Enum):
     ID = 3
 
 
+print(config.guild_role_messages)
 # Set up for emojis table
 roles_test_server = ["🩵", "❤️", "💚"]
 roles_test_server_emoji_ids = [None, None, None]
@@ -35,7 +41,11 @@ roles_name_test_server = ["blue", "red", "green"]
 roles_test_server_ids = [1422681663342903438, 1428757018792956085, 1428757052993437767]
 roles_test_server_messages = ["colour", "general", "test"]
 roles_test_server_messages_ids = [1463681052278263880, 1463681055084118017, 1463681059236614144]
-roles_shark_squad = ["🎆", "💌", "🍀", "<:Zerotwodrinkbyliliiet112:1318361002072604692>"]
+roles_shark_squad = ["🎆", "💌", "🍀", "Zerotwodrinkbyliliiet112"]
+roles_shark_squad_emoji_ids = [None, None, None, 1318361002072604692]
+roles_shark_squad_names = ["Janruary babies", "february babies", "march babies", "backpack"]
+roles_shark_squad_ids = [1335413563627409429, 1335415340049371188, 1335416311089463378, 1459229849175588925]
+roles_shark_squad_messages = ["birthdays", "birthdays", "birthdays", "backpack and sherpas"]
 
 SQL_QUERY = r"""SELECT
     r.role_id,
@@ -63,19 +73,44 @@ for emoji in roles_test_server:
         "INSERT OR IGNORE INTO emojis (animated, name, discord_id) VALUES (?, ?, ?)",
         (False, emoji, roles_test_server_emoji_ids[i]),
     )
-    emoji_id = cur.execute(
-        "SELECT id FROM emojis WHERE name = ? AND discord_id = ?", (emoji, roles_test_server_emoji_ids[i])
-    ).fetchone()[0]
+    conn.commit()
+
+    emoji_id = cur.execute("SELECT id FROM emojis WHERE name = ?", (emoji,)).fetchone()[0]
 
     cur.execute("INSERT OR IGNORE INTO guilds (name) VALUES (?)", ("test server",))
+    conn.commit()
     guild_id = cur.execute("SELECT id FROM guilds WHERE name = ?", ("test server",)).fetchone()[0]
 
     cur.execute("INSERT OR IGNORE INTO roleSets (name) VALUES (?)", (roles_test_server_messages[i],))
-    roleSetID = cur.execute("SELECT id FROM roleSets WHERE name = ?", (roles_test_server_messages[i])).fetchone()[0]
+    conn.commit()
+    roleSetID = cur.execute("SELECT id FROM roleSets WHERE name = ?", (roles_test_server_messages[i],)).fetchone()[0]
 
     cur.execute(
         "INSERT OR IGNORE INTO roles (name, role_id, emoji_id, guild_id, roleSet_ID) VALUES (?, ?, ?, ?, ?)",
         (roles_name_test_server[i], roles_test_server_ids[i], emoji_id, guild_id, roleSetID),
+    )
+    i += 1
+i = 0
+for emoji in roles_shark_squad:
+    cur.execute(
+        "INSERT OR IGNORE INTO emojis (animated, name, discord_id) VALUES (?, ?, ?)",
+        (False, emoji, roles_shark_squad_emoji_ids[i]),
+    )
+    conn.commit()
+
+    emoji_id = cur.execute("SELECT id FROM emojis WHERE name = ?", (emoji,)).fetchone()[0]
+
+    cur.execute("INSERT OR IGNORE INTO guilds (name) VALUES (?)", ("shark squad",))
+    conn.commit()
+    guild_id = cur.execute("SELECT id FROM guilds WHERE name = ?", ("shark squad",)).fetchone()[0]
+
+    cur.execute("INSERT OR IGNORE INTO roleSets (name) VALUES (?)", (roles_shark_squad_messages[i],))
+    conn.commit()
+    roleSetID = cur.execute("SELECT id FROM roleSets WHERE name = ?", (roles_shark_squad_messages[i],)).fetchone()[0]
+
+    cur.execute(
+        "INSERT OR IGNORE INTO roles (name, role_id, emoji_id, guild_id, roleSet_ID) VALUES (?, ?, ?, ?, ?)",
+        (roles_shark_squad_names[i], roles_shark_squad_ids[i], emoji_id, guild_id, roleSetID),
     )
     i += 1
 
