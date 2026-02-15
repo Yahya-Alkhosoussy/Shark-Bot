@@ -16,6 +16,7 @@ from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from SQL.fishingSQL.baits import get_baits
+from SQL.levellingSQL.levellingSQL import cur
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
 from utils.ticketing import TicketingConfig
@@ -80,19 +81,19 @@ class MyClient(discord.Client):
             guild_name: str = config.guilds[guild.id]
 
             if guild_name == "shark squad":
-                self.birthday_loops.start_for(guild.id)
+                # self.birthday_loops.start_for(guild.id)
                 for member in guild.members:
                     try:
                         user_added = await self.leveling_loop.add_users(user=member)
                     except Exception as e:
                         logging.error(str(e))
-
-                    try:
-                        role_added = await self.leveling_loop.add_role(user=member)
-                        if role_added is None:
-                            logging.warning(f"Failed to add role to member {member}, returned None")
-                    except Exception as e:
-                        logging.error(str(e))
+                    if user_added:
+                        try:
+                            role_added = await self.leveling_loop.add_role(user=member)
+                            if role_added is None:
+                                logging.warning(f"Failed to add role to member {member}, returned None")
+                        except Exception as e:
+                            logging.error(str(e))
 
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
