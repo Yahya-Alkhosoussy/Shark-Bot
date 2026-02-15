@@ -87,9 +87,7 @@ class SharkLoops:
             def check(m: discord.Message):
                 return m.channel.id == channel_id and not m.author.bot and m.content.lower().startswith("?catch")
 
-            window_seconds = 120
-
-            deadline = time.monotonic() + window_seconds
+            deadline = time.monotonic() + self.config.window_time
             caught_users: dict[str, discord.Message] = {}  # username -> first catch message
             lists_of_after: dict[str, str] = {}
 
@@ -117,6 +115,7 @@ class SharkLoops:
                         await channel.send(
                             f"{msg.author.name} you do not own {lists_of_after.get(msg.author.name)}! Defaulting to rope net."
                         )
+                        lists_of_after[msg.author.name] = "rope net"
 
             success: list = []
             coins: int = 0
@@ -124,7 +123,7 @@ class SharkLoops:
             odds = sg.fishing_odds_shark
             for user in caught_users:  # looks through all the keys
                 num = random.randint(0, 100)
-                net = lists_of_after[user] if sg.is_net_available(user, lists_of_after[user]) else "rope net"
+                net = lists_of_after[user]
                 net_uses = 0
                 if net != "rope net":
                     available_nets, about_to_break, broken_nets, net_uses = sg.get_net_availability(user)
