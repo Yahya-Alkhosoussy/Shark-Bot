@@ -20,7 +20,7 @@ from SQL.fishingSQL.baits import (
     update_shop_prices,
     use_bait,
 )
-from utils.fishing import FishingConfig
+from utils.fishing import FishingConfig, remove_net_use
 
 
 class Fishing:
@@ -80,36 +80,9 @@ class Fishing:
                 await channel.send(f"Bait {bait} used! Becareful! you now have no more uses left!")
 
         if follow.content.strip().lower()[1:] in owned_nets:
-            # print("found it")
-            if follow.content.strip().lower()[1:] in about_to_break and net_uses == 21:
-                await message.reply(
-                    "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left"  # noqa: E501
-                )
-            elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 16:
-                await message.reply(
-                    "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 3 more of the same net left"  # noqa: E501
-                )
-            elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 11:
-                await message.reply(
-                    "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 2 more of the same net left"  # noqa: E501
-                )
-            elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 6:
-                await message.reply(
-                    "WARNING: Net is about to break, 1 more use left. Do not worry through because you have 1 more of the same net left"  # noqa: E501
-                )
-            elif follow.content.strip().lower()[1:] in about_to_break and net_uses == 1:
-                await message.reply("WARNING: Net is about to break, 1 more use left. This is your last net")
-
-            if follow.content.strip().lower()[1:] in broken and net_uses == 20:
-                await message.reply("WARNING: Net broken, don't worry through because you have 4 more of the same net left")
-            elif follow.content.strip().lower()[1:] in broken and net_uses == 15:
-                await message.reply("WARNING: Net broken, don't worry through because you have 3 more of the same net left")
-            elif follow.content.strip().lower()[1:] in broken and net_uses == 10:
-                await message.reply("WARNING: Net broken, don't worry through because you have 2 more of the same net left")
-            elif follow.content.strip().lower()[1:] in broken and net_uses == 5:
-                await message.reply("WARNING: Net broken, don't worry through because you have 1 more of the same net left")
-            elif follow.content.strip().lower()[1:] in broken and net_uses == 0:
-                await message.reply("WARNING: Net broken. You have no more uses of the same net left")
+            warning = remove_net_use(net=follow.content.strip().lower()[1:], user=user.name)
+            if warning:
+                await message.reply(warning)
 
             await message.reply("Net found, fishing now! 🎣")
             net = follow.content.strip().lower()[1:]
