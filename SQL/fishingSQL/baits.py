@@ -5,9 +5,7 @@ from pathlib import Path
 
 import exceptions.exceptions as ex
 from SQL.sharkGamesSQL.sharkGameSQL import check_currency, remove_coins
-from utils.fishing import FishingConfig
 
-config = FishingConfig(Path(r"fishing\fishing.yaml"))
 logging
 conn = sqlite3.connect("databases/fishing.db")
 cur = conn.cursor()
