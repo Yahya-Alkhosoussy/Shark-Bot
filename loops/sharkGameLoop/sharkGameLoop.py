@@ -1,6 +1,7 @@
 import asyncio
 import datetime as dt
 import logging
+from pathlib import Path
 import random
 import time
 
@@ -9,8 +10,11 @@ from discord.ext import tasks
 
 # import your helpers/config
 import SQL.sharkGamesSQL.sharkGameSQL as sg
+from utils.fishing import remove_net_use, FishingConfig
 from utils.core import AppConfig
 
+
+fishing_config = FishingConfig(Path(r"fishing\fishing.yaml"))
 
 class SharkLoops:
     def __init__(self, client: discord.Client, config: AppConfig):
@@ -126,48 +130,9 @@ class SharkLoops:
                 net = lists_of_after[user] if lists_of_after[user] else "rope net"
                 net_uses = 0
                 if net != "rope net":
-                    available_nets, about_to_break, broken_nets, net_uses = sg.get_net_availability(user)
-                    if net in available_nets:
-                        print(net_uses)
-                        if net in about_to_break and net_uses == 21:
-                            await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left"  # noqa: E501
-                            )
-                        elif net in about_to_break and net_uses == 16:
-                            await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 3 more of the same net left"  # noqa: E501
-                            )
-                        elif net in about_to_break and net_uses == 11:
-                            await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 2 more of the same net left"  # noqa: E501
-                            )
-                        elif net in about_to_break and net_uses == 6:
-                            await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. Do not worry through because you have 1 more of the same net left"  # noqa: E501
-                            )
-                        elif net in about_to_break and net_uses == 1:
-                            await channel.send(
-                                f"WARNING @{user}: Net is about to break, 1 more use left. This is your last net"
-                            )
-
-                        if net in broken_nets and net_uses == 20:
-                            await channel.send(
-                                f"WARNING @{user}: Net broken, don't worry through because you have 4 more of the same net left"
-                            )
-                        elif net in broken_nets and net_uses == 15:
-                            await channel.send(
-                                f"WARNING @{user}: Net broken, don't worry through because you have 3 more of the same net left"
-                            )
-                        elif net in broken_nets and net_uses == 10:
-                            await channel.send(
-                                f"WARNING @{user}: Net broken, don't worry through because you have 2 more of the same net left"
-                            )
-                        elif net in broken_nets and net_uses == 5:
-                            await channel.send(
-                                f"WARNING @{user}: Net broken, don't worry through because you have 1 more of the same net left"
-                            )
-                        elif net in broken_nets and net_uses == 0:
-                            await channel.send(f"WARNING @{user}: Net broken. You have no more uses of the same net left")
+                    warning = remove_net_use(net=net, user=user)
+                    if warning:
+                        await channel.send(warning)
 
                 if num <= odds(str(user), net):
                     current_time = dt.datetime.now()
@@ -181,7 +146,7 @@ class SharkLoops:
                         rarity=rarity,
                         net_uses=net_uses,
                     )
-                    if self.config.boost is not None:
+                    if fishing_config.boost is not None:
                         coins = sg.reward_coins(
                             username=user,
                             rare=rarity,
