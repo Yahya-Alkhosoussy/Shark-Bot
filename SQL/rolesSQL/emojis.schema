@@ -1,0 +1,7 @@
+CREATE TABLE
+    IF NOT EXISTS emojis (
+        id INTEGER PRIMARY KEY,
+        animated BOOLEAN,
+        name TEXT UNIQUE,
+        discord_id BIGINT
+    );

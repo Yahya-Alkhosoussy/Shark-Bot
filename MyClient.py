@@ -86,6 +86,7 @@ class MyClient(discord.Client):
                         user_added = await self.leveling_loop.add_users(user=member)
                     except Exception as e:
                         logging.error(str(e))
+                        user_added = False
                     if user_added:
                         try:
                             role_added = await self.leveling_loop.add_role(user=member)
@@ -366,7 +367,7 @@ Shark Catch Game:
                 channel = message.channel
                 if len(all_messages) > 1:
                     for msg in all_messages:
-                        channel.send(msg)
+                        await channel.send(msg)
 
         if message.content.startswith(prefix + "detailed dex"):
             dex = sg.get_dex(str(user))

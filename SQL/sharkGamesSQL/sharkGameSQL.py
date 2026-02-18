@@ -78,9 +78,9 @@ def get_all_facts(name: str):
 
 def create_dex(username: str, shark_name: str, when_caught: str, net_used: str, rarity: str, net_uses: int):
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS '{username} dex'
-                                (shark text, time text, fact text, weight real, net text, coins real, rarity text, level INTEGER, net_uses INTEGER)""")
+                                (shark text, time text, fact text, weight real, net text, coins real, rarity text, level INTEGER, net_uses INTEGER)""")  # noqa: E501
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS '{username} nets'
-                                ('rope net' BOOLEAN, 'leather net' BOOLEAN, 'gold net' BOOLEAN, 'titanium net' BOOLEAN, 'net of doom' BOOLEAN, time text)""")
+                                ('rope net' BOOLEAN, 'leather net' BOOLEAN, 'gold net' BOOLEAN, 'titanium net' BOOLEAN, 'net of doom' BOOLEAN, time text)""")  # noqa: E501
     fact = get_something(shark_name, "fact")
     weight = get_something(shark_name, "weight")
     net_type: str = net_used
@@ -567,7 +567,7 @@ def is_net_available(username: str, net: str):
         return False
 
 
-def check_currency(username: str) -> int:
+def check_currency(username: str) -> int | None:
     rows = []
     try:
         for row in cursor.execute(f"SELECT coins FROM '{username} dex' ORDER BY time DESC LIMIT 1"):
@@ -583,8 +583,8 @@ def buy_net(username: str, net: int):
     Allows users to buy a net from a certain selection of nets
 
     Inputs:
-        Username: str           This is the user's discord username that is used for the SQL tables.
-        Net: int                This is the number corresponding to the net they want to buy, refer to num_to_net class for the numbers.
+        Username: str   This is the user's discord username that is used for the SQL tables.
+        Net: int        This is the number corresponding to the net they want to buy, refer to num_to_net class for the numbers.
 
     Outputs:
         Successful: Bool        Was the buying of the net successful?
@@ -692,7 +692,7 @@ def buy_net(username: str, net: int):
                 cursor.execute(f"INSERT INTO '{username} dex' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
             connection.commit()
             logging.info(
-                f"[SHARK GAME SQL] Net bought successfully by {username} and the net uses for {net_to_buy} has been set to 25 at {latest_catch}"
+                f"[SHARK GAME SQL] Net bought successfully by {username} and the net uses for {net_to_buy} has been set to 25 at {latest_catch}"  # noqa: E501
             )
             return success, net_to_buy, None  # reason
         elif is_net_available(username, net_to_buy):

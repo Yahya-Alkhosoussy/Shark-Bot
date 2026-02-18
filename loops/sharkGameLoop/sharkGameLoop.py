@@ -1,20 +1,20 @@
 import asyncio
 import datetime as dt
 import logging
-from pathlib import Path
 import random
 import time
+from pathlib import Path
 
 import discord
 from discord.ext import tasks
 
 # import your helpers/config
 import SQL.sharkGamesSQL.sharkGameSQL as sg
-from utils.fishing import remove_net_use, FishingConfig
 from utils.core import AppConfig
-
+from utils.fishing import FishingConfig, remove_net_use
 
 fishing_config = FishingConfig(Path(r"fishing\fishing.yaml"))
+
 
 class SharkLoops:
     def __init__(self, client: discord.Client, config: AppConfig):
@@ -110,16 +110,16 @@ class SharkLoops:
                 after = content[len("?catch") :].strip() if content.lower().startswith("?catch") else ""
 
                 # only first successful catch per user counts
-                if msg.author.name not in caught_users:
-                    # print(msg.author.name)
-                    caught_users[msg.author.name] = msg
-                    lists_of_after[msg.author.name] = after
+                user_name = msg.author.name
+                if user_name not in caught_users:
+                    caught_users[user_name] = msg
+                    lists_of_after[user_name] = after
                     # Send a message to the user if the net is not available after they send the `?catch` command.
-                    if not sg.is_net_available(msg.author.name, after) and after:
+                    if not sg.is_net_available(user_name, after) and after:
                         await channel.send(
-                            f"{msg.author.mention} you do not own {lists_of_after.get(msg.author.name)}! Defaulting to rope net."
+                            f"{msg.author.mention} you do not own {lists_of_after.get(user_name)}! Defaulting to rope net."
                         )
-                        lists_of_after[msg.author.name] = "rope net"
+                        lists_of_after[user_name] = "rope net"
 
             success: list = []
             coins: int = 0
@@ -152,8 +152,8 @@ class SharkLoops:
                             rare=rarity,
                             shark=True,
                             shark_name=name_to_drop,
-                            boost=self.config.boost,
-                            boost_amount=self.config.boost_amount,
+                            boost=fishing_config.boost,
+                            boost_amount=fishing_config.boost_amount,
                         )
                     else:
                         coins = sg.reward_coins(username=user, rare=rarity, shark=True, shark_name=name_to_drop)
