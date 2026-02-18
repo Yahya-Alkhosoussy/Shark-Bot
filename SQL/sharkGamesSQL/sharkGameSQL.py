@@ -926,7 +926,7 @@ def fishing_odds_shark(username: str, net_used: str = "rope net"):
         case "leather net":
             return 30
         case _:
-            return 20
+            return 100
 
 
 def fishing_odds_fish(username: str, net_used: str = "rope net"):
