@@ -8,7 +8,6 @@ import discord
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
-from data.gids import roles_per_gid
 from exceptions import exceptions as ex
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
@@ -16,6 +15,7 @@ from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from SQL.fishingSQL.baits import get_baits
+from SQL.rolesSQL.roles import fill_emoji_map
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
 from utils.ticketing import TicketingConfig
@@ -65,7 +65,7 @@ class MyClient(discord.Client):
         self.leveling_loop = levelingLoop(self)
         self.ticket_system = TicketSystem(self)
         self._ticket_setup_done: dict = config.set_up_done
-        self.reaction_handler = reaction_handler(config=config, roles_per_guild=roles_per_gid(GIDS, ROLES), bot=self)
+        self.reaction_handler = reaction_handler(config=config, roles_per_guild=fill_emoji_map(), bot=self)
         self.fishing = Fishing(self)
 
     # ======= ON RUN =======
@@ -208,6 +208,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "check level") and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.check_level(message)
+
+        if message.content.startswith(prefix + "add role"):
+            ""
 
         if message.content.startswith(prefix + "update shop items"):
             "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"

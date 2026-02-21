@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
 from enum import Enum
@@ -10,6 +11,8 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_serializer
 from pydantic_core import core_schema
 from typing_extensions import Self
+
+from SQL.rolesSQL.roles import get_roles
 
 DiscordNamedObjType = TypeVar("DiscordNamedObjType", bound="DiscordNamedObj")
 
@@ -399,18 +402,18 @@ class AppConfig(BaseConfig):
 
     def loadConfig(self, confPath: Path):
         fromYaml = self._loadYamlDict(confPath)
-
+        # From YAML
         for confkey, confvalue in fromYaml.items():
             match confkey:
                 case "guilds":
                     if confvalue and isinstance(confvalue, dict):
                         self.guilds = GuildSet([Guild(guildName=key, guildId=value) for key, value in confvalue.items()])
-                case "roles":
-                    if confvalue and isinstance(confvalue, dict):
-                        self.roles = {
-                            key: RoleSet([Role(roleName=subkey, roleId=subvalue) for subkey, subvalue in value.items()])
-                            for key, value in confvalue.items()
-                        }
+                # case "roles":
+                #     if confvalue and isinstance(confvalue, dict):
+                #         self.roles = {
+                #             key: RoleSet([Role(roleName=subkey, roleId=subvalue) for subkey, subvalue in value.items()])
+                #             for key, value in confvalue.items()
+                #         }
                 case "channels":
                     if confvalue and isinstance(confvalue, dict):
                         self.channels = {
@@ -454,6 +457,19 @@ class AppConfig(BaseConfig):
                     if confvalue and isinstance(confvalue, int):
                         self.window_time = confvalue
 
+        # From SQL
+        # Filling up the roles
+        name_list, id_list, role_set_names = get_roles()
+        grouped = defaultdict(list)
+        for role_set_name, name, id in zip(role_set_names, name_list, id_list):
+            grouped[role_set_name].append((name, id))
+
+        self.roles = {
+            role_set_name: RoleSet([Role(roleName=name, roleId=id) for name, id in roles])
+            for role_set_name, roles in grouped.items()
+        }
+
+        # Filling up guilds
         self._afterLoad(confPath)
 
     # This is to check if the guild ID is in the config

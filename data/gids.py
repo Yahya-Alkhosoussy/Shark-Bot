@@ -13,7 +13,7 @@ def roles_per_gid(gids: dict[str, int], roles: dict[str, dict[str, int]]):
         },
         gids["shark squad"]: {
             "birthdays": {
-                discord.PartialEmoji(name="🎆"): roles["birthdays"]["January babies"],
+                discord.PartialEmoji(name="🎆"): roles["birthdays"]["Janruary babies"],
                 discord.PartialEmoji(name="💌"): roles["birthdays"]["February babies"],
                 discord.PartialEmoji(name="🍀"): roles["birthdays"]["March babies"],
                 discord.PartialEmoji(name="🪺"): roles["birthdays"]["April babies"],
@@ -28,11 +28,8 @@ def roles_per_gid(gids: dict[str, int], roles: dict[str, dict[str, int]]):
             },
             "general": {
                 discord.PartialEmoji(name="🎮"): roles["general"]["shark games"],
-                discord.PartialEmoji(name="❗"): roles["general"]["shark update"],
-                discord.PartialEmoji(name="💻"): roles["general"]["discord bot update"],
-                discord.PartialEmoji(name="Zerotwodrinkbyliliiet112", id=1318361002072604692): roles["backpacks and sherpas"][
-                    "ZZZ backpack"
-                ],
+                discord.PartialEmoji(name="❗"): roles["general"]["shark updates"],
+                discord.PartialEmoji(name="💻"): roles["general"]["discord bot updates"],
                 discord.PartialEmoji(name="🎫"): roles["general"]["shark movie ticket"],
             },
             "backpack": {

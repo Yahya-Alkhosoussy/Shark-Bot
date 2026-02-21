@@ -246,3 +246,34 @@ class reaction_handler:
                 return
         else:
             logging.error(f"Failed to remove reaction. get_member failed for guild ID {gid} and user ID {payload.user_id}")
+
+    # async def add_to_react_roles(self, message: discord.Message):
+    #     await message.reply(
+    #         "Please send the name of the role using `?role name` or send `cancel` to cancel. You have 30 seconds"
+    #     )
+
+    #     def check(m: discord.Message):
+    #         return (
+    #             m.author.id == message.author.id
+    #             and m.channel.id == message.channel.id
+    #             and (m.content.strip().lower() == "cancel" or m.content.strip().startswith("?"))
+    #         )
+
+    #     try:
+    #         role_name_msg = await self.BOT.wait_for("message", check=check, timeout=30)
+    #     except asyncio.TimeoutError:
+    #         await message.reply("Timed out, try again with `?add role`")
+    #         return
+
+    #     if role_name_msg.content.strip().lower() != "cancel":
+    #         role_name = role_name_msg.content.strip()[1:]
+
+    #     await role_name_msg.reply("To confirm, the role")
+    #     try:
+    #         role_id_msg = await self.BOT.wait_for("message", check=check, timeout=30)
+    #     except asyncio.TimeoutError:
+    #         await message.reply("Timed out, try again with `?add role`")
+    #         return
+
+    #     if
+    #     add_role()
