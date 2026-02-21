@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import discord
@@ -247,33 +248,45 @@ class reaction_handler:
         else:
             logging.error(f"Failed to remove reaction. get_member failed for guild ID {gid} and user ID {payload.user_id}")
 
-    # async def add_to_react_roles(self, message: discord.Message):
-    #     await message.reply(
-    #         "Please send the name of the role using `?role name` or send `cancel` to cancel. You have 30 seconds"
-    #     )
+    async def add_to_react_roles(self, message: discord.Message):
+        await message.reply("Please send the name of the role or send `cancel` to cancel. You have 30 seconds")
 
-    #     def check(m: discord.Message):
-    #         return (
-    #             m.author.id == message.author.id
-    #             and m.channel.id == message.channel.id
-    #             and (m.content.strip().lower() == "cancel" or m.content.strip().startswith("?"))
-    #         )
+        def check(m: discord.Message):
+            return m.author.id == message.author.id and m.channel.id == message.channel.id
 
-    #     try:
-    #         role_name_msg = await self.BOT.wait_for("message", check=check, timeout=30)
-    #     except asyncio.TimeoutError:
-    #         await message.reply("Timed out, try again with `?add role`")
-    #         return
+        try:
+            role_name_msg = await self.BOT.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?add role`")
+            return
 
-    #     if role_name_msg.content.strip().lower() != "cancel":
-    #         role_name = role_name_msg.content.strip()[1:]
+        if role_name_msg.content.strip().lower() == "cancel":
+            await role_name_msg.reply("Okay cancelling.")
+            return
 
-    #     await role_name_msg.reply("To confirm, the role")
-    #     try:
-    #         role_id_msg = await self.BOT.wait_for("message", check=check, timeout=30)
-    #     except asyncio.TimeoutError:
-    #         await message.reply("Timed out, try again with `?add role`")
-    #         return
+        role_name = role_name_msg.content.strip()[1:]
 
-    #     if
-    #     add_role()
+        await role_name_msg.reply(f"To confirm, the role name is {role_name}. Send confirm to confirm or deny to deny.")
+        try:
+            confirm_name_msg = await self.BOT.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?add role`")
+            return
+
+        if confirm_name_msg.content.lower() == "deny":
+            await confirm_name_msg.reply("okay, cancelling operation, try again with `?add role`")
+            return
+
+        await confirm_name_msg.reply("Please @ the role you want to add")
+
+        def role_id_check(m: discord.Message):
+            return m.author.id == message.author.id and m.channel.id == message.channel.id and m.content.startswith("<@&")
+
+        try:
+            role_id_msg = await self.BOT.wait_for("message", check=role_id_check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?add role`")
+            return
+
+        role_id = int(role_id_msg.content[3:-1])  # This cuts the <@& and the final > to get the number
+        # add_role()
