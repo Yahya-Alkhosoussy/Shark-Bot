@@ -89,6 +89,9 @@ class Fishing:
         elif follow.content.strip().lower()[1:] == "none":
             await channel.send("Using basic net. Fishing now! 🎣")
             net = "rope net"
+        else:
+            await channel.send("Net not found, using basic net!")
+            net = "rope net"
 
         fish_odds = sg.fishing_odds_fish(username=str(user), net_used=net)
 
@@ -111,8 +114,8 @@ class Fishing:
                         f"Oh lord, you have caught a shark that has randomly stumbled it's way here! 🦈 Congratulations on the {names[rand_idx]}. You have been given {coin} coins."  # noqa: E501
                     )
                 elif catch_type <= 25:  # large fish 20% chance
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
+                    f_rarity = random.randint(1, 100)
+                    if f_rarity <= 10:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -126,7 +129,7 @@ class Fishing:
                         await channel.send(
                             f"Congratulations! You have caught a large legendary fish! 🐟 You have been rewarded {coin} coins."
                         )
-                    elif rarity <= 40:
+                    elif f_rarity <= 40:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -155,8 +158,8 @@ class Fishing:
                             f"Congratulations! You have caught a large normal fish! 🐟 You have been rewarded {coin} coins"
                         )
                 elif catch_type <= 50:  # medium fish 25% chance
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
+                    f_rarity = random.randint(1, 100)
+                    if f_rarity <= 10:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -170,7 +173,7 @@ class Fishing:
                         await channel.send(
                             f"Congratulations! You have caught a medium legendary fish! 🐟 You have been rewarded {coin} coins"
                         )
-                    elif rarity <= 40:
+                    elif f_rarity <= 40:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -199,8 +202,8 @@ class Fishing:
                             f"Congratulations! You have caught a medium normal fish! 🐟 You have been rewarded {coin} coins"
                         )
                 elif catch_type <= 80:  # small fish 30%
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
+                    f_rarity = random.randint(1, 100)
+                    if f_rarity <= 10:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -214,7 +217,7 @@ class Fishing:
                         await channel.send(
                             f"Congratulations! You have caught a small legendary fish! 🐟 You have been rewarded {coin} coins"
                         )
-                    elif rarity <= 40:
+                    elif f_rarity <= 40:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -281,8 +284,8 @@ class Fishing:
                         f"Oh lord, you have caught a shark that has randomly stumbled it's way here! 🦈 Congratulations on the {names[rand_idx]}. You have been given {coin} coins."  # noqa: E501
                     )
                 elif catch_type <= 65:  # large fish 30% chance
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
+                    f_rarity = random.randint(1, 100)
+                    if f_rarity <= 10:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -296,7 +299,7 @@ class Fishing:
                         await channel.send(
                             f"Congratulations! You have caught a large legendary fish! 🐟 You have been rewarded {coin} coins."
                         )
-                    elif rarity <= 40:
+                    elif f_rarity <= 40:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -325,8 +328,8 @@ class Fishing:
                             f"Congratulations! You have caught a large normal fish! 🐟 You have been rewarded {coin} coins"
                         )
                 elif catch_type <= 80:  # medium fish 15% chance
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
+                    f_rarity = random.randint(1, 100)
+                    if f_rarity <= 10:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -340,7 +343,7 @@ class Fishing:
                         await channel.send(
                             f"Congratulations! You have caught a medium legendary fish! 🐟 You have been rewarded {coin} coins"
                         )
-                    elif rarity <= 40:
+                    elif f_rarity <= 40:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -369,8 +372,8 @@ class Fishing:
                             f"Congratulations! You have caught a medium normal fish! 🐟 You have been rewarded {coin} coins"
                         )
                 elif catch_type <= 90:  # small fish 10%
-                    rarity = random.randint(1, 100)
-                    if rarity <= 10:
+                    f_rarity = random.randint(1, 100)
+                    if f_rarity <= 10:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -384,7 +387,7 @@ class Fishing:
                         await channel.send(
                             f"Congratulations! You have caught a small legendary fish! 🐟 You have been rewarded {coin} coins"
                         )
-                    elif rarity <= 40:
+                    elif f_rarity <= 40:
                         coin = sg.reward_coins(
                             str(user),
                             False,
@@ -464,7 +467,7 @@ class Fishing:
             f"Bait name will be {follow.content}. Send the price of the bait or send `?cancel` to cancel! You have 30 seconds!"
         )
         bait_name = follow.content
-        channel.send("Please only send the number!")
+        await channel.send("Please only send the number!")
         try:
             follow_up_2 = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
@@ -480,7 +483,7 @@ class Fishing:
                 f"{follow_up.content} will cost {int(follow_up_2.content)} coins, to confirm send `?confirm` and anything else to cancel"  # noqa E501
             )
         except ValueError as e:
-            raise f"Ran into an issue updating the shop items: {e}"
+            raise ValueError(f"Ran into an issue updating the shop items: {e}")
 
         try:
             follow_up_3 = await self.client.wait_for("message", check=check, timeout=30)
@@ -537,7 +540,7 @@ class Fishing:
             f"Bait that will be edited is: {follow.content}. Send the price of the bait or send `?cancel` to cancel! You have 30 seconds!"  # noqa: E501
         )
         bait_name = follow.content
-        channel.send("Please only send the number!")
+        await channel.send("Please only send the number!")
         try:
             follow_up_2 = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
@@ -553,7 +556,7 @@ class Fishing:
                 f"{follow_up.content} will cost {int(follow_up_2.content)} coins, to confirm send `?confirm` and anything else to cancel"  # noqa E501
             )
         except ValueError as e:
-            raise f"Ran into an issue updating the shop items: {e}"
+            raise ValueError(f"Ran into an issue updating the shop items: {e}")
 
         try:
             follow_up_3 = await self.client.wait_for("message", check=check, timeout=30)
@@ -619,7 +622,10 @@ class Fishing:
                 return
         try:
             check_user_is_in_baits(username=message.author.name)
-            success, bait_bought, reason = buy_baits(username=message.author.name, bait=int(follow.content))
+            if follow:
+                success, bait_bought, reason = buy_baits(username=message.author.name, bait=int(follow.content))
+            else:
+                raise ValueError()
         except ex.ItemNotFound as e:
             raise e
         except ValueError:
