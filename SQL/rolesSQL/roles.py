@@ -421,18 +421,16 @@ roles table:
 """
 
 
-def get_roles():
-    """
-    Returns the roleSetName, roleName and RoleID
-    """
-    role_names: list[str] = []
-    role_ids: list[int] = []
-    role_set_names: list[str] = []
-    for emoji_result in emojiResults:
-        role_names.append(emoji_result.roleName)
-        role_ids.append(emoji_result.roleId)
-        role_set_names.append(emoji_result.roleSetName)
-    return role_names, role_ids, role_set_names
+def get_guilds() -> tuple[list[str], list[int]]:
+    """Returns guild name and guild ID"""
+    cur.execute("SELECT name, guild_id FROM guilds")
+
+    rows = cur.fetchall()
+    names, ids = [], []
+    for row in rows:
+        names.append(row[0])
+        ids.append(row[1])
+    return names, ids
 
 
 def add_role(
@@ -440,7 +438,7 @@ def add_role(
     role_id: int,
     role_emoji_name: str,
     is_emoji_animated: bool,
-    role_emoji_id: int,
+    role_emoji_id: int | None,
     role_set_name: str,
     guild_name: str,
 ) -> bool:
