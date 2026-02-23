@@ -385,6 +385,7 @@ class AppConfig(BaseConfig):
     window_time: int = Field(default=0, serialization_alias="window time")
     set_up_done: dict[Guild, bool] = Field(default_factory=dict, serialization_alias="set up done")
 
+    mod_roles = ["Mommy", "Daddy", "Lead Shark Wranglers", "Shark Wranglers", "Admin"]
     model_config = ConfigDict(serialize_by_alias=True)
 
     def __init__(self, confPath: Path, **data):
@@ -496,3 +497,11 @@ class AppConfig(BaseConfig):
         guild_log_channel = bot.get_channel(guild_log_channel_id)
         if isinstance(guild_log_channel, discord.TextChannel):
             await guild_log_channel.send(log_message)
+
+    def check_for_mod_role(self, roles: list[discord.Role]) -> bool:
+        for role in roles:
+            if role.name in self.mod_roles:
+                return True
+            else:
+                continue
+        return False

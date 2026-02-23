@@ -43,8 +43,6 @@ except ValidationError as e:
     raise e
 
 GIDS: dict[str, int] = {k: v.id for k, v in config.guilds}
-# Temporarily here
-MOD_ROLES: list[str] = ["Mommy", "Daddy", "Lead Shark Wranglers", "Shark Wranglers", "Admin"]
 
 
 # ======= ENUM CLASS =======
@@ -213,16 +211,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "timeout"):
             if type(message.author) is discord.Member:
-                roles = message.author.roles
-                moderator = False
-                for role in roles:
-                    if role.name in MOD_ROLES:
-                        moderator = True
-                        break
-                    else:
-                        moderator = False
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
 
-                if not moderator:
+                if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
@@ -245,16 +236,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "kick"):
             if type(message.author) is discord.Member:
-                roles = message.author.roles
-                moderator = False
-                for role in roles:
-                    if role.name in MOD_ROLES:
-                        moderator = True
-                        break
-                    else:
-                        moderator = False
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
 
-                if not moderator:
+                if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
@@ -270,16 +254,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "ban"):
             if type(message.author) is discord.Member:
-                roles = message.author.roles
-                moderator = False
-                for role in roles:
-                    if role.name in MOD_ROLES:
-                        moderator = True
-                        break
-                    else:
-                        moderator = False
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
 
-                if not moderator:
+                if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
@@ -295,16 +272,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "add role"):
             if type(message.author) is discord.Member:
-                roles = message.author.roles
-                moderator = False
-                for role in roles:
-                    if role.name in MOD_ROLES:
-                        moderator = True
-                        break
-                    else:
-                        moderator = False
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
 
-                if not moderator:
+                if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
@@ -320,16 +290,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "update shop items"):
             if type(message.author) is discord.Member:
-                roles = message.author.roles
-                moderator = False
-                for role in roles:
-                    if role.name in MOD_ROLES:
-                        moderator = True
-                        break
-                    else:
-                        moderator = False
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
 
-                if not moderator:
+                if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
@@ -340,16 +303,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "update shop prices"):
             if type(message.author) is discord.Member:
-                roles = message.author.roles
-                moderator = False
-                for role in roles:
-                    if role.name in MOD_ROLES:
-                        moderator = True
-                        break
-                    else:
-                        moderator = False
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
 
-                if not moderator:
+                if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
