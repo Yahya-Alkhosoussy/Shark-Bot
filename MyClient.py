@@ -217,7 +217,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
                     await message.reply("You aren't a mod, go away")
                     return
 
-                to_send = """Thank you for asking for help! 
+                to_send = """Thank you for asking for help!
 The following are mod exclusive actions:
 1. `?timeout [@user] [duration in seconds]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
 2. `?kick [@user]` - This command is to kick any user from the server.
@@ -247,7 +247,7 @@ The following are mod exclusive actions:
                 member = await message.guild.fetch_member(user_id)
                 await member.timeout(timeout_duration)
                 await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has timed out user ({member.name} (nicknamed: {member.nick})) for {timeout_duration_int} seconds",
+                    log_message=f"{message.author.name} has timed out user ({member.name} (nicknamed: {member.nick})) for {timeout_duration_int} seconds",  # noqa: E501
                     bot=self,
                     guild_id=message.guild.id,
                 )
@@ -264,7 +264,7 @@ The following are mod exclusive actions:
                 user_id = int(user_id[2:-1])
                 member = await message.guild.fetch_member(user_id)
                 await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has kicked user {member.name} (nicknamed: {member.nick}) from the server.",
+                    log_message=f"{message.author.name} has kicked user {member.name} (nicknamed: {member.nick}) from the server.",  # noqa: E501
                     bot=self,
                     guild_id=message.guild.id,
                 )
@@ -282,7 +282,7 @@ The following are mod exclusive actions:
                 user_id = int(user_id[2:-1])
                 member = await message.guild.fetch_member(user_id)
                 await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has banned user {member.name} (nicknamed: {member.nick}) from the server.",
+                    log_message=f"{message.author.name} has banned user {member.name} (nicknamed: {member.nick}) from the server.",  # noqa: E501
                     bot=self,
                     guild_id=message.guild.id,
                 )

@@ -62,7 +62,7 @@ class reaction_handler:
                         raise TypeError("[RR] cannot fetch messages from a non-text channel")
                 except (discord.NotFound, discord.Forbidden, discord.HTTPException, TypeError) as e:
                     logging.error(
-                        f"[RR] could not fetch existing react-roles message {rr_message.name} in {guild_name}\nInner Exception: {e}"
+                        f"[RR] could not fetch existing react-roles message {rr_message.name} in {guild_name}\nInner Exception: {e}"  # noqa: E501
                     )
                     continue
 
@@ -372,7 +372,7 @@ class reaction_handler:
         role_set = role_set_msg.content
 
         await role_set_msg.reply(
-            f"To confirm, the role will be added to the `{role_set}` react roles message? Send confirm to confirm or deny to deny"
+            f"To confirm, the role will be added to the `{role_set}` react roles message? Send confirm to confirm or deny to deny"  # noqa: E501
         )
 
         try:
