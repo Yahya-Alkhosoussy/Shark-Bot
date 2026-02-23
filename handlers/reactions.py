@@ -255,7 +255,7 @@ class reaction_handler:
         else:
             logging.error(f"Failed to remove reaction. get_member failed for guild ID {gid} and user ID {payload.user_id}")
 
-    async def add_to_react_roles(self, message: discord.Message):
+    async def add_to_react_roles(self, message: discord.Message) -> int | None:
         await message.reply("Please send the name of the role or send `cancel` to cancel. You have 30 seconds")
 
         def check(m: discord.Message):
@@ -403,6 +403,7 @@ class reaction_handler:
                     )
                     await self.ensure_react_roles_message_internal(guild=message.guild, roles_per_guild=fill_emoji_map())
                     await message.reply("Role added and react roles message updated!!")
+                    return role_id
                 except OperationalError as e:
                     raise RoleNotAdded(message=str(e), error_code=1003)
         else:

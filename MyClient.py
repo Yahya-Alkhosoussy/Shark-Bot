@@ -42,6 +42,8 @@ except ValidationError as e:
     raise e
 
 GIDS: dict[str, int] = {k: v.id for k, v in config.guilds}
+# Temporarily here
+MOD_ROLES: list[str] = ["Mommy", "Daddy", "Lead Shark Wranglers", "Shark Wranglers", "Admin"]
 
 
 # ======= ENUM CLASS =======
@@ -209,20 +211,65 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             await self.leveling_loop.check_level(message)
 
         if message.content.startswith(prefix + "add role"):
+            if type(message.author) is discord.Member:
+                roles = message.author.roles
+                moderator = False
+                for role in roles:
+                    if role.name in MOD_ROLES:
+                        moderator = True
+                        break
+                    else:
+                        moderator = False
+
+                if not moderator:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
             try:
-                await self.reaction_handler.add_to_react_roles(message)
+                role_id = await self.reaction_handler.add_to_react_roles(message)
+                log_channels = config.channels["log"]
+                guild_log_channel_id = log_channels[config.guilds[message.guild.id]]
+                guild_log_channel = self.get_channel(guild_log_channel_id)
+                if isinstance(guild_log_channel, discord.TextChannel):
+                    await guild_log_channel.send(f"Recently added a role (<@&{role_id}>) to react roles.")
             except ex.RoleNotAdded as e:
                 await message.reply(f"Encountered an issue: {str(e)}")
 
         if message.content.startswith(prefix + "update shop items"):
-            "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
+            if type(message.author) is discord.Member:
+                roles = message.author.roles
+                moderator = False
+                for role in roles:
+                    if role.name in MOD_ROLES:
+                        moderator = True
+                        break
+                    else:
+                        moderator = False
+
+                if not moderator:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
             try:
                 await self.fishing.add_into_shop_internal(message=message)
             except Exception as e:
                 await message.reply(str(e))
 
         if message.content.startswith(prefix + "update shop prices"):
-            "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
+            if type(message.author) is discord.Member:
+                roles = message.author.roles
+                moderator = False
+                for role in roles:
+                    if role.name in MOD_ROLES:
+                        moderator = True
+                        break
+                    else:
+                        moderator = False
+
+                if not moderator:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
             try:
                 await self.fishing.update_shop_prices_internal(message=message)
             except Exception as e:
