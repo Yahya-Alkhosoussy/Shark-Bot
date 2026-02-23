@@ -1,4 +1,5 @@
 import asyncio
+import datetime as dt
 import logging
 import os
 from enum import Enum
@@ -210,6 +211,88 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         if message.content.startswith(prefix + "check level") and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.check_level(message)
 
+        if message.content.startswith(prefix + "timeout"):
+            if type(message.author) is discord.Member:
+                roles = message.author.roles
+                moderator = False
+                for role in roles:
+                    if role.name in MOD_ROLES:
+                        moderator = True
+                        break
+                    else:
+                        moderator = False
+
+                if not moderator:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
+            content = message.content.split()
+            user_id = content[1]
+            user_id = int(user_id[2:-1])
+            try:
+                timeout_duration_int = int(content[2])
+            except ValueError:
+                await message.reply(f"You put {content[2]} as timeout duration but it is not a number.")
+                return
+            timeout_duration = dt.timedelta(seconds=timeout_duration_int)
+            member = await message.guild.fetch_member(user_id)
+            await member.timeout(timeout_duration)
+            await config.send_discord_mod_log(
+                log_message=f"{message.author.name} has timed out user ({member.name}) for {timeout_duration_int} seconds",
+                bot=self,
+                guild_id=message.guild.id,
+            )
+
+        if message.content.startswith(prefix + "kick"):
+            if type(message.author) is discord.Member:
+                roles = message.author.roles
+                moderator = False
+                for role in roles:
+                    if role.name in MOD_ROLES:
+                        moderator = True
+                        break
+                    else:
+                        moderator = False
+
+                if not moderator:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
+            user_id = message.content.split()[1]
+            user_id = int(user_id[2:-1])
+            member = await message.guild.fetch_member(user_id)
+            await member.kick()
+            await config.send_discord_mod_log(
+                log_message=f"{message.author.name} has kicked user {member.name} from the server.",
+                bot=self,
+                guild_id=message.guild.id,
+            )
+
+        if message.content.startswith(prefix + "ban"):
+            if type(message.author) is discord.Member:
+                roles = message.author.roles
+                moderator = False
+                for role in roles:
+                    if role.name in MOD_ROLES:
+                        moderator = True
+                        break
+                    else:
+                        moderator = False
+
+                if not moderator:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
+            user_id = message.content.split()[1]
+            user_id = int(user_id[2:-1])
+            member = await message.guild.fetch_member(user_id)
+            await member.ban()
+            await config.send_discord_mod_log(
+                log_message=f"{message.author.name} has banned user {member.name} from the server.",
+                bot=self,
+                guild_id=message.guild.id,
+            )
+
         if message.content.startswith(prefix + "add role"):
             if type(message.author) is discord.Member:
                 roles = message.author.roles
@@ -227,11 +310,11 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
             try:
                 role_id = await self.reaction_handler.add_to_react_roles(message)
-                log_channels = config.channels["log"]
-                guild_log_channel_id = log_channels[config.guilds[message.guild.id]]
-                guild_log_channel = self.get_channel(guild_log_channel_id)
-                if isinstance(guild_log_channel, discord.TextChannel):
-                    await guild_log_channel.send(f"Recently added a role (<@&{role_id}>) to react roles.")
+                await config.send_discord_mod_log(
+                    log_message=f"{message.author.name} has added a role (<@&{role_id}>) to react roles.",
+                    bot=self,
+                    guild_id=message.guild.id,
+                )
             except ex.RoleNotAdded as e:
                 await message.reply(f"Encountered an issue: {str(e)}")
 
