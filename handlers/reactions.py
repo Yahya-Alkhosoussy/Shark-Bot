@@ -1,8 +1,11 @@
 import asyncio
 import logging
+from sqlite3 import OperationalError
 
 import discord
 
+from exceptions.exceptions import RoleNotAdded
+from SQL.rolesSQL.roles import add_role, fill_emoji_map
 from utils.core import AppConfig, RoleMessageSet
 
 
@@ -17,7 +20,11 @@ class reaction_handler:
         self.BOT = bot
 
     # ======= Ensures React Roles message exists =======
-    async def ensure_react_roles_message_internal(self, guild: discord.Guild):
+    async def ensure_react_roles_message_internal(
+        self, guild: discord.Guild, roles_per_guild: dict[int, dict[str, dict[discord.PartialEmoji, int]]] | None = None
+    ):
+        if roles_per_guild is not None:
+            self.ROLES_PER_GUILD = roles_per_guild
         # check for guild config, if none found then skip
         if not self.config.is_guild_in_config(guild_id=guild.id):
             raise ValueError(f"Guild {guild.name} is not in the config. Skipping")
@@ -260,15 +267,23 @@ class reaction_handler:
             await message.reply("Timed out, try again with `?add role`")
             return
 
-        if role_name_msg.content.strip().lower() == "cancel":
+        if role_name_msg.content.lower() == "cancel":
             await role_name_msg.reply("Okay cancelling.")
             return
 
-        role_name = role_name_msg.content.strip()[1:]
+        role_name = role_name_msg.content
 
-        await role_name_msg.reply(f"To confirm, the role name is {role_name}. Send confirm to confirm or deny to deny.")
+        await role_name_msg.reply(f"To confirm, the role name is `{role_name}`. Send confirm to confirm or deny to deny.")
+
+        def confirm_check(m: discord.Message):
+            return (
+                m.author.id == message.author.id
+                and m.channel.id == message.channel.id
+                and (m.content.lower() == "confirm" or m.content.lower() == "deny")
+            )
+
         try:
-            confirm_name_msg = await self.BOT.wait_for("message", check=check, timeout=30)
+            confirm_name_msg = await self.BOT.wait_for("message", check=confirm_check, timeout=30)
         except asyncio.TimeoutError:
             await message.reply("Timed out, try again with `?add role`")
             return
@@ -289,4 +304,106 @@ class reaction_handler:
             return
 
         role_id = int(role_id_msg.content[3:-1])  # This cuts the <@& and the final > to get the number
-        # add_role()
+
+        await role_id_msg.reply(
+            f"To confirm, you want to add the following role: <@&{role_id}> Send confirm to confirm and deny to deny."
+        )
+
+        try:
+            confirm_role_id = await self.BOT.wait_for("message", check=confirm_check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?add role`")
+            return
+
+        if confirm_role_id.content.lower() == "deny":
+            await confirm_name_msg.reply("okay, cancelling operation, try again with `?add role`")
+            return
+
+        await confirm_name_msg.reply("Please send the emoji you want to use for the react roles:")
+
+        try:
+            role_emoji_msg = await self.BOT.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?add role`")
+            return
+
+        if role_emoji_msg.content.startswith("<:"):
+            animated = False
+            emoji_details = role_emoji_msg.content[2:-1].split(":", 1)
+            emoji_name = emoji_details[0]
+            emoji_id = int(emoji_details[1])
+            await role_emoji_msg.reply(
+                f"To confirm, you want to use the following emoji: <:{emoji_name}:{emoji_id}> send confirm to confirm or deny to deny"  # noqa: E501
+            )
+        elif role_emoji_msg.content.startswith("<a:"):
+            animated = True
+            emoji_details = role_emoji_msg.content[3:-1].split(":", 1)
+            emoji_name = emoji_details[0]
+            emoji_id = int(emoji_details[1])
+            await role_emoji_msg.reply(
+                f"To confirm, you want to use the following emoji: <a:{emoji_name}:{emoji_id}> send confirm to confirm or deny to deny"  # noqa: E501
+            )
+        else:
+            animated = False
+            emoji_name = role_emoji_msg.content
+            emoji_id = None
+            await role_emoji_msg.reply(
+                f"To confirm you want to use the following emoji: {emoji_name} send confirm to confirm or deny to deny"
+            )
+
+        try:
+            confirm_emoji_msg = await self.BOT.wait_for("message", check=confirm_check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?add role`")
+            return
+
+        if confirm_emoji_msg.content == "deny":
+            await confirm_name_msg.reply("okay, cancelling operation, try again with `?add role`")
+            return
+
+        await confirm_emoji_msg.reply("Please enter the name of the react roles message that the role will be added to: ")
+
+        try:
+            role_set_msg = await self.BOT.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?add role`")
+            return
+
+        role_set = role_set_msg.content
+
+        await role_set_msg.reply(
+            f"To confirm, the role will be added to the `{role_set}` react roles message? Send confirm to confirm or deny to deny"
+        )
+
+        try:
+            confirm_role_set_msg = await self.BOT.wait_for("message", check=confirm_check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?add role`")
+            return
+
+        if confirm_role_set_msg.content == "deny":
+            await confirm_role_set_msg.reply("okay, cancelling operation, try again with `?add role`")
+            return
+
+        await confirm_role_set_msg.reply("Adding role...")
+
+        if message.guild is not None:
+            guild_name = self.config.guilds[message.guild.id]
+
+            if guild_name:
+                try:
+                    add_role(
+                        role_name=role_name,
+                        role_id=role_id,
+                        role_emoji_name=emoji_name,
+                        is_emoji_animated=animated,
+                        role_emoji_id=emoji_id,
+                        role_set_name=role_set,
+                        guild_name=guild_name,
+                    )
+                    await self.ensure_react_roles_message_internal(guild=message.guild, roles_per_guild=fill_emoji_map())
+                    await message.reply("Role added and react roles message updated!!")
+                except OperationalError as e:
+                    raise RoleNotAdded(message=str(e), error_code=1003)
+        else:
+            raise RoleNotAdded(message="Guild not found", error_code=1004)
