@@ -1,4 +1,5 @@
 chat-exporter
+python-dotenv
 datetime
 discord
 pydantic

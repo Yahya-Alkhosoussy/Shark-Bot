@@ -11,6 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_serializer
 from pydantic_core import core_schema
 from typing_extensions import Self
 
+from SQL.rolesSQL.roles import get_guilds
+
 DiscordNamedObjType = TypeVar("DiscordNamedObjType", bound="DiscordNamedObj")
 
 
@@ -375,7 +377,6 @@ class BaseConfig(ABC, BaseModel):
 
 class AppConfig(BaseConfig):
     guilds: GuildSet = Field(default_factory=lambda: GuildSet([]), serialization_alias="guilds")
-    roles: dict[str, RoleSet] = Field(default_factory=dict, serialization_alias="roles")
     channels: dict[str, ChannelSet] = Field(default_factory=dict, serialization_alias="channels")
     guild_role_messages: dict[Guild, RoleMessageSet] = Field(default_factory=dict, serialization_alias="guild role messages")
     birthday_message: dict[str, bool] = Field(default_factory=dict, serialization_alias="birthday message")
@@ -391,26 +392,19 @@ class AppConfig(BaseConfig):
     def _validate_config(self):
         self._assert_populated(self.guilds)
         self._assert_populated(self.channels)
-        self._assert_populated(self.roles)
         self._assert_populated(self.guild_role_messages)
         self._assert_populated(self.birthday_message)
         self._assert_populated(self.set_up_done)
         assert self.time_per_loop > 0
 
     def loadConfig(self, confPath: Path):
-        fromYaml = self._loadYamlDict(confPath)
+        guild_names, guild_ids = get_guilds()
+        self.guilds = GuildSet([Guild(guildName=name, guildId=id) for name, id in zip(guild_names, guild_ids)])
 
+        fromYaml = self._loadYamlDict(confPath)
+        # From YAML
         for confkey, confvalue in fromYaml.items():
             match confkey:
-                case "guilds":
-                    if confvalue and isinstance(confvalue, dict):
-                        self.guilds = GuildSet([Guild(guildName=key, guildId=value) for key, value in confvalue.items()])
-                case "roles":
-                    if confvalue and isinstance(confvalue, dict):
-                        self.roles = {
-                            key: RoleSet([Role(roleName=subkey, roleId=subvalue) for subkey, subvalue in value.items()])
-                            for key, value in confvalue.items()
-                        }
                 case "channels":
                     if confvalue and isinstance(confvalue, dict):
                         self.channels = {
@@ -454,6 +448,7 @@ class AppConfig(BaseConfig):
                     if confvalue and isinstance(confvalue, int):
                         self.window_time = confvalue
 
+        # Filling up guilds
         self._afterLoad(confPath)
 
     # This is to check if the guild ID is in the config
