@@ -42,7 +42,6 @@ except ValidationError as e:
     raise e
 
 GIDS: dict[str, int] = {k: v.id for k, v in config.guilds}
-ROLES: dict = config.roles
 
 
 # ======= ENUM CLASS =======
@@ -210,7 +209,10 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             await self.leveling_loop.check_level(message)
 
         if message.content.startswith(prefix + "add role"):
-            ""
+            try:
+                await self.reaction_handler.add_to_react_roles(message)
+            except ex.RoleNotAdded as e:
+                await message.reply(f"Encountered an issue: {str(e)}")
 
         if message.content.startswith(prefix + "update shop items"):
             "IMPORTANT! AFTER ADDING ROLES TO SQL CHANGE THIS TO ONLY WORK WITH ADMIN ROLES"
