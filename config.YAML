@@ -1,63 +1,3 @@
-guilds:
-  test server: 1066090135839580231
-  shark squad: 1273776575266951268
-roles:
-  colour:
-    cyan: 1422681663342903438
-    orange: 1470819205564727427
-  general:
-    red: 1428757018792956085
-    shark games: 1398962532244520992
-    shark updates: 1335425471810375750
-    discord bot updates: 1433791804893040743
-    dyslexxik updates: 1461715493034655786
-    shark movie ticket: 1461715407839821918
-  test:
-    green: 1428757052993437767
-  birthdays:
-    Janruary babies: 1335413563627409429
-    February babies: 1335415340049371188
-    March babies: 1335416311089463378
-    April babies: 1335416850615504957
-    May babies: 1335417252270571560
-    June babies: 1335417579832873072
-    July babies: 1335417607825784864
-    August babies: 1335417655309369375
-    September babies: 1335417694228316172
-    October babies: 1335417733281480774
-    November babies: 1335417768404848640
-    December babies: 1335417794799341670
-  friend:
-    Marvel Rivals Friend: 1457472384641531954
-    TFD Friend: 1457472526312538266
-    Monster Hunter Friend: 1457472677303554111
-    Warframe Friend: 1457472769267601428
-    Elden Ring Friend: 1457472831507009739
-    Nightreign Friend: 1457472920132653199
-    Destiny Friend: 1457473018598260900
-    DNA Friend: 1459222288481255496
-    ZZZ Friend: 1459230046165274735
-    Gaming Friend: 1467166788105142324
-  backpack:
-    Marvel Rivals Backpack: 1432332559731130520
-    TFD Backpack: 1432333228408307802
-    Monster Hunter Backpack: 1432333412118691881
-    Warframe Backpack: 1432333502883303567
-    Elden Ring Backpack: 1432425438688575570
-    Nightreign Backpack: 1432425674315927582
-    Destiny Backpack: 1445833998919139460
-    DNA Backpack: 1459222514495524985
-    ZZZ Backpack: 1459229849175588925
-  sherpa:
-    Marvel Rivals Sherpa: 1432333018365689926
-    TFD Sherpa: 1432333345567805450
-    Monster Hunter Sherpa: 1432333501717413949
-    Warframe Sherpa: 1432333639361888256
-    Elden Ring Sherpa: 1432425574181113856
-    Nightreign Sherpa: 1432425787927298329
-    Destiny Sherpa: 1445834184303054928
-    DNA Sherpa: 1459222669949141012
-    ZZZ Sherpa: 1459229932508025046
 channels:
   announcement:
     test server: 1423015091686735912
@@ -75,8 +15,8 @@ channels:
 guild role messages:
   test server:
     colour: 1474800508370686095
-    general: 1474800514016215100
-    test: 1474800517262606337
+    general: 1475302912207880194
+    test: 1475304226501431297
   shark squad:
     general: 1432537821352296580
     birthdays: 1432539470334394408
