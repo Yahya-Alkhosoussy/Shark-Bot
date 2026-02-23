@@ -17,8 +17,8 @@ The bot has a built in fishing feature now where you can use a command like `?fi
 ## 5. Birthday Loop
 The bot has the capability of sending a happy birthday message to a role on the first of each month (for example, it would @janurary babies on the first of janurary).
 
-## 6. Leveling system (under construction):
-This feature is still in the works, but it's a levelling system just like Mee6 where it takes the messages people send and add it to their XP and level up whenever necessary.
+## 6. Leveling system:
+The bot has the capability of recording levels and locking/unlocking channels depending on the level the person is. As an example some channels unlock at level 5 rather than level 2 or 3.
 
 ## 7. Ticketing system:
-This feature is still being worked on, but it is a ticketting system that would work like mod mail as a simple example
+The bot now has built in a system that opens up channels for specific people for when they need help or need to deliver a message to the mods. 
