@@ -6,6 +6,7 @@ from os.path import getmtime
 from pathlib import Path
 from typing import Any, Callable, Generic, TypeVar, Union, cast, overload
 
+import discord
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_serializer
 from pydantic_core import core_schema
@@ -488,3 +489,10 @@ class AppConfig(BaseConfig):
             return True
         else:
             return False
+
+    async def send_discord_mod_log(self, log_message: str, bot: discord.Client, guild_id: int):
+        log_channels = self.channels["log"]
+        guild_log_channel_id = log_channels[self.guilds[guild_id]]
+        guild_log_channel = bot.get_channel(guild_log_channel_id)
+        if isinstance(guild_log_channel, discord.TextChannel):
+            await guild_log_channel.send(log_message)
