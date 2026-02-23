@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from os.path import getmtime
 from pathlib import Path
-from typing import Any, Callable, Generic, TypeVar, Union, cast, overload
+from typing import Any, Callable, ClassVar, Generic, TypeVar, Union, cast, overload
 
 import discord
 import yaml
@@ -385,7 +385,7 @@ class AppConfig(BaseConfig):
     window_time: int = Field(default=0, serialization_alias="window time")
     set_up_done: dict[Guild, bool] = Field(default_factory=dict, serialization_alias="set up done")
 
-    mod_roles = ["Mommy", "Daddy", "Lead Shark Wranglers", "Shark Wranglers", "Admin"]
+    mod_roles: ClassVar[list[str]] = ["Mommy", "Daddy", "Lead Shark Wranglers", "Shark Wranglers", "Admin"]
     model_config = ConfigDict(serialize_by_alias=True)
 
     def __init__(self, confPath: Path, **data):
