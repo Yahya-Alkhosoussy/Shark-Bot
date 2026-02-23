@@ -222,9 +222,9 @@ The following are mod exclusive actions:
 1. `?timeout [@user] [duration in seconds]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
 2. `?kick [@user]` - This command is to kick any user from the server.
 3. `?ban [@user]` - This command is to ban any user from the server.
-4. `add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
-5. `update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
-6. `update shop prices` - same as above but for prices."""  # noqa: E501
+4. `?add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
+5. `?update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
+6. `?update shop prices` - same as above but for prices."""  # noqa: E501
                 await message.reply(to_send)
 
         if message.content.startswith(prefix + "timeout"):
