@@ -209,110 +209,128 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         if message.content.startswith(prefix + "check level") and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.check_level(message)
 
+        if message.content.startswith(prefix + "mod help"):
+            if isinstance(message.author, discord.Member):
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
+
+                if not is_mod:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
+                to_send = """Thank you for asking for help! 
+The following are mod exclusive actions:
+1. `?timeout [@user] [duration in seconds]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
+2. `?kick [@user]` - This command is to kick any user from the server.
+3. `?ban [@user]` - This command is to ban any user from the server.
+4. `add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
+5. `update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
+6. `update shop prices` - same as above but for prices."""  # noqa: E501
+                await message.reply(to_send)
+
         if message.content.startswith(prefix + "timeout"):
-            if type(message.author) is discord.Member:
+            if isinstance(message.author, discord.Member):
                 is_mod: bool = config.check_for_mod_role(message.author.roles)
 
                 if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
-            content = message.content.split()
-            user_id = content[1]
-            user_id = int(user_id[2:-1])
-            try:
-                timeout_duration_int = int(content[2])
-            except ValueError:
-                await message.reply(f"You put {content[2]} as timeout duration but it is not a number.")
-                return
-            timeout_duration = dt.timedelta(seconds=timeout_duration_int)
-            member = await message.guild.fetch_member(user_id)
-            await member.timeout(timeout_duration)
-            await config.send_discord_mod_log(
-                log_message=f"{message.author.name} has timed out user ({member.name}) for {timeout_duration_int} seconds",
-                bot=self,
-                guild_id=message.guild.id,
-            )
-
-        if message.content.startswith(prefix + "kick"):
-            if type(message.author) is discord.Member:
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
+                content = message.content.split()
+                user_id = content[1]
+                user_id = int(user_id[2:-1])
+                try:
+                    timeout_duration_int = int(content[2])
+                except ValueError:
+                    await message.reply(f"You put {content[2]} as timeout duration but it is not a number.")
                     return
-
-            user_id = message.content.split()[1]
-            user_id = int(user_id[2:-1])
-            member = await message.guild.fetch_member(user_id)
-            await member.kick()
-            await config.send_discord_mod_log(
-                log_message=f"{message.author.name} has kicked user {member.name} from the server.",
-                bot=self,
-                guild_id=message.guild.id,
-            )
-
-        if message.content.startswith(prefix + "ban"):
-            if type(message.author) is discord.Member:
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-            user_id = message.content.split()[1]
-            user_id = int(user_id[2:-1])
-            member = await message.guild.fetch_member(user_id)
-            await member.ban()
-            await config.send_discord_mod_log(
-                log_message=f"{message.author.name} has banned user {member.name} from the server.",
-                bot=self,
-                guild_id=message.guild.id,
-            )
-
-        if message.content.startswith(prefix + "add role"):
-            if type(message.author) is discord.Member:
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-            try:
-                role_id = await self.reaction_handler.add_to_react_roles(message)
+                timeout_duration = dt.timedelta(seconds=timeout_duration_int)
+                member = await message.guild.fetch_member(user_id)
+                await member.timeout(timeout_duration)
                 await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has added a role (<@&{role_id}>) to react roles.",
+                    log_message=f"{message.author.name} has timed out user ({member.name} (nicknamed: {member.nick})) for {timeout_duration_int} seconds",
                     bot=self,
                     guild_id=message.guild.id,
                 )
-            except ex.RoleNotAdded as e:
-                await message.reply(f"Encountered an issue: {str(e)}")
+
+        if message.content.startswith(prefix + "kick"):
+            if isinstance(message.author, discord.Member):
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
+
+                if not is_mod:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
+                user_id = message.content.split()[1]
+                user_id = int(user_id[2:-1])
+                member = await message.guild.fetch_member(user_id)
+                await config.send_discord_mod_log(
+                    log_message=f"{message.author.name} has kicked user {member.name} (nicknamed: {member.nick}) from the server.",
+                    bot=self,
+                    guild_id=message.guild.id,
+                )
+                await member.kick()
+
+        if message.content.startswith(prefix + "ban"):
+            if isinstance(message.author, discord.Member):
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
+
+                if not is_mod:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
+                user_id = message.content.split()[1]
+                user_id = int(user_id[2:-1])
+                member = await message.guild.fetch_member(user_id)
+                await config.send_discord_mod_log(
+                    log_message=f"{message.author.name} has banned user {member.name} (nicknamed: {member.nick}) from the server.",
+                    bot=self,
+                    guild_id=message.guild.id,
+                )
+                await member.ban()
+
+        if message.content.startswith(prefix + "add role"):
+            if isinstance(message.author, discord.Member):
+                is_mod: bool = config.check_for_mod_role(message.author.roles)
+
+                if not is_mod:
+                    await message.reply("You aren't a mod, go away")
+                    return
+
+                try:
+                    role_id = await self.reaction_handler.add_to_react_roles(message)
+                    await config.send_discord_mod_log(
+                        log_message=f"{message.author.name} has added a role (<@&{role_id}>) to react roles.",
+                        bot=self,
+                        guild_id=message.guild.id,
+                    )
+                except ex.RoleNotAdded as e:
+                    await message.reply(f"Encountered an issue: {str(e)}")
 
         if message.content.startswith(prefix + "update shop items"):
-            if type(message.author) is discord.Member:
+            if isinstance(message.author, discord.Member):
                 is_mod: bool = config.check_for_mod_role(message.author.roles)
 
                 if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
-            try:
-                await self.fishing.add_into_shop_internal(message=message)
-            except Exception as e:
-                await message.reply(str(e))
+                try:
+                    await self.fishing.add_into_shop_internal(message=message)
+                except Exception as e:
+                    await message.reply(str(e))
 
         if message.content.startswith(prefix + "update shop prices"):
-            if type(message.author) is discord.Member:
+            if isinstance(message.author, discord.Member):
                 is_mod: bool = config.check_for_mod_role(message.author.roles)
 
                 if not is_mod:
                     await message.reply("You aren't a mod, go away")
                     return
 
-            try:
-                await self.fishing.update_shop_prices_internal(message=message)
-            except Exception as e:
-                await message.reply(str(e))
+                try:
+                    await self.fishing.update_shop_prices_internal(message=message)
+                except Exception as e:
+                    await message.reply(str(e))
 
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")
