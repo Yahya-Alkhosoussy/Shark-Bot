@@ -7,6 +7,7 @@ import discord
 from discord.ext import tasks
 from pydantic import ValidationError
 
+from SQL.birthdaySQL.birthdays import get_birthdays
 from utils.core import AppConfig
 
 try:
@@ -22,7 +23,7 @@ class BirthdayLoop:
         self._loops: dict[int, tasks.Loop] = {}  # Guild_id --> Loop
 
     def is_running(self, guild_id: int) -> bool:
-        loop = self._loops[guild_id]
+        loop = self._loops.get(guild_id)
         return bool(loop and loop.is_running())
 
     def start_for(self, guild_id: int):
@@ -38,20 +39,18 @@ class BirthdayLoop:
 
         async def _tick():
             # The Loop Body
-            current_date = dt.datetime.now(central).date()
+            current_date = dt.datetime.now().date()
             birthday_messages = self.config.birthday_message
             month = current_date.strftime("%B")
+            guild_name: str = self.config.guilds[guild_id]
+            channel_id: int = self.config.get_channel_id(guild_name=guild_name, channel="chatting")
+            channel = self.client.get_channel(channel_id)
+            if not (channel and isinstance(channel, discord.TextChannel)):
+                logging.error(f"Channel not found for channelId: {channel_id}, or channel is not a TextChannel")
+                return
+
             if str(current_date) in firsts and not birthday_messages[month]:
-                guild_name: str = self.config.guilds[guild_id]
-                channel_id: int = self.config.get_channel_id(guild_name=guild_name, channel="chatting")
-                channel = self.client.get_channel(channel_id)
-
-                if not (channel and isinstance(channel, discord.TextChannel)):
-                    logging.error(f"Channel not found for channelId: {channel_id}, or channel is not a TextChannel")
-                    return
-
                 current_month = current_date.month
-                print(current_month)
                 match current_month:
                     case 1:
                         await channel.send("Happy Birthday to <@&1335413563627409429>")
@@ -137,6 +136,19 @@ class BirthdayLoop:
                             logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
                         else:
                             logging.warning(f"{month} was not found in loaded config")
+
+            user_ids, birthdays = get_birthdays()
+            print(user_ids, birthdays)
+            for user_id, birthday in zip(user_ids, birthdays):
+                if birthday != str(current_date):
+                    print("skipping")
+                    continue
+
+                user = await self.client.fetch_user(user_id)
+                await channel.send(
+                    f"HEY THERE, its that time of year for {user.mention}, its their birthday!!! Happy Birthday!!"
+                )
+                print("message sent!")
 
         loop = tasks.loop(hours=13, reconnect=True)(_tick)
 
