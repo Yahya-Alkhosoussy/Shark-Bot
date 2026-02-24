@@ -6,6 +6,7 @@ from enum import Enum
 from pathlib import Path
 
 import discord
+from discord.ext import commands
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
@@ -57,9 +58,9 @@ class sharks_index(Enum):
 
 
 # ======= BOT =======
-class MyClient(discord.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class MyBot(commands.Bot):
+    def __init__(self, allowed_mentions, intents: discord.Intents):
+        super().__init__(command_prefix=prefix, intents=intents)
         self.shark_loops = SharkLoops(self, config)
         self.birthday_loops = BirthdayLoop(self, config)
         self.leveling_loop = levelingLoop(self)
@@ -78,9 +79,8 @@ class MyClient(discord.Client):
         for guild in self.guilds:
             await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
             guild_name: str = config.guilds[guild.id]
-
+            self.birthday_loops.start_for(guild.id)
             if guild_name == "shark squad":
-                # self.birthday_loops.start_for(guild.id)
                 for member in guild.members:
                     try:
                         user_added = await self.leveling_loop.add_users(user=member)
@@ -568,7 +568,7 @@ Shark Catch Game:
             follow = None
 
             try:
-                follow = await client.wait_for("message", check=check, timeout=30)
+                follow = await self.wait_for("message", check=check, timeout=30)
             except asyncio.TimeoutError:
                 await message.reply("Timed out, try again with `?buy net`")
 
@@ -602,7 +602,7 @@ Shark Catch Game:
             follow = None
 
             try:
-                follow = await client.wait_for("message", check=check, timeout=30)
+                follow = await self.wait_for("message", check=check, timeout=30)
             except asyncio.TimeoutError:
                 await message.reply("Timed out, try again with `?shark facts`")
                 return
@@ -633,11 +633,13 @@ Weight: {facts[fact_nums.WEIGHT.value]}
 Rarity: {facts[fact_nums.RARITY.value]}
             """
             await follow.reply(result)
+        await self.process_commands(message)
 
 
 # ===== RUN =====
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-client = MyClient(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=True))
-client.run(token=token, log_handler=handler)
+intents.message_content = True
+bot = MyBot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=True))
+bot.run(token=token, log_handler=handler)
