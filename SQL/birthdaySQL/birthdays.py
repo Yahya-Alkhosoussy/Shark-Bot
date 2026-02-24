@@ -27,3 +27,8 @@ def get_birthdays() -> tuple[list[int], list[str]]:
         birthdays.append(row[1])
 
     return ids, birthdays
+
+
+def edit_birthday(username: str, new_birthday: str):
+    cur.execute("UPDATE birthdays SET birthday=? WHERE name=?", (new_birthday, username))
+    conn.commit()
