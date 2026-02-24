@@ -138,17 +138,22 @@ class BirthdayLoop:
                             logging.warning(f"{month} was not found in loaded config")
 
             user_ids, birthdays = get_birthdays()
-            print(user_ids, birthdays)
+            birthdays_today: list[discord.User] = []
             for user_id, birthday in zip(user_ids, birthdays):
                 if birthday != str(current_date):
                     print("skipping")
                     continue
 
                 user = await self.client.fetch_user(user_id)
+                birthdays_today.append(user)
+            if len(birthdays_today) == 1:
+                user = birthdays_today[0]
                 await channel.send(
                     f"HEY THERE, its that time of year for {user.mention}, its their birthday!!! Happy Birthday!!"
                 )
-                print("message sent!")
+            elif len(birthdays_today) > 1:
+                to_send = f"HEY THERE, its that time of year happy birthday to the following: \n {[user.mention + '\n' for user in birthdays_today]}"  # noqa: E501
+                await channel.send(to_send)
 
         loop = tasks.loop(hours=13, reconnect=True)(_tick)
 
