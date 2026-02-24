@@ -4,7 +4,7 @@ conn = sqlite3.connect(r"databases/birthdays.db")
 cur = conn.cursor()
 
 cur.execute("""CREATE TABLE IF NOT EXISTS birthdays
-                        (id INTEGER PRIMARY KEY, name TEXT UNIQUE, discord_id BIGINT NOT NULL, birthday TEXT NOT NULL)""")
+                        (id INTEGER PRIMARY KEY, name TEXT UNIQUE, discord_id BIGINT NOT NULL UNIQUE, birthday TEXT NOT NULL)""")
 
 
 def add_birthday(username: str, user_id: int, birthday: str):
