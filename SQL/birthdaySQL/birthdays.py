@@ -11,6 +11,8 @@ cur.execute("""CREATE TABLE IF NOT EXISTS birthdays
 cur.execute("""CREATE TABLE IF NOT EXISTS birthday_gifs
                         (id INTEGER PRIMARY KEY, link TEXT UNIQUE)""")
 
+conn.commit()
+
 
 def add_birthday(username: str, user_id: int, birthday: str):
     try:
@@ -42,6 +44,7 @@ def edit_birthday(username: str, new_birthday: str):
 def add_gif_to_table(link: str):
     try:
         cur.execute("INSERT OR IGNORE INTO birthday_gifs (link) VALUES (?)", (link,))
+        conn.commit()
     except sqlite3.OperationalError:
         raise FormatError("Gif could not be added", 1006)
 
@@ -52,5 +55,8 @@ def get_number_of_gifs() -> int:
 
 
 def get_gif(index) -> str:
-    cur.execute("SELECT link WHERE id=?", (index,))
+    try:
+        cur.execute("SELECT link FROM birthday_gifs WHERE id=?", (index,))
+    except Exception as e:
+        print(e)
     return cur.fetchone()[0]

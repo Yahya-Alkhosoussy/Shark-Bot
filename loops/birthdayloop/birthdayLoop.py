@@ -140,22 +140,26 @@ class BirthdayLoop:
                             logging.warning(f"{month} was not found in loaded config")
 
             user_ids, birthdays = get_birthdays()
+            current_date = str(current_date).replace(str(current_year) + "-", "")
             birthdays_today: list[discord.User] = []
             for user_id, birthday in zip(user_ids, birthdays):
-                if birthday != str(current_date):
+                if birthday != current_date:
                     print("skipping")
                     continue
 
                 user = await self.client.fetch_user(user_id)
                 birthdays_today.append(user)
+
             if len(birthdays_today) == 1:
                 user = birthdays_today[0]
                 num_of_gifs = get_number_of_gifs()
                 rand_int = random.randint(1, num_of_gifs)
-                gif = get_gif(index=rand_int)
+                gif: str = get_gif(index=rand_int)
+                print("sending message")
                 await channel.send(
-                    f"HEY THERE, its that time of year for {user.mention}, its their birthday!!! Happy Birthday!! \n{gif}"
+                    f"HEY THERE, its that time of year for {user.mention}, its their birthday!!! Happy Birthday!!"
                 )
+                await channel.send(gif)
             elif len(birthdays_today) > 1:
                 num_of_gifs = get_number_of_gifs()
                 rand_int = random.randint(1, num_of_gifs)
