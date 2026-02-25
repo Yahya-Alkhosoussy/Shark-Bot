@@ -89,7 +89,6 @@ class MyBot(commands.Bot):
         await asyncio.gather(*[setup_guild(guild) for guild in self.guilds])
 
         for guild in self.guilds:
-            await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
             guild_name: str = config.guilds[guild.id]
             self.birthday_loops.start_for(guild.id)
             if guild_name == "shark squad":
@@ -203,7 +202,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
     async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
         await self.reaction_handler.on_raw_reaction_remove_internal(payload=payload)
 
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: discord.Message) -> None:
         user = message.author
 
         # ignore if it's the bot's message
@@ -645,6 +644,19 @@ Weight: {facts[fact_nums.WEIGHT.value]}
 Rarity: {facts[fact_nums.RARITY.value]}
             """
             await follow.reply(result)
+
+        if message.content.startswith(prefix + "add gif"):
+            await message.reply("Adding the gif")
+            try:
+                content = message.content.split("https://")  # Guarantees it's a link
+                link = "https://" + content[1]
+                add_gif_to_table(link)
+            except ex.FormatError as e:
+                await message.reply(f"Something went wrong, error: {e}")
+                return
+
+            await message.reply("Gif added to the list!!")
+
         await self.process_commands(message)
 
 
@@ -669,18 +681,6 @@ async def add_birthday(interaction: discord.Interaction, birth_month: int, birth
             await interaction.channel.send(str(e))
         else:
             logging.error(str(e))
-
-
-@bot.command(name="add gif")
-async def add_gif(ctx: commands.Context, link: str):
-    await ctx.message.reply("Adding the gif")
-    try:
-        add_gif_to_table(link=link)
-    except ex.FormatError as e:
-        await ctx.message.reply(f"Something went wrong, error: {e}")
-        return
-
-    await ctx.send("Gif added to the list!!")
 
 
 bot.run(token=token, log_handler=handler)
