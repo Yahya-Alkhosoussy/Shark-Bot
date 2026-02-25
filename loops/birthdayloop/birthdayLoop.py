@@ -7,7 +7,8 @@ import discord
 from discord.ext import tasks
 from pydantic import ValidationError
 
-from SQL.birthdaySQL.birthdays import get_birthdays
+from exceptions.exceptions import BirthdateFormatError
+from SQL.birthdaySQL.birthdays import add_birthday, get_birthdays
 from utils.core import AppConfig
 
 try:
@@ -182,3 +183,19 @@ class BirthdayLoop:
             loop.stop()
             return True
         return False
+
+
+async def add_birthday_to_sql(interaction: discord.Interaction, birthmonth: int, birthday: int):
+    try:
+        birthday_datetime = dt.datetime.strptime(str(birthmonth) + "-" + str(birthday), r"%m-%d")
+    except ValueError:
+        raise BirthdateFormatError("Birthday format is incorrect", error_code=1005)
+    normalised_date = str(birthday_datetime.date()).replace("1900-", "")
+    try:
+        add_birthday(username=interaction.user.name, user_id=interaction.user.id, birthday=normalised_date)
+    except Exception as e:
+        raise e
+
+    channel = interaction.channel
+    if isinstance(channel, discord.TextChannel):
+        await channel.send("Birthday Added!")
