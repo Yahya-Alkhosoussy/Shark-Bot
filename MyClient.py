@@ -4,6 +4,7 @@ import logging
 import os
 from enum import Enum
 from pathlib import Path
+from sqlite3 import OperationalError
 
 import discord
 from discord.ext import commands
@@ -13,7 +14,7 @@ from pydantic import ValidationError
 from exceptions import exceptions as ex
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
-from loops.birthdayloop.birthdayLoop import BirthdayLoop
+from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from SQL.fishingSQL.baits import get_baits
@@ -75,6 +76,16 @@ class MyBot(commands.Bot):
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
+
+        # Set up app commands
+        async def setup_guild(guild):
+            self.tree.copy_global_to(guild=guild)
+            await self.tree.sync(guild=guild)
+            await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
+            print(f"Tree set up for {guild.name}")
+
+        # runs parallel with the other loop
+        await asyncio.gather(*[setup_guild(guild) for guild in self.guilds])
 
         for guild in self.guilds:
             await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
@@ -642,4 +653,21 @@ intents.message_content = True
 intents.members = True
 intents.message_content = True
 bot = MyBot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=True))
+
+
+@bot.tree.command(name="add-birthday", description="Adds your birthday to wish you a happy birthday on that day")
+@discord.app_commands.describe(
+    birth_month="This is your birth month (i.e 2 for february, 6 for june etc.)", birthday="Your birth day"
+)
+async def add_birthday(interaction: discord.Interaction, birth_month: int, birthday: int):
+    await interaction.response.send_message("Adding your birthday.")
+    try:
+        await add_birthday_to_sql(interaction=interaction, birthmonth=birth_month, birthday=birthday)
+    except (OperationalError, ex.BirthdateFormatError) as e:
+        if isinstance(interaction.channel, discord.TextChannel):
+            await interaction.channel.send(str(e))
+        else:
+            logging.error(str(e))
+
+
 bot.run(token=token, log_handler=handler)
