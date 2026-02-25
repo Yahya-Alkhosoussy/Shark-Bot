@@ -1,5 +1,6 @@
 import datetime as dt
 import logging
+import random
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -8,7 +9,7 @@ from discord.ext import tasks
 from pydantic import ValidationError
 
 from exceptions.exceptions import BirthdateFormatError
-from SQL.birthdaySQL.birthdays import add_birthday, get_birthdays
+from SQL.birthdaySQL.birthdays import add_birthday, get_birthdays, get_gif, get_number_of_gifs
 from utils.core import AppConfig
 
 try:
@@ -149,10 +150,16 @@ class BirthdayLoop:
                 birthdays_today.append(user)
             if len(birthdays_today) == 1:
                 user = birthdays_today[0]
+                num_of_gifs = get_number_of_gifs()
+                rand_int = random.randint(1, num_of_gifs)
+                gif = get_gif(index=rand_int)
                 await channel.send(
-                    f"HEY THERE, its that time of year for {user.mention}, its their birthday!!! Happy Birthday!!"
+                    f"HEY THERE, its that time of year for {user.mention}, its their birthday!!! Happy Birthday!! \n{gif}"
                 )
             elif len(birthdays_today) > 1:
+                num_of_gifs = get_number_of_gifs()
+                rand_int = random.randint(1, num_of_gifs)
+                gif = get_gif(index=rand_int)
                 to_send = f"HEY THERE, its that time of year happy birthday to the following: \n {[user.mention + '\n' for user in birthdays_today]}"  # noqa: E501
                 await channel.send(to_send)
 

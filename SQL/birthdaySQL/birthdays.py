@@ -1,10 +1,15 @@
 import sqlite3
 
+from exceptions.exceptions import FormatError
+
 conn = sqlite3.connect(r"databases/birthdays.db")
 cur = conn.cursor()
 
 cur.execute("""CREATE TABLE IF NOT EXISTS birthdays
                     (id INTEGER PRIMARY KEY, name TEXT UNIQUE, discord_id BIGINT NOT NULL UNIQUE, birthday TEXT NOT NULL)""")
+
+cur.execute("""CREATE TABLE IF NOT EXISTS birthday_gifs
+                        (id INTEGER PRIMARY KEY, link TEXT UNIQUE)""")
 
 
 def add_birthday(username: str, user_id: int, birthday: str):
@@ -32,3 +37,20 @@ def get_birthdays() -> tuple[list[int], list[str]]:
 def edit_birthday(username: str, new_birthday: str):
     cur.execute("UPDATE birthdays SET birthday=? WHERE name=?", (new_birthday, username))
     conn.commit()
+
+
+def add_gif_to_table(link: str):
+    try:
+        cur.execute("INSERT OR IGNORE INTO birthday_gifs (link) VALUES (?)", (link,))
+    except sqlite3.OperationalError:
+        raise FormatError("Gif could not be added", 1006)
+
+
+def get_number_of_gifs() -> int:
+    cur.execute("SELECT COUNT(id) FROM birthday_gifs")
+    return cur.fetchone()[0]
+
+
+def get_gif(index) -> str:
+    cur.execute("SELECT link WHERE id=?", (index,))
+    return cur.fetchone()[0]
