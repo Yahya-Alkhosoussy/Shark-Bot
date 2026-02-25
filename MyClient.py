@@ -17,6 +17,7 @@ from handlers.reactions import reaction_handler
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
+from SQL.birthdaySQL.birthdays import add_gif_to_table
 from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
 from ticketingSystem.Ticket_System import TicketSystem
@@ -668,6 +669,18 @@ async def add_birthday(interaction: discord.Interaction, birth_month: int, birth
             await interaction.channel.send(str(e))
         else:
             logging.error(str(e))
+
+
+@bot.command(name="add gif")
+async def add_gif(ctx: commands.Context, link: str):
+    await ctx.message.reply("Adding the gif")
+    try:
+        add_gif_to_table(link=link)
+    except ex.FormatError as e:
+        await ctx.message.reply(f"Something went wrong, error: {e}")
+        return
+
+    await ctx.send("Gif added to the list!!")
 
 
 bot.run(token=token, log_handler=handler)
