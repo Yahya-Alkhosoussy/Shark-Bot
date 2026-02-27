@@ -42,7 +42,7 @@ try:
     config = AppConfig(CONFIG_PATH)
     ticket_config = TicketingConfig(TICKET_CONFIG_PATH)
 except ValidationError as e:
-    logging.critical("Unable to load config. Inner Exception:\n{e}")
+    logging.critical(f"Unable to load config. Inner Exception:\n {str(e)}")
     raise e
 
 GIDS: dict[str, int] = {k: v.id for k, v in config.guilds}
@@ -192,7 +192,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         try:
             await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
         except (KeyError, ValueError, LookupError) as e:
-            logging.error(f"Failed to ensure react roles message(s) exist. Inner error:\n{e}")
+            logging.error(f"Failed to ensure react roles message(s) exist. Inner error:\n{str(e)}")
         except Exception as e:
             raise e
 
@@ -435,7 +435,7 @@ Shark Catch Game:
             try:
                 await self.fishing.buy_bait(message)
             except ex.ItemNotFound as e:
-                await message.reply(f"Had issues buying bait. Error: {e}")
+                await message.reply(f"Had issues buying bait. Error: {str(e)}")
 
         if message.content.startswith(prefix + "my baits"):
             bait_names, uses = get_baits(username=message.author.name)
@@ -652,7 +652,7 @@ Rarity: {facts[fact_nums.RARITY.value]}
                 link = "https://" + content[1]
                 add_gif_to_table(link)
             except ex.FormatError as e:
-                await message.reply(f"Something went wrong, error: {e}")
+                await message.reply(f"Something went wrong, error: {str(e)}")
                 return
 
             await message.reply("Gif added to the list!!")
@@ -663,7 +663,7 @@ Rarity: {facts[fact_nums.RARITY.value]}
                 message_to_add = message.content[13:]
                 add_birthday_message(message_to_add)
             except ex.FormatError as e:
-                await message.reply(f"Something went wrong, error: {e}")
+                await message.reply(f"Something went wrong, error: {str(e)}")
                 return
             
             await message.reply("Message added to the list!!")
