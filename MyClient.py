@@ -17,7 +17,7 @@ from handlers.reactions import reaction_handler
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
-from SQL.birthdaySQL.birthdays import add_gif_to_table
+from SQL.birthdaySQL.birthdays import add_gif_to_table, add_birthday_message
 from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
 from ticketingSystem.Ticket_System import TicketSystem
@@ -61,8 +61,8 @@ class sharks_index(Enum):
 
 # ======= BOT =======
 class MyBot(commands.Bot):
-    def __init__(self, allowed_mentions, intents: discord.Intents):
-        super().__init__(command_prefix=prefix, intents=intents)
+    def __init__(self, intents: discord.Intents, **kwargs):
+        super().__init__(command_prefix=prefix, intents=intents, **kwargs)
         self.shark_loops = SharkLoops(self, config)
         self.birthday_loops = BirthdayLoop(self, config)
         self.leveling_loop = levelingLoop(self)
@@ -656,6 +656,17 @@ Rarity: {facts[fact_nums.RARITY.value]}
                 return
 
             await message.reply("Gif added to the list!!")
+        
+        if message.content.startswith(prefix + "add message"):
+            await message.reply("Adding message")
+            try:
+                message_to_add = message.content[13:]
+                add_birthday_message(message_to_add)
+            except ex.FormatError as e:
+                await message.reply(f"Something went wrong, error: {e}")
+                return
+            
+            await message.reply("Message added to the list!!")
 
         await self.process_commands(message)
 
