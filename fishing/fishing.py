@@ -428,6 +428,8 @@ class Fishing:
                 await channel.send("Unfortunate, you have not caught anything. 😞")
         if net != "rope net" and net is not None:
             sg.remove_net_use(str(user), net, net_uses - 1)
+            if net_uses - 1 == 0:
+                sg.remove_net(user.name, net=net)
 
     async def add_into_shop_internal(self, message: discord.Message):
         await message.reply(

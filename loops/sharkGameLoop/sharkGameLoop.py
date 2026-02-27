@@ -157,7 +157,11 @@ class SharkLoops:
                         )
                     else:
                         coins = sg.reward_coins(username=user, rare=rarity, shark=True, shark_name=name_to_drop)
-                sg.remove_net_use(user, net, net_uses - 1)
+                
+                if net != "rope net" and net is not None:
+                    sg.remove_net_use(user, net, net_uses - 1)
+                    if net_uses - 1 == 0:
+                        sg.remove_net(user, net)
             if not success:
                 await channel.send(f"A {rarity} {name_to_drop} has escaped, no one caught it. 😞")
             elif len(success) == 1:

@@ -428,11 +428,9 @@ def get_net_availability(username: str):
                         elif net_uses == 21 or net_uses == 16 or net_uses == 11 or net_uses == 6 or net_uses == 1:
                             available_nets.append("leather net")
                             about_to_break.append("leather net")
-                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5 or net_uses == 0:
+                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5:
                             broken.append("leather net")
                             available_nets.append("leather net")
-                            if net_uses == 0:
-                                cursor.execute(f"UPDATE '{username} nets' SET 'leather net'=0")
                         else:
                             broken.append("leather net")
 
@@ -452,11 +450,9 @@ def get_net_availability(username: str):
                         elif net_uses == 21 or net_uses == 16 or net_uses == 11 or net_uses == 6 or net_uses == 1:
                             available_nets.append("gold net")
                             about_to_break.append("gold net")
-                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5 or net_uses == 0:
+                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5:
                             broken.append("gold net")
                             available_nets.append("gold net")
-                            if net_uses == 0:
-                                cursor.execute(f"UPDATE '{username} nets' SET 'gold net'=0")
                         else:
                             broken.append("gold net")
 
@@ -476,11 +472,9 @@ def get_net_availability(username: str):
                         elif net_uses == 21 or net_uses == 16 or net_uses == 11 or net_uses == 6 or net_uses == 1:
                             available_nets.append("titanium net")
                             about_to_break.append("titanium net")
-                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5 or net_uses == 0:
+                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5:
                             broken.append("titanium net")
                             available_nets.append("titanium net")
-                            if net_uses == 0:
-                                cursor.execute(f"UPDATE '{username} nets' SET 'titanium net'=0")
                         else:
                             broken.append("titanium net")
 
@@ -500,11 +494,9 @@ def get_net_availability(username: str):
                         elif net_uses == 21 or net_uses == 16 or net_uses == 11 or net_uses == 6 or net_uses == 1:
                             available_nets.append("net of doom")
                             about_to_break.append("net of doom")
-                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5 or net_uses == 0:
+                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5:
                             broken.append("net of doom")
                             available_nets.append("net of doom")
-                            if net_uses == 0:
-                                cursor.execute(f"UPDATE '{username} nets' SET 'net of doom'=0")
                         else:
                             broken.append("net of doom")
 
@@ -528,6 +520,10 @@ def remove_net_use(username: str, net: str, net_uses: int):
         cursor.execute(f"UPDATE '{username} dex' SET net_uses={net_uses} WHERE rowid = {rowid}")
         connection.commit()
 
+def remove_net(username: str, net: str):
+    cursor.execute(f"UPDATE '{username} nets' SET '{net}'=0")
+
+    connection.commit()
 
 def is_net_available(username: str, net: str):
     nets_available: dict = {}
