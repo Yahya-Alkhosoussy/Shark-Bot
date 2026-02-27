@@ -9,7 +9,7 @@ from discord.ext import tasks
 from pydantic import ValidationError
 
 from exceptions.exceptions import BirthdateFormatError
-from SQL.birthdaySQL.birthdays import add_birthday, get_birthdays, get_gif, get_number_of_gifs
+import SQL.birthdaySQL.birthdays as b
 from utils.core import AppConfig
 
 try:
@@ -139,7 +139,7 @@ class BirthdayLoop:
                         else:
                             logging.warning(f"{month} was not found in loaded config")
 
-            user_ids, birthdays = get_birthdays()
+            user_ids, birthdays = b.get_birthdays()
             current_date = str(current_date).replace(str(current_year) + "-", "")
             birthdays_today: list[discord.User] = []
             for user_id, birthday in zip(user_ids, birthdays):
@@ -152,19 +152,28 @@ class BirthdayLoop:
 
             if len(birthdays_today) == 1:
                 user = birthdays_today[0]
-                num_of_gifs = get_number_of_gifs()
-                rand_int = random.randint(1, num_of_gifs)
-                gif: str = get_gif(index=rand_int)
-                print("sending message")
-                await channel.send(
-                    f"HEY THERE, its that time of year for {user.mention}, its their birthday!!! Happy Birthday!!"
-                )
-                await channel.send(gif)
+                if user.name == "spiderbyte2007":
+                    gif = b.get_gif(1902)
+                    message = b.get_birthday_message(1902)
+                    await channel.send(message + f"{user.mention}")
+                    await channel.send(gif)
+                else:
+                    num_of_gifs = b.get_number_of_gifs()
+                    rand_int = random.randint(1, num_of_gifs)
+                    gif: str = b.get_gif(index=rand_int)
+                    num_of_messages = b.get_number_of_messages()
+                    message_index = random.randint(1, num_of_messages)
+                    message = b.get_birthday_message(message_index)
+                    await channel.send(message + f"{user.mention}")
+                    await channel.send(gif)
             elif len(birthdays_today) > 1:
-                num_of_gifs = get_number_of_gifs()
+                num_of_gifs = b.get_number_of_gifs()
                 rand_int = random.randint(1, num_of_gifs)
-                gif = get_gif(index=rand_int)
-                to_send = f"HEY THERE, its that time of year happy birthday to the following: \n {[user.mention + '\n' for user in birthdays_today]}"  # noqa: E501
+                gif = b.get_gif(index=rand_int)
+                num_of_messages = b.get_number_of_messages()
+                message_index = random.randint(1, num_of_messages)
+                message = b.get_birthday_message(message_index)
+                to_send = message + f", ".join(user.mention for user in birthdays_today)
                 await channel.send(to_send)
 
         loop = tasks.loop(hours=13, reconnect=True)(_tick)
@@ -203,7 +212,7 @@ async def add_birthday_to_sql(interaction: discord.Interaction, birthmonth: int,
         raise BirthdateFormatError("Birthday format is incorrect", error_code=1005)
     normalised_date = str(birthday_datetime.date()).replace("1900-", "")
     try:
-        add_birthday(username=interaction.user.name, user_id=interaction.user.id, birthday=normalised_date)
+        b.add_birthday(username=interaction.user.name, user_id=interaction.user.id, birthday=normalised_date)
     except Exception as e:
         raise e
 
