@@ -154,7 +154,7 @@ class BirthdayLoop:
                 user = birthdays_today[0]
                 gif_index = b.has_custom_gif(user.name)
                 if gif_index is not None:
-                    gif = b.get_gif(gif_index)
+                    gif = b.get_custom_gifs(gif_index)
                     num_of_messages = b.get_number_of_messages()
                     message_index = random.randint(1, num_of_messages)
                     message = b.get_birthday_message(message_index)

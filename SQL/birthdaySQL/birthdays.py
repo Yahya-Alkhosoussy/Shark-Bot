@@ -6,7 +6,7 @@ conn = sqlite3.connect(r"databases/birthdays.db")
 cur = conn.cursor()
 
 cur.execute("""CREATE TABLE IF NOT EXISTS birthdays
-                    (id INTEGER PRIMARY KEY, name TEXT UNIQUE, discord_id BIGINT NOT NULL UNIQUE, birthday TEXT NOT NULL)""")
+                    (id INTEGER PRIMARY KEY, name TEXT UNIQUE, discord_id BIGINT NOT NULL UNIQUE, birthday TEXT NOT NULL, custom_gif_index INTEGER)""")  # noqa: E501
 
 cur.execute("""CREATE TABLE IF NOT EXISTS birthday_gifs
                         (id INTEGER PRIMARY KEY, link TEXT UNIQUE)""")
@@ -19,7 +19,8 @@ conn.commit()
 def add_birthday(username: str, user_id: int, birthday: str):
     try:
         cur.execute(
-            "INSERT OR IGNORE INTO birthdays (name, discord_id, birthday) VALUES (?, ?, ?)", (username, user_id, birthday)
+            "INSERT OR IGNORE INTO birthdays (name, discord_id, birthday, custom_gif_index) VALUES (?, ?, ?, ?)",
+            (username, user_id, birthday, None),
         )
         conn.commit()
     except sqlite3.OperationalError as e:
@@ -51,9 +52,10 @@ def add_gif_to_table(link: str):
         raise FormatError("Gif could not be added", 1006)
 
 
-def add_custom_gif(ID: int, link: str):
+def add_custom_gif(ID: int, link: str, username: str):
     try:
         cur.execute("INSERT OR IGNORE INTO birthday_gifs (id, link) VALUES (?, ?)", (ID, link))
+        cur.execute("UPDATE birthdays SET custom_gif_index=? WHERE name=?", (ID, username))
     except sqlite3.OperationalError:
         raise FormatError("Could not add gif", 1006)
     conn.commit()
@@ -66,9 +68,17 @@ def get_number_of_gifs() -> int:
 
 def get_gif(index: int) -> str:
     try:
-        cur.execute("SELECT link FROM birthday_gifs WHERE id=?", (index,))
+        cur.execute("SELECT link FROM birthday_gifs WHERE rowid=?", (index,))
     except Exception:
         raise ItemNotFound("Gif not found!", 1007)
+    return cur.fetchone()[0]
+
+
+def get_custom_gifs(index: int) -> str:
+    try:
+        cur.execute("SELECT link FROM birthday_gifs WHERE id=?", (index,))
+    except Exception:
+        raise ItemNotFound("Gif not found", 1007)
     return cur.fetchone()[0]
 
 
@@ -125,3 +135,8 @@ def remove_message(message: str):
         conn.commit()
     except sqlite3.OperationalError:
         raise ItemNotFound("Could not find message in database", 1008)
+
+
+def has_custom_gif(username: str) -> int | None:
+    cur.execute("SELECT custom_gif_index FROM birthdays WHERE name=?", (username,))
+    return cur.fetchone()[0]
