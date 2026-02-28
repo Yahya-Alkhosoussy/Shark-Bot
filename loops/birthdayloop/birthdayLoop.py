@@ -8,8 +8,8 @@ import discord
 from discord.ext import tasks
 from pydantic import ValidationError
 
-from exceptions.exceptions import BirthdateFormatError
 import SQL.birthdaySQL.birthdays as b
+from exceptions.exceptions import BirthdateFormatError
 from utils.core import AppConfig
 
 try:
@@ -173,7 +173,7 @@ class BirthdayLoop:
                 num_of_messages = b.get_number_of_messages()
                 message_index = random.randint(1, num_of_messages)
                 message = b.get_birthday_message(message_index)
-                to_send = message + f", ".join(user.mention for user in birthdays_today)
+                to_send = message + ", ".join(user.mention for user in birthdays_today)
                 await channel.send(to_send)
 
         loop = tasks.loop(hours=13, reconnect=True)(_tick)
