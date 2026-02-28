@@ -152,10 +152,16 @@ class BirthdayLoop:
 
             if len(birthdays_today) == 1:
                 user = birthdays_today[0]
-                if user.name == "spiderbyte2007":
-                    gif = b.get_gif(1902)
-                    message = b.get_birthday_message(1902)
-                    await channel.send(message + f"{user.mention}")
+                gif_index = b.has_custom_gif(user.name)
+                if gif_index is not None:
+                    gif = b.get_gif(gif_index)
+                    num_of_messages = b.get_number_of_messages()
+                    message_index = random.randint(1, num_of_messages)
+                    message = b.get_birthday_message(message_index)
+
+                    # formating message
+                    message = message.replace("@user", user.mention)
+                    await channel.send(message)
                     await channel.send(gif)
                 else:
                     num_of_gifs = b.get_number_of_gifs()
@@ -164,7 +170,11 @@ class BirthdayLoop:
                     num_of_messages = b.get_number_of_messages()
                     message_index = random.randint(1, num_of_messages)
                     message = b.get_birthday_message(message_index)
-                    await channel.send(message + f"{user.mention}")
+
+                    # formating message
+                    message = message.replace("@user", user.mention)
+
+                    await channel.send(message)
                     await channel.send(gif)
             elif len(birthdays_today) > 1:
                 num_of_gifs = b.get_number_of_gifs()
@@ -173,8 +183,11 @@ class BirthdayLoop:
                 num_of_messages = b.get_number_of_messages()
                 message_index = random.randint(1, num_of_messages)
                 message = b.get_birthday_message(message_index)
-                to_send = message + ", ".join(user.mention for user in birthdays_today)
-                await channel.send(to_send)
+                # formating message
+                message = message.replace("@user", ", ".join(user.mention for user in birthdays_today))
+                message = message.replace("Sharkolyte", "Sharkolytes")
+                await channel.send(message)
+                await channel.send(gif)
 
         loop = tasks.loop(hours=13, reconnect=True)(_tick)
 
@@ -223,7 +236,7 @@ async def add_birthday_to_sql(interaction: discord.Interaction, birthmonth: int,
 
 async def add_custom_gif_internal(interaction: discord.Interaction, gif_link: str, gif_index: int):
     try:
-        b.add_custom_gif(ID=gif_index, link=gif_link)
+        b.add_custom_gif(ID=gif_index, link=gif_link, username=interaction.user.name)
     except FormatError as e:
         raise e
 
