@@ -46,7 +46,8 @@ def edit_birthday(username: str, new_birthday: str):
 
 def add_gif_to_table(link: str):
     try:
-        cur.execute("INSERT OR IGNORE INTO birthday_gifs (link, custom) VALUES (?, ?)", (link, False))
+        id = cur.execute("SELECT COUNT(*) FROM birthday_gifs WHERE custom=0").fetchone()[0]
+        cur.execute("INSERT OR IGNORE INTO birthday_gifs (id, link, custom) VALUES (?, ?, ?)", (id + 1, link, False))
         conn.commit()
     except sqlite3.OperationalError:
         raise FormatError("Gif could not be added", 1006)
