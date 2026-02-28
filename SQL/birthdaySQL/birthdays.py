@@ -9,7 +9,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS birthdays
                     (id INTEGER PRIMARY KEY, name TEXT UNIQUE, discord_id BIGINT NOT NULL UNIQUE, birthday TEXT NOT NULL, custom_gif_index INTEGER)""")  # noqa: E501
 
 cur.execute("""CREATE TABLE IF NOT EXISTS birthday_gifs
-                        (id INTEGER PRIMARY KEY, link TEXT UNIQUE)""")
+                        (id INTEGER PRIMARY KEY, link TEXT UNIQUE, custom BOOL NOT NULL)""")
 cur.execute("""CREATE TABLE IF NOT EXISTS birthday_messages
                         (id INTEGER PRIMARY KEY, message TEXT UNIQUE)""")
 
@@ -46,7 +46,7 @@ def edit_birthday(username: str, new_birthday: str):
 
 def add_gif_to_table(link: str):
     try:
-        cur.execute("INSERT OR IGNORE INTO birthday_gifs (link) VALUES (?)", (link,))
+        cur.execute("INSERT OR IGNORE INTO birthday_gifs (link, custom) VALUES (?, ?)", (link, False))
         conn.commit()
     except sqlite3.OperationalError:
         raise FormatError("Gif could not be added", 1006)
@@ -54,7 +54,7 @@ def add_gif_to_table(link: str):
 
 def add_custom_gif(ID: int, link: str, username: str):
     try:
-        cur.execute("INSERT OR IGNORE INTO birthday_gifs (id, link) VALUES (?, ?)", (ID, link))
+        cur.execute("INSERT OR IGNORE INTO birthday_gifs (id, link, custom) VALUES (?, ?)", (ID, link, True))
         cur.execute("UPDATE birthdays SET custom_gif_index=? WHERE name=?", (ID, username))
     except sqlite3.OperationalError:
         raise FormatError("Could not add gif", 1006)
@@ -62,13 +62,13 @@ def add_custom_gif(ID: int, link: str, username: str):
 
 
 def get_number_of_gifs() -> int:
-    cur.execute("SELECT COUNT(id) FROM birthday_gifs")
+    cur.execute("SELECT COUNT(id) FROM birthday_gifs WHERE custom=0")
     return cur.fetchone()[0]
 
 
 def get_gif(index: int) -> str:
     try:
-        cur.execute("SELECT link FROM birthday_gifs WHERE rowid=?", (index,))
+        cur.execute("SELECT link FROM birthday_gifs WHERE rowid=? AND custom=0", (index,))
     except Exception:
         raise ItemNotFound("Gif not found!", 1007)
     return cur.fetchone()[0]
