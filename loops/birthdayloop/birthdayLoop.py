@@ -9,7 +9,7 @@ from discord.ext import tasks
 from pydantic import ValidationError
 
 import SQL.birthdaySQL.birthdays as b
-from exceptions.exceptions import BirthdateFormatError
+from exceptions.exceptions import BirthdateFormatError, FormatError
 from utils.core import AppConfig
 
 try:
@@ -219,3 +219,14 @@ async def add_birthday_to_sql(interaction: discord.Interaction, birthmonth: int,
     channel = interaction.channel
     if isinstance(channel, discord.TextChannel):
         await channel.send("Birthday Added!")
+
+
+async def add_custom_gif_internal(interaction: discord.Interaction, gif_link: str, gif_index: int):
+    try:
+        b.add_custom_gif(ID=gif_index, link=gif_link)
+    except FormatError as e:
+        raise e
+
+    channel = interaction.channel
+    if isinstance(channel, discord.TextChannel):
+        await channel.send("custom gif added!")

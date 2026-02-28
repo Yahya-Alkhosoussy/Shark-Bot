@@ -14,10 +14,10 @@ from pydantic import ValidationError
 from exceptions import exceptions as ex
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
-from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql
+from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
-from SQL.birthdaySQL.birthdays import add_gif_to_table, add_birthday_message
+from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
 from ticketingSystem.Ticket_System import TicketSystem
@@ -656,7 +656,7 @@ Rarity: {facts[fact_nums.RARITY.value]}
                 return
 
             await message.reply("Gif added to the list!!")
-        
+
         if message.content.startswith(prefix + "add message"):
             await message.reply("Adding message")
             try:
@@ -665,7 +665,7 @@ Rarity: {facts[fact_nums.RARITY.value]}
             except ex.FormatError as e:
                 await message.reply(f"Something went wrong, error: {str(e)}")
                 return
-            
+
             await message.reply("Message added to the list!!")
 
         await self.process_commands(message)
@@ -690,6 +690,23 @@ async def add_birthday(interaction: discord.Interaction, birth_month: int, birth
     except (OperationalError, ex.BirthdateFormatError) as e:
         if isinstance(interaction.channel, discord.TextChannel):
             await interaction.channel.send(str(e))
+        else:
+            logging.error(str(e))
+
+
+@bot.tree.command(name="add-custom-birthday-gif", description="Add your own custom birthday gif!!")
+@discord.app_commands.describe(
+    index="This is your birthday and birthmonth in one number (i.e for february 19th it's 1902, for 6th of June it's 0606)",
+    gif_link="This is the link to the gif you want to add",
+)
+async def add_custom_gif(interaction: discord.Interaction, index: int, gif_link: str):
+    await interaction.response.send_message("Adding your custom gif...")
+    try:
+        await add_custom_gif_internal(interaction, gif_link=gif_link, gif_index=index)
+    except ex.FormatError as e:
+        channel = interaction.channel
+        if isinstance(channel, discord.TextChannel):
+            await channel.send(f"Encountered an error, {str(e)}")
         else:
             logging.error(str(e))
 
