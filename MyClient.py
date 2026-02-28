@@ -649,7 +649,12 @@ Rarity: {facts[fact_nums.RARITY.value]}
             await message.reply("Adding the gif")
             try:
                 content = message.content.split("https://")  # Guarantees it's a link
-                link = "https://" + content[1]
+                try:
+                    link = "https://" + content[1]
+                except IndexError:
+                    await message.reply("No link found!!!")
+                    return
+
                 add_gif_to_table(link)
             except ex.FormatError as e:
                 await message.reply(f"Something went wrong, error: {str(e)}")
