@@ -1,5 +1,6 @@
 import datetime as dt
 import logging
+import random
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -7,6 +8,8 @@ import discord
 from discord.ext import tasks
 from pydantic import ValidationError
 
+import SQL.birthdaySQL.birthdays as b
+from exceptions.exceptions import BirthdateFormatError, FormatError
 from utils.core import AppConfig
 
 try:
@@ -22,7 +25,7 @@ class BirthdayLoop:
         self._loops: dict[int, tasks.Loop] = {}  # Guild_id --> Loop
 
     def is_running(self, guild_id: int) -> bool:
-        loop = self._loops[guild_id]
+        loop = self._loops.get(guild_id)
         return bool(loop and loop.is_running())
 
     def start_for(self, guild_id: int):
@@ -38,20 +41,18 @@ class BirthdayLoop:
 
         async def _tick():
             # The Loop Body
-            current_date = dt.datetime.now(central).date()
+            current_date = dt.datetime.now().date()
             birthday_messages = self.config.birthday_message
             month = current_date.strftime("%B")
+            guild_name: str = self.config.guilds[guild_id]
+            channel_id: int = self.config.get_channel_id(guild_name=guild_name, channel="chatting")
+            channel = self.client.get_channel(channel_id)
+            if not (channel and isinstance(channel, discord.TextChannel)):
+                logging.error(f"Channel not found for channelId: {channel_id}, or channel is not a TextChannel")
+                return
+
             if str(current_date) in firsts and not birthday_messages[month]:
-                guild_name: str = self.config.guilds[guild_id]
-                channel_id: int = self.config.get_channel_id(guild_name=guild_name, channel="chatting")
-                channel = self.client.get_channel(channel_id)
-
-                if not (channel and isinstance(channel, discord.TextChannel)):
-                    logging.error(f"Channel not found for channelId: {channel_id}, or channel is not a TextChannel")
-                    return
-
                 current_month = current_date.month
-                print(current_month)
                 match current_month:
                     case 1:
                         await channel.send("Happy Birthday to <@&1335413563627409429>")
@@ -138,6 +139,56 @@ class BirthdayLoop:
                         else:
                             logging.warning(f"{month} was not found in loaded config")
 
+            user_ids, birthdays = b.get_birthdays()
+            current_date = str(current_date).replace(str(current_year) + "-", "")
+            birthdays_today: list[discord.User] = []
+            for user_id, birthday in zip(user_ids, birthdays):
+                if birthday != current_date:
+                    print("skipping")
+                    continue
+
+                user = await self.client.fetch_user(user_id)
+                birthdays_today.append(user)
+
+            if len(birthdays_today) == 1:
+                user = birthdays_today[0]
+                gif_index = b.has_custom_gif(user.name)
+                if gif_index is not None:
+                    gif = b.get_custom_gifs(gif_index)
+                    num_of_messages = b.get_number_of_messages()
+                    message_index = random.randint(1, num_of_messages)
+                    message = b.get_birthday_message(message_index)
+
+                    # formating message
+                    message = message.replace("@user", user.mention)
+                    await channel.send(message)
+                    await channel.send(gif)
+                else:
+                    num_of_gifs = b.get_number_of_gifs()
+                    rand_int = random.randint(1, num_of_gifs)
+                    gif: str = b.get_gif(index=rand_int)
+                    num_of_messages = b.get_number_of_messages()
+                    message_index = random.randint(1, num_of_messages)
+                    message = b.get_birthday_message(message_index)
+
+                    # formating message
+                    message = message.replace("@user", user.mention)
+
+                    await channel.send(message)
+                    await channel.send(gif)
+            elif len(birthdays_today) > 1:
+                num_of_gifs = b.get_number_of_gifs()
+                rand_int = random.randint(1, num_of_gifs)
+                gif = b.get_gif(index=rand_int)
+                num_of_messages = b.get_number_of_messages()
+                message_index = random.randint(1, num_of_messages)
+                message = b.get_birthday_message(message_index)
+                # formating message
+                message = message.replace("@user", ", ".join(user.mention for user in birthdays_today))
+                message = message.replace("Sharkolyte", "Sharkolytes")
+                await channel.send(message)
+                await channel.send(gif)
+
         loop = tasks.loop(hours=13, reconnect=True)(_tick)
 
         @loop.before_loop
@@ -165,3 +216,30 @@ class BirthdayLoop:
             loop.stop()
             return True
         return False
+
+
+async def add_birthday_to_sql(interaction: discord.Interaction, birthmonth: int, birthday: int):
+    try:
+        birthday_datetime = dt.datetime.strptime(str(birthmonth) + "-" + str(birthday), r"%m-%d")
+    except ValueError:
+        raise BirthdateFormatError("Birthday format is incorrect", error_code=1005)
+    normalised_date = str(birthday_datetime.date()).replace("1900-", "")
+    try:
+        b.add_birthday(username=interaction.user.name, user_id=interaction.user.id, birthday=normalised_date)
+    except Exception as e:
+        raise e
+
+    channel = interaction.channel
+    if isinstance(channel, discord.TextChannel):
+        await channel.send("Birthday Added!")
+
+
+async def add_custom_gif_internal(interaction: discord.Interaction, gif_link: str, gif_index: int):
+    try:
+        b.add_custom_gif(ID=gif_index, link=gif_link, username=interaction.user.name)
+    except FormatError as e:
+        raise e
+
+    channel = interaction.channel
+    if isinstance(channel, discord.TextChannel):
+        await channel.send("custom gif added!")

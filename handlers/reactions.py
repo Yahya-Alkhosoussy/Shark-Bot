@@ -40,7 +40,7 @@ class reaction_handler:
         if not self.config.is_rr_message_id_in_config(guild_name=guild_name):
             raise KeyError(f"Guild {guild.name} does not have a react roles message ID Key")
 
-        for rr_name, rr_message in react_role_messages:
+        for _, rr_message in react_role_messages:
             # print(react_role_messages[rr_message])
 
             channel_id = int(self.config.get_channel_id(guild_name=guild_name, channel="roles"))
@@ -81,8 +81,8 @@ class reaction_handler:
                         except discord.HTTPException:
                             logging.error(f"[RR] could not add reaction {emoji} in {guild_name}")
 
-                current_content = ""
-                current_lines = current_content.splitlines()
+                current_content = existing if existing else ""
+                current_lines = current_content.splitlines() if isinstance(current_content, str) else ""
                 header = current_lines[0] if current_lines else "React to get your roles: "
                 existing_entries = set(current_lines[1:]) if len(current_lines) > 1 else set()
 

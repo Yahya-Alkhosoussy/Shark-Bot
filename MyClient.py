@@ -4,17 +4,20 @@ import logging
 import os
 from enum import Enum
 from pathlib import Path
+from sqlite3 import OperationalError
 
 import discord
+from discord.ext import commands
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
 from exceptions import exceptions as ex
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
-from loops.birthdayloop.birthdayLoop import BirthdayLoop
+from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
+from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
 from ticketingSystem.Ticket_System import TicketSystem
@@ -39,7 +42,7 @@ try:
     config = AppConfig(CONFIG_PATH)
     ticket_config = TicketingConfig(TICKET_CONFIG_PATH)
 except ValidationError as e:
-    logging.critical("Unable to load config. Inner Exception:\n{e}")
+    logging.critical(f"Unable to load config. Inner Exception:\n {str(e)}")
     raise e
 
 GIDS: dict[str, int] = {k: v.id for k, v in config.guilds}
@@ -57,9 +60,9 @@ class sharks_index(Enum):
 
 
 # ======= BOT =======
-class MyClient(discord.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class MyBot(commands.Bot):
+    def __init__(self, intents: discord.Intents, **kwargs):
+        super().__init__(command_prefix=prefix, intents=intents, **kwargs)
         self.shark_loops = SharkLoops(self, config)
         self.birthday_loops = BirthdayLoop(self, config)
         self.leveling_loop = levelingLoop(self)
@@ -75,12 +78,20 @@ class MyClient(discord.Client):
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
 
-        for guild in self.guilds:
+        # Set up app commands
+        async def setup_guild(guild):
+            self.tree.copy_global_to(guild=guild)
+            await self.tree.sync(guild=guild)
             await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
-            guild_name: str = config.guilds[guild.id]
+            print(f"Tree set up for {guild.name}")
 
+        # runs parallel with the other loop
+        await asyncio.gather(*[setup_guild(guild) for guild in self.guilds])
+
+        for guild in self.guilds:
+            guild_name: str = config.guilds[guild.id]
+            self.birthday_loops.start_for(guild.id)
             if guild_name == "shark squad":
-                # self.birthday_loops.start_for(guild.id)
                 for member in guild.members:
                     try:
                         user_added = await self.leveling_loop.add_users(user=member)
@@ -181,7 +192,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         try:
             await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
         except (KeyError, ValueError, LookupError) as e:
-            logging.error(f"Failed to ensure react roles message(s) exist. Inner error:\n{e}")
+            logging.error(f"Failed to ensure react roles message(s) exist. Inner error:\n{str(e)}")
         except Exception as e:
             raise e
 
@@ -191,7 +202,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
     async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
         await self.reaction_handler.on_raw_reaction_remove_internal(payload=payload)
 
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: discord.Message) -> None:
         user = message.author
 
         # ignore if it's the bot's message
@@ -424,7 +435,7 @@ Shark Catch Game:
             try:
                 await self.fishing.buy_bait(message)
             except ex.ItemNotFound as e:
-                await message.reply(f"Had issues buying bait. Error: {e}")
+                await message.reply(f"Had issues buying bait. Error: {str(e)}")
 
         if message.content.startswith(prefix + "my baits"):
             bait_names, uses = get_baits(username=message.author.name)
@@ -568,7 +579,7 @@ Shark Catch Game:
             follow = None
 
             try:
-                follow = await client.wait_for("message", check=check, timeout=30)
+                follow = await self.wait_for("message", check=check, timeout=30)
             except asyncio.TimeoutError:
                 await message.reply("Timed out, try again with `?buy net`")
 
@@ -602,7 +613,7 @@ Shark Catch Game:
             follow = None
 
             try:
-                follow = await client.wait_for("message", check=check, timeout=30)
+                follow = await self.wait_for("message", check=check, timeout=30)
             except asyncio.TimeoutError:
                 await message.reply("Timed out, try again with `?shark facts`")
                 return
@@ -634,10 +645,75 @@ Rarity: {facts[fact_nums.RARITY.value]}
             """
             await follow.reply(result)
 
+        if message.content.startswith(prefix + "add gif"):
+            await message.reply("Adding the gif")
+            try:
+                content = message.content.split("https://")  # Guarantees it's a link
+                try:
+                    link = "https://" + content[1]
+                except IndexError:
+                    await message.reply("No link found!!!")
+                    return
+
+                add_gif_to_table(link)
+            except ex.FormatError as e:
+                await message.reply(f"Something went wrong, error: {str(e)}")
+                return
+
+            await message.reply("Gif added to the list!!")
+
+        if message.content.startswith(prefix + "add message"):
+            await message.reply("Adding message")
+            try:
+                message_to_add = message.content[13:]
+                add_birthday_message(message_to_add)
+            except ex.FormatError as e:
+                await message.reply(f"Something went wrong, error: {str(e)}")
+                return
+
+            await message.reply("Message added to the list!!")
+
+        await self.process_commands(message)
+
 
 # ===== RUN =====
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-client = MyClient(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=True))
-client.run(token=token, log_handler=handler)
+intents.message_content = True
+bot = MyBot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=True))
+
+
+@bot.tree.command(name="add-birthday", description="Adds your birthday to wish you a happy birthday on that day")
+@discord.app_commands.describe(
+    birth_month="This is your birth month (i.e 2 for february, 6 for june etc.)", birthday="Your birth day"
+)
+async def add_birthday(interaction: discord.Interaction, birth_month: int, birthday: int):
+    await interaction.response.send_message("Adding your birthday.")
+    try:
+        await add_birthday_to_sql(interaction=interaction, birthmonth=birth_month, birthday=birthday)
+    except (OperationalError, ex.BirthdateFormatError) as e:
+        if isinstance(interaction.channel, discord.TextChannel):
+            await interaction.channel.send(str(e))
+        else:
+            logging.error(str(e))
+
+
+@bot.tree.command(name="add-custom-birthday-gif", description="Add your own custom birthday gif!!")
+@discord.app_commands.describe(
+    index="This is your birthday and birthmonth in one number (i.e for february 19th it's 1902, for 6th of June it's 0606)",
+    gif_link="This is the link to the gif you want to add",
+)
+async def add_custom_gif(interaction: discord.Interaction, index: int, gif_link: str):
+    await interaction.response.send_message("Adding your custom gif...")
+    try:
+        await add_custom_gif_internal(interaction, gif_link=gif_link, gif_index=index)
+    except ex.FormatError as e:
+        channel = interaction.channel
+        if isinstance(channel, discord.TextChannel):
+            await channel.send(f"Encountered an error, {str(e)}")
+        else:
+            logging.error(str(e))
+
+
+bot.run(token=token, log_handler=handler)
