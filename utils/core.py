@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_serializer
 from pydantic_core import core_schema
 from typing_extensions import Self
 
-from SQL.rolesSQL.roles import get_guilds
+from SQL.roles.roles import get_guilds
 
 DiscordNamedObjType = TypeVar("DiscordNamedObjType", bound="DiscordNamedObj")
 
