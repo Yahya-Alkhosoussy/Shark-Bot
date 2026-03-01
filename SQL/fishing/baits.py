@@ -1,12 +1,10 @@
 import logging
 import sqlite3
 from enum import Enum
-from pathlib import Path
 
 import exceptions.exceptions as ex
-from SQL.sharkGamesSQL.sharkGameSQL import check_currency, remove_coins
+from SQL.sharkGames.sharkGameSQL import check_currency, remove_coins
 
-logging
 conn = sqlite3.connect("databases/fishing.db")
 cur = conn.cursor()
 

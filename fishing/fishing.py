@@ -8,8 +8,8 @@ from pathlib import Path
 import discord
 
 import exceptions.exceptions as ex
-import SQL.sharkGamesSQL.sharkGameSQL as sg
-from SQL.fishingSQL.baits import (
+import SQL.sharkGames.sharkGameSQL as sg
+from SQL.fishing.baits import (
     add_fish_caught,
     add_to_shop,
     baits_in_shop,
@@ -80,7 +80,7 @@ class Fishing:
                 await channel.send(f"Bait {bait} used! Becareful! you now have no more uses left!")
 
         if follow.content.strip().lower()[1:] in owned_nets:
-            warning = remove_net_use(net=follow.content.strip().lower()[1:], user=user.name)
+            warning, _ = remove_net_use(net=follow.content.strip().lower()[1:], user=user.name)
             if warning:
                 await message.reply(warning)
 

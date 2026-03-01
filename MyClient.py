@@ -17,9 +17,9 @@ from handlers.reactions import reaction_handler
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
-from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
-from SQL.fishingSQL.baits import get_baits
-from SQL.rolesSQL.roles import fill_emoji_map
+from SQL.birthday.birthdays import add_birthday_message, add_gif_to_table
+from SQL.fishing.baits import get_baits
+from SQL.roles.roles import fill_emoji_map
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
 from utils.ticketing import TicketingConfig

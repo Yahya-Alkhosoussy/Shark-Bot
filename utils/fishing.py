@@ -2,7 +2,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from SQL.sharkGamesSQL import sharkGameSQL as sg
+from SQL.sharkGames import sharkGameSQL as sg
 from utils.core import BaseConfig
 
 

@@ -9,7 +9,7 @@ import discord
 from discord.ext import tasks
 
 # import your helpers/config
-import SQL.sharkGamesSQL.sharkGameSQL as sg
+import SQL.sharkGames.sharkGameSQL as sg
 from utils.core import AppConfig
 from utils.fishing import FishingConfig, remove_net_use
 
