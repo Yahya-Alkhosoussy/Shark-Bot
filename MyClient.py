@@ -20,6 +20,7 @@ from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from SQL.birthday.birthdays import add_birthday_message, add_gif_to_table
 from SQL.fishing.baits import get_baits
 from SQL.roles.roles import fill_emoji_map
+from SQL.sharkGames.sharkGameSQL import get_leaderboard
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
 from utils.ticketing import TicketingConfig
@@ -714,6 +715,24 @@ async def add_custom_gif(interaction: discord.Interaction, index: int, gif_link:
             await channel.send(f"Encountered an error, {str(e)}")
         else:
             logging.error(str(e))
+
+
+@bot.command(name="leaderboard")
+async def leaderboard_command(ctx: commands.Context, top_x: int = 10):
+    leaderboard: dict[str, int] | None = get_leaderboard(top_x)
+    guild = ctx.guild
+    if leaderboard is None or guild is None:
+        await ctx.send("Can't find leaderboard")
+        return
+    to_send = "Here is your leaderboard: \n"
+    for i, (username, catches) in zip(range(1, len(leaderboard) + 1), leaderboard.items()):
+        user = guild.get_member_named(username)
+        print(user, username)
+        if user is not None:
+            to_send += f"{i}. {user.nick if user.nick is not None else user.global_name}: {catches} sharks \n"
+        else:
+            continue
+    await ctx.send(to_send)
 
 
 bot.run(token=token, log_handler=handler)

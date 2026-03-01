@@ -1110,7 +1110,7 @@ def get_leaderboard(top_x: int) -> dict[str, int] | None:
     dex_tables = [t for t in table_names if t.endswith(" dex")]
     results: dict[str, int] = {}
     for table in dex_tables:
-        cursor.execute(f"SELECT COUNT(shark) FROM {table} WHERE shark IS NOT NULL")
+        cursor.execute(f"SELECT COUNT(shark) FROM '{table}' WHERE shark IS NOT NULL")
         results[table.replace(" dex", "")] = cursor.fetchone()[0]
     leaderboard_full = dict(sorted(results.items(), key=lambda item: item[1]))
     leaderboard: dict[str, int] = {}
