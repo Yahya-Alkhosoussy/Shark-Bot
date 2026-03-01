@@ -8,7 +8,7 @@ import discord
 from discord.ext import tasks
 from pydantic import ValidationError
 
-import SQL.birthdaySQL.birthdays as b
+import SQL.birthday.birthdays as b
 from exceptions.exceptions import BirthdateFormatError, FormatError
 from utils.core import AppConfig
 

@@ -78,9 +78,9 @@ def get_all_facts(name: str):
 
 def create_dex(username: str, shark_name: str, when_caught: str, net_used: str, rarity: str, net_uses: int):
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS '{username} dex'
-                                (shark text, time text, fact text, weight real, net text, coins real, rarity text, level INTEGER, net_uses INTEGER)""")
+                                (shark text, time text, fact text, weight real, net text, coins real, rarity text, level INTEGER, net_uses INTEGER)""")  # noqa: E501
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS '{username} nets'
-                                ('rope net' BOOLEAN, 'leather net' BOOLEAN, 'gold net' BOOLEAN, 'titanium net' BOOLEAN, 'net of doom' BOOLEAN, time text)""")
+                                ('rope net' BOOLEAN, 'leather net' BOOLEAN, 'gold net' BOOLEAN, 'titanium net' BOOLEAN, 'net of doom' BOOLEAN, time text)""")  # noqa: E501
     fact = get_something(shark_name, "fact")
     weight = get_something(shark_name, "weight")
     net_type: str = net_used
@@ -520,10 +520,12 @@ def remove_net_use(username: str, net: str, net_uses: int):
         cursor.execute(f"UPDATE '{username} dex' SET net_uses={net_uses} WHERE rowid = {rowid}")
         connection.commit()
 
+
 def remove_net(username: str, net: str):
     cursor.execute(f"UPDATE '{username} nets' SET '{net}'=0")
 
     connection.commit()
+
 
 def is_net_available(username: str, net: str):
     nets_available: dict = {}
@@ -563,7 +565,7 @@ def is_net_available(username: str, net: str):
         return False
 
 
-def check_currency(username: str) -> int:
+def check_currency(username: str) -> int | None:
     rows = []
     try:
         for row in cursor.execute(f"SELECT coins FROM '{username} dex' ORDER BY time DESC LIMIT 1"):
@@ -1099,6 +1101,22 @@ def delete_all_rows_from_nets():
         cursor.execute(f"DELETE FROM '{t}'")  # To clear all existing
         print(f"Done for {t}")
     connection.commit()
+
+
+def get_leaderboard(top_x: int) -> dict[str, int] | None:
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+    table_names: list[str] = [row[0] for row in cursor.fetchall()]
+
+    dex_tables = [t for t in table_names if t.endswith(" dex")]
+    results: dict[str, int] = {}
+    for table in dex_tables:
+        cursor.execute(f"SELECT COUNT(shark) FROM {table} WHERE shark IS NOT NULL")
+        results[table.replace(" dex", "")] = cursor.fetchone()[0]
+    leaderboard_full = dict(sorted(results.items(), key=lambda item: item[1]))
+    leaderboard: dict[str, int] = {}
+    for (k, v), _ in zip(leaderboard_full.items(), range(top_x)):
+        leaderboard[k] = v
+    return leaderboard
 
 
 # delete_all_rows_from_nets()

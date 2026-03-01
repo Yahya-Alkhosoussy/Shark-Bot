@@ -5,7 +5,7 @@ from sqlite3 import OperationalError
 import discord
 
 from exceptions.exceptions import RoleNotAdded
-from SQL.rolesSQL.roles import add_role, fill_emoji_map
+from SQL.roles.roles import add_role, fill_emoji_map
 from utils.core import AppConfig, RoleMessageSet
 
 
