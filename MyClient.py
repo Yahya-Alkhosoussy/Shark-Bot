@@ -13,6 +13,9 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from pydantic import ValidationError
+from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
+from SQL.fishingSQL.baits import get_baits
+from SQL.rolesSQL.roles import fill_emoji_map
 
 from exceptions import exceptions as ex
 from fishing.fishing import Fishing
@@ -26,10 +29,7 @@ from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from modApplication.ApplicationSystem import ApplicationSystem
 from modApplication.ModQuestions import ModQuestions
 from socialMedia.tiktok import TikTokLoop
-from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
-from SQL.fishingSQL.baits import get_baits
-from SQL.rolesSQL.roles import fill_emoji_map
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
