@@ -38,7 +38,7 @@ guild role messages:
 birthday message:
   January: false
   February: true
-  March: false
+  March: true
   April: false
   May: false
   June: false
