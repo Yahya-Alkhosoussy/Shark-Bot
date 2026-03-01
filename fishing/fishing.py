@@ -58,9 +58,6 @@ class Fishing:
             return
         # print(nets)
         channel = message.channel
-        if follow.content.strip().lower()[1:] not in owned_nets:
-            await channel.send("Net not found, defaulting to basic net. Fishing now!🎣")
-            net = "rope net"
         if bait is not None:
             use_bait(message.author.name, bait=bait)
             baits, uses = get_baits(username=message.author.name)
