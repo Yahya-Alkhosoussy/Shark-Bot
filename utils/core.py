@@ -371,7 +371,9 @@ class BaseConfig(ABC, BaseModel):
 
     def saveConfig(self, confPath: Path | None = None):
         temp = confPath.with_suffix(".tmp") if confPath else self._loaded_config_path.with_suffix(".tmp")
-        temp.write_text(yaml.safe_dump(self.model_dump(), sort_keys=False, allow_unicode=True), encoding=("UTF-8"))
+        temp.write_text(
+            yaml.safe_dump(self.model_dump(exclude={"guilds"}), sort_keys=False, allow_unicode=True), encoding=("UTF-8")
+        )
         temp.replace(confPath if confPath else self._loaded_config_path)
         self._last_load = datetime.now()
 
