@@ -91,7 +91,13 @@ def get_clips(
 
 # mod stuff
 def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str], list[str], list[timedelta | None]]:
-
+    """
+    Returns:
+        list[str] -> banned usernames
+        list[str] -> reasons banned
+        list[str] -> mod that used the ban hammer
+        list[timedelta | None] -> ban duration
+    """
     r = twitch_request(
         "https://api.twitch.tv/helix/moderation/banned",
         params={"broadcaster_id": get_user_id(user=user, twitch_user=twitch_user)},
