@@ -103,7 +103,7 @@ def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str], list[st
         params={"broadcaster_id": get_user_id(user=user, twitch_user=twitch_user)},
         user=user,
     )
-    if r["status"] == 401:
+    if r.get("status") == 401:
         raise
     data = r["data"]
     people_banned: list[str] = []
