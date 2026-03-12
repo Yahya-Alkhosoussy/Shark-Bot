@@ -58,9 +58,12 @@ def get_bans(amount: int | None = None) -> list[tuple[str, str, str, str]]:
     return to_return
 
 
-def get_timeouts(amount: int) -> list[tuple[str, str, str, int, str]]:
+def get_timeouts(amount: int | None = None) -> list[tuple[str, str, str, int, str]]:
     cur.execute("SELECT * FROM timeouts ORDER BY when_timed_out DESC")
     rows = cur.fetchall()
+    if amount is None:
+        return rows
+
     to_return: list[tuple[str, str, str, int, str]] = []
     i = 0
     for row in rows:
