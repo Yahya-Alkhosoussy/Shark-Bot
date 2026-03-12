@@ -41,9 +41,12 @@ def add_timeout(user: str, reason: str | None, mod: str, when: datetime, duratio
     )
 
 
-def get_bans(amount: int) -> list[tuple[str, str, str, str]]:
+def get_bans(amount: int | None = None) -> list[tuple[str, str, str, str]]:
     cur.execute("SELECT * FROM bans ORDER BY when_banned DESC")
     rows = cur.fetchall()
+    if amount is None:
+        return rows
+
     to_return: list[tuple[str, str, str, str]] = []
     i = 0
     for row in rows:
