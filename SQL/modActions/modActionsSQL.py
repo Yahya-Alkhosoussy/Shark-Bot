@@ -76,3 +76,15 @@ def get_timeouts(amount: int | None = None) -> list[tuple[str, str, str, str, in
         else:
             break
     return to_return
+
+
+def get_streamers() -> set[str]:
+    cur.execute("SELECT streamer FROM bans")
+    ban_rows = cur.fetchall()
+    cur.execute("SELECT streamer FROM timeouts")
+    timeout_rows = cur.fetchall()
+
+    ban_set = set(ban_rows)
+    timeout_set = set(timeout_rows)
+
+    return ban_set | timeout_set
