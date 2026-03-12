@@ -7,15 +7,18 @@ cur = conn.cursor()
 cur.execute("""CREATE TABLE IF NOT EXISTS bans
             (
                 id PRIMARY KEY,
-                banned_user TEXT UNIQUE,
+                streamer TEXT,
+                banned_user TEXT,
                 reason TEXT,
                 mod_that_banned_them TEXT,
-                when_banned TEXT
+                when_banned TEXT,
+                UNIQUE(streamer, banned_user)
             )""")
 
 cur.execute("""CREATE TABLE IF NOT EXISTS timeouts
             (
                 id PRIMARY KEY,
+                streamer TEXT,
                 timed_out_user TEXT,
                 reason TEXT,
                 mod_that_timed_them_out TEXT,
