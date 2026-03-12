@@ -27,30 +27,30 @@ cur.execute("""CREATE TABLE IF NOT EXISTS timeouts
             )""")
 
 
-def add_ban(user: str, reason: str | None, mod: str, when: datetime):
+def add_ban(streamer: str, user: str, reason: str | None, mod: str, when: datetime):
     when_str = when.strftime(r"%Y-%m-%d %H:%M")
     cur.execute(
-        "INSERT OR IGNORE INTO bans (banned_user, reason, mod_that_banned_them, when_banned) VALUES (?, ?, ?, ?)",
-        (user, reason, mod, when_str),
+        "INSERT OR IGNORE INTO bans (streamer, banned_user, reason, mod_that_banned_them, when_banned) VALUES (?, ?, ?, ?, ?)",
+        (streamer, user, reason, mod, when_str),
     )
 
 
-def add_timeout(user: str, reason: str | None, mod: str, when: datetime, duration: int):
+def add_timeout(streamer: str, user: str, reason: str | None, mod: str, when: datetime, duration: int):
     when_str = when.strftime(r"%Y-%m-%d %H:%M")
     cur.execute(
-        """INSERT OR IGNORE INTO timeouts (time_out_user, reason, mod_that_timed_them_out, duration, when_timed_out)
-        VALUES (?, ?, ?, ?, ?)""",
-        (user, reason, mod, duration, when_str),
+        """INSERT OR IGNORE INTO timeouts (streamer, time_out_user, reason, mod_that_timed_them_out, duration, when_timed_out)
+        VALUES (?, ?, ?, ?, ?, ?)""",
+        (streamer, user, reason, mod, duration, when_str),
     )
 
 
-def get_bans(amount: int | None = None) -> list[tuple[str, str, str, str]]:
+def get_bans(amount: int | None = None) -> list[tuple[str, str, str, str, str]]:
     cur.execute("SELECT * FROM bans ORDER BY when_banned DESC")
     rows = cur.fetchall()
     if amount is None:
         return rows
 
-    to_return: list[tuple[str, str, str, str]] = []
+    to_return: list[tuple[str, str, str, str, str]] = []
     i = 0
     for row in rows:
         if i != amount:
@@ -61,13 +61,13 @@ def get_bans(amount: int | None = None) -> list[tuple[str, str, str, str]]:
     return to_return
 
 
-def get_timeouts(amount: int | None = None) -> list[tuple[str, str, str, int, str]]:
+def get_timeouts(amount: int | None = None) -> list[tuple[str, str, str, str, int, str]]:
     cur.execute("SELECT * FROM timeouts ORDER BY when_timed_out DESC")
     rows = cur.fetchall()
     if amount is None:
         return rows
 
-    to_return: list[tuple[str, str, str, int, str]] = []
+    to_return: list[tuple[str, str, str, str, int, str]] = []
     i = 0
     for row in rows:
         if i != amount:
