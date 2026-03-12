@@ -90,7 +90,7 @@ def get_clips(
 
 
 # mod stuff
-def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str], list[str], list[timedelta | None]]:
+def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str | None], list[str], list[timedelta | None], list[str]]:
     """
     Returns:
         list[str] -> banned usernames
@@ -107,7 +107,7 @@ def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str], list[st
         raise
     data = r["data"]
     people_banned: list[str] = []
-    reasons: list[str] = []
+    reasons: list[str | None] = []
     mod_that_banned: list[str] = []
     created_at: list[str] = []
     expires_at: list[str] = []
@@ -115,7 +115,7 @@ def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str], list[st
     for log in data:
         # print(log.keys())
         people_banned.append(log["user_name"])
-        reasons.append(log["reason"])
+        reasons.append(log["reason"]) if log["reason"] else None
         mod_that_banned.append(log["moderator_name"])
         expires_at.append(log["expires_at"])
         created_at.append(log["created_at"])
@@ -127,4 +127,4 @@ def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str], list[st
         else:
             duration.append(None)
 
-    return people_banned, reasons, mod_that_banned, duration
+    return people_banned, reasons, mod_that_banned, duration, created_at
