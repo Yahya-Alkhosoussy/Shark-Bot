@@ -104,6 +104,7 @@ def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str | None], 
         user=user,
     )
     if r.get("status") == 401:
+        print("ERROR: ", r)
         raise
     data = r["data"]
     people_banned: list[str] = []
@@ -115,7 +116,7 @@ def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str | None], 
     for log in data:
         # print(log.keys())
         people_banned.append(log["user_name"])
-        reasons.append(log["reason"]) if log["reason"] else None
+        reasons.append(log["reason"]) if log["reason"] else reasons.append(None)
         mod_that_banned.append(log["moderator_name"])
         expires_at.append(log["expires_at"])
         created_at.append(log["created_at"])
