@@ -14,6 +14,7 @@ from pydantic import ValidationError
 from exceptions import exceptions as ex
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
+from logModActions.modActions import ModLoop
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
@@ -70,6 +71,7 @@ class MyBot(commands.Bot):
         self._ticket_setup_done: dict = config.set_up_done
         self.reaction_handler = reaction_handler(config=config, roles_per_guild=fill_emoji_map(), bot=self)
         self.fishing = Fishing(self)
+        self.mod_loop = ModLoop(self, config)
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -105,6 +107,8 @@ class MyBot(commands.Bot):
                                 logging.warning(f"Failed to add role to member {member}, returned None")
                         except Exception as e:
                             logging.error(str(e))
+            else:
+                self.mod_loop.start_for(guild.id)
 
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
