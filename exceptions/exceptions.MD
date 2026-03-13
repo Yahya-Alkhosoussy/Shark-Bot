@@ -10,3 +10,4 @@
 * 1008 - message not found
 * 1009 - custom message fromat not found
 * 1010 - Invalid authorization. 
+* 1011 - Format Error from twitch clips
