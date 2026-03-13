@@ -15,7 +15,7 @@ class ModLoop:
     def __init__(self, bot: discord.Client, config: AppConfig):
         self.bot = bot
         self.config = config
-        self._loops: dict[int, tasks.Loop] = {}  # Guild ID -> True or False
+        self._loops: dict[int, tasks.Loop] = {}  # Guild ID -> loop
 
     def is_running(self, guild_id: int) -> bool:
         loop = self._loops.get(guild_id)  # returns none if it doesn't exist
