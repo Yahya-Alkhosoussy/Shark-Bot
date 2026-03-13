@@ -1,8 +1,11 @@
+import re
 from datetime import datetime, timedelta, timezone
 from os import environ, getenv
 
 import requests
 from dotenv import load_dotenv, set_key
+
+from exceptions.exceptions import FormatError
 
 load_dotenv()
 
@@ -60,6 +63,18 @@ def twitch_request(url: str, params: dict, user: str):
 def get_user_id(twitch_user: str, user: str):
     user_r = twitch_request("https://api.twitch.tv/helix/users", params={"login": twitch_user}, user=user)
     return user_r["data"][0]["id"]
+
+
+def parse_twitch_duration(duration: str) -> timedelta:
+    # Twitch gives duration in this format "6h26m14s", so use regular expressions to format it
+    pattern = r"(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?"
+    result = re.fullmatch(pattern=pattern, string=duration)
+    if result is None:
+        raise FormatError("duration is in the wrong format", 1011)
+    hours = int(result.group(1) or 0)
+    minutes = int(result.group(2) or 0)
+    seconds = int(result.group(3) or 0)
+    return timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 
 def get_clips(
