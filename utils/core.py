@@ -345,7 +345,7 @@ class BaseConfig(ABC, BaseModel):
 
     def reload(self) -> bool:
         if self._last_load < datetime.fromtimestamp(getmtime(self._loaded_config_path)):
-            self.__dict__.update(type(self)(self._loaded_config_path).__dict__)
+            self.__dict__.update(type(self)(self._loaded_config_path).__dict__)  # type: ignore
             return True
         return False
 
