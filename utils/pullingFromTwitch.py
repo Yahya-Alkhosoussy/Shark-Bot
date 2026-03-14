@@ -1,4 +1,5 @@
 import re
+import time
 from datetime import datetime, timedelta, timezone
 from os import environ, getenv
 
@@ -75,6 +76,39 @@ def parse_twitch_duration(duration: str) -> timedelta:
     minutes = int(result.group(2) or 0)
     seconds = int(result.group(3) or 0)
     return timedelta(hours=hours, minutes=minutes, seconds=seconds)
+
+
+def internal_handle_stream_end(username: str, user: str):
+    broadcaster_id = get_user_id(username, user)
+
+    # Small buffer for twitch
+    time.sleep(30)
+
+    # grab most recent vod
+    vod_r = twitch_request(
+        "https://api.twitch.tv/helix/videos", params={"user_id": broadcaster_id, "type": "archive", "first": 1}, user=user
+    )
+    vod = vod_r["data"][0]
+    duration = parse_twitch_duration(vod["duration"])
+    hours = int(duration.total_seconds() // 3600)
+    minutes = int(duration.total_seconds() % 3600) // 60  # modulus is to strip the full hours from the equation
+    seconds = int(duration.total_seconds() % 60)  # strips the full minutes
+
+    clips = get_clips(username=username, user=user, hours_ago=hours, minutes_ago=minutes, seconds_ago=seconds)
+
+    return clips
+
+
+def is_live(user: str, username: str) -> bool:
+    broadcaster_id = get_user_id(user=user, twitch_user=username)
+
+    response = twitch_request(
+        "https://api.twitch.tv/helix/streams",
+        params={"user_id": broadcaster_id},
+        user=user,
+    )
+
+    return bool(len(response["data"]) > 0)
 
 
 def get_clips(
