@@ -6,10 +6,10 @@ from utils.pullingFromTwitch import is_live
 conn = sqlite3.connect("databases/clips.db")
 cur = conn.cursor()
 
-cur.execute("""CREATE IF NOT EXISTS clip_channels
+cur.execute("""CREATE TABLE IF NOT EXISTS clip_channels
             (discord_id INTEGER PRIMARY KEY, username TEXT, dms BOOLEAN NOT NULL, channel_id INTEGER)""")
 
-cur.execute("""CREATE IF NOT EXISTS is_live
+cur.execute("""CREATE TABLE IF NOT EXISTS is_live
             (discord_id INTEGER PRIMARY KEY, username TEXT, user TEXT, is_live BOOLEAN)""")
 
 
