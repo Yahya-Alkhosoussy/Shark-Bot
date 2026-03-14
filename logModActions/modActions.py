@@ -133,7 +133,7 @@ class ModLoop:
 
     def stop_for(self, guild_id: int):
         loop = self._loops.get(guild_id)
-        if loop and loop.is_running:
+        if loop and loop.is_running():
             loop.stop()
             return True
         return False
