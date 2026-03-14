@@ -19,6 +19,7 @@ from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, a
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
+from SQL.clipManagement.clips import add_user
 from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
 from ticketingSystem.Ticket_System import TicketSystem
@@ -718,6 +719,21 @@ async def add_custom_gif(interaction: discord.Interaction, index: int, gif_link:
             await channel.send(f"Encountered an error, {str(e)}")
         else:
             logging.error(str(e))
+
+
+@bot.tree.command(name="add_channel_for_clips", description="Add your channel to get ur clips sent somewhere after ur stream")
+@discord.app_commands.describe(
+    twitch_username="This is your twitch username.",
+    to_dms="This should be a Yes or a No, whether you want the clips to be sent to your dms or not.",
+    channel_id="If you don't want it to be DMed to you, choose a channel. If you do want it to be sent to your dms just put a 0",
+)
+async def add_channel_to_clips(interaction: discord.Interaction, twitch_username: str, to_dms: str, channel_id: int):
+    username = twitch_username
+    user = interaction.user
+    if to_dms.lower() == "yes":
+        add_user(discord_id=user.id, user=user.name, username=username, dms=True)
+    else:
+        add_user(discord_id=user.id, user=user.name, username=username, dms=False, channel_id=channel_id)
 
 
 bot.run(token=token, log_handler=handler)
