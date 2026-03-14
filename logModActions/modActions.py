@@ -51,13 +51,11 @@ class ModLoop:
             list_of_bans: list[
                 tuple[str, tuple[list[str], list[str | None], list[str], list[timedelta | None], list[str]]]
             ] = []
-            print(streamers)
             for streamer in streamers:
                 if streamer == "sharkocalypse":
                     nick = "shark"
                 else:
                     nick = "spider"
-                print(streamer)
                 list_of_bans.append((streamer, (twitch_bans(user=nick, twitch_user=streamer))))
             """
             dimensions:
