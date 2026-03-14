@@ -14,6 +14,11 @@ cur.execute("""CREATE IF NOT EXISTS is_live
 
 
 def add_user(discord_id: int, user: str, username: str, dms: bool, channel_id: int | None = None):
+    if user.lower() == "spiderbyte2007":
+        user = "spider"
+    elif user.lower() == "sharkocalypse":
+        user = "shark"
+
     cur.execute(
         "INSERT OR IGNORE INTO clip_channels (discord_id, username, dms, channel_id) VALUES (?, ?, ?, ?)",
         (discord_id, username, dms, channel_id),
