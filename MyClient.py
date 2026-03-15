@@ -109,7 +109,6 @@ class MyBot(commands.Bot):
                                 logging.warning(f"Failed to add role to member {member}, returned None")
                         except Exception as e:
                             logging.error(str(e))
-            else:
                 self.mod_loop.start_for(guild.id)
 
             for key, value in self._ticket_setup_done.items():
