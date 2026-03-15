@@ -14,14 +14,17 @@ from pydantic import ValidationError
 from exceptions import exceptions as ex
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
+from logModActions.modActions import ModLoop
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
+from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
+from utils.pullingFromTwitch import get_clips
 from utils.ticketing import TicketingConfig
 
 # ======= Logging/Env =======
@@ -70,6 +73,7 @@ class MyBot(commands.Bot):
         self._ticket_setup_done: dict = config.set_up_done
         self.reaction_handler = reaction_handler(config=config, roles_per_guild=fill_emoji_map(), bot=self)
         self.fishing = Fishing(self)
+        self.mod_loop = ModLoop(self, config)
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -86,7 +90,7 @@ class MyBot(commands.Bot):
             print(f"Tree set up for {guild.name}")
 
         # runs parallel with the other loop
-        await asyncio.gather(*[setup_guild(guild) for guild in self.guilds])
+        await asyncio.gather(*[setup_guild(guild) for guild in self.guilds], self.tree.sync())
 
         for guild in self.guilds:
             guild_name: str = config.guilds[guild.id]
@@ -105,6 +109,8 @@ class MyBot(commands.Bot):
                                 logging.warning(f"Failed to add role to member {member}, returned None")
                         except Exception as e:
                             logging.error(str(e))
+            else:
+                self.mod_loop.start_for(guild.id)
 
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
@@ -688,6 +694,8 @@ bot = MyBot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=T
 @discord.app_commands.describe(
     birth_month="This is your birth month (i.e 2 for february, 6 for june etc.)", birthday="Your birth day"
 )
+@discord.app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+@discord.app_commands.allowed_installs(guilds=True, users=False)
 async def add_birthday(interaction: discord.Interaction, birth_month: int, birthday: int):
     await interaction.response.send_message("Adding your birthday.")
     try:
@@ -704,6 +712,8 @@ async def add_birthday(interaction: discord.Interaction, birth_month: int, birth
     index="This is your birthday and birthmonth in one number (i.e for february 19th it's 1902, for 6th of June it's 0606)",
     gif_link="This is the link to the gif you want to add",
 )
+@discord.app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+@discord.app_commands.allowed_installs(guilds=True, users=False)
 async def add_custom_gif(interaction: discord.Interaction, index: int, gif_link: str):
     await interaction.response.send_message("Adding your custom gif...")
     try:
@@ -714,6 +724,55 @@ async def add_custom_gif(interaction: discord.Interaction, index: int, gif_link:
             await channel.send(f"Encountered an error, {str(e)}")
         else:
             logging.error(str(e))
+
+
+@bot.tree.command(name="add_channel_for_clips", description="Add your channel to get ur clips sent somewhere after ur stream")
+@discord.app_commands.describe(
+    twitch_username="This is your twitch username.",
+    to_dms="This should be a Yes or a No, whether you want the clips to be sent to your dms or not.",
+    channel_id="If you don't want it to be DMed to you, choose a channel. If you do want it to be sent to your dms just put a 0",
+)
+@discord.app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@discord.app_commands.allowed_installs(guilds=True, users=True)
+async def add_channel_to_clips(interaction: discord.Interaction, twitch_username: str, to_dms: str, channel_id: int):
+    await interaction.response.send_message("Adding your twitch username to our database...")
+    username = twitch_username
+    user = interaction.user
+    if to_dms.lower() == "yes":
+        add_user(discord_id=user.id, user=user.name, username=username, dms=True)
+    else:
+        add_user(discord_id=user.id, user=user.name, username=username, dms=False, channel_id=channel_id)
+
+
+@bot.tree.command(name="clips", description="Get clips manually")
+@discord.app_commands.describe()
+@discord.app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@discord.app_commands.allowed_installs(guilds=True, users=True)
+async def clips(interaction: discord.Interaction, days_ago: int, hours_ago: int, minutes_ago: int):
+    await interaction.response.send_message("Getting your clips")
+    username = get_username(interaction.user.id)
+    nick = get_nick(interaction.user.id)
+
+    clips = get_clips(username, days_ago, hours_ago, minutes_ago, user=nick)
+
+    print("Clips gotten")
+
+    channel = interaction.channel
+
+    messages = []
+    to_send = "Here are the clips you requested: \n"
+
+    for clip in clips:
+        if len(to_send) + len(clip) + 1 > 2000:
+            messages.append(to_send)
+            to_send = clip + "\n"
+        else:
+            to_send += clip + "\n"
+    if len(messages) == 0:
+        messages.append(to_send)
+    for message in messages:
+        if isinstance(channel, discord.TextChannel):
+            await channel.send(message)
 
 
 bot.run(token=token, log_handler=handler)
