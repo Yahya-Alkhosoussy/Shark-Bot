@@ -749,10 +749,13 @@ async def add_channel_to_clips(interaction: discord.Interaction, twitch_username
 @discord.app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @discord.app_commands.allowed_installs(guilds=True, users=True)
 async def clips(interaction: discord.Interaction, days_ago: int, hours_ago: int, minutes_ago: int):
+    await interaction.response.send_message("Getting your clips")
     username = get_username(interaction.user.id)
     nick = get_nick(interaction.user.id)
 
     clips = get_clips(username, days_ago, hours_ago, minutes_ago, user=nick)
+
+    print("Clips gotten")
 
     channel = interaction.channel
 
@@ -765,6 +768,8 @@ async def clips(interaction: discord.Interaction, days_ago: int, hours_ago: int,
             to_send = clip + "\n"
         else:
             to_send += clip + "\n"
+    if len(messages) == 0:
+        messages.append(to_send)
     for message in messages:
         if isinstance(channel, discord.TextChannel):
             await channel.send(message)
