@@ -36,7 +36,7 @@ class ClipLoop:
                     live_statuses[user] = check_live(user)
 
                     discord_id = get_discord_id(user)
-                    nick = get_nick(user)
+                    nick = get_nick(discord_id)
 
                     clips = internal_handle_stream_end(username=user, user=nick)
                     if channels[user] != 1:

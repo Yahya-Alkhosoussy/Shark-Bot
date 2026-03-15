@@ -25,7 +25,7 @@ def add_user(discord_id: int, user: str, username: str, dms: bool, channel_id: i
     )
     live = is_live(user, username)
     cur.execute(
-        "INSERT OR IGNORE INTO is_live (discord_id, username, user, is_live) VALUES (?, ?, ?)",
+        "INSERT OR IGNORE INTO is_live (discord_id, username, user, is_live) VALUES (?, ?, ?, ?)",
         (discord_id, username, user, live),
     )
     conn.commit()
@@ -109,6 +109,11 @@ def get_discord_id(username: str) -> int:
     return cur.fetchone()[0]
 
 
-def get_nick(username: str) -> str:
-    cur.execute("SELECT user FROM is_live WHERE username=?", (username,))
+def get_username(discord_id: int) -> str:
+    cur.execute("SELECT username FROM is_live WHERE discord_id=?", (discord_id,))
+    return cur.fetchone()[0]
+
+
+def get_nick(discord_id: int) -> str:
+    cur.execute("SELECT user FROM is_live WHERE discord_id=?", (discord_id,))
     return cur.fetchone()[0]
