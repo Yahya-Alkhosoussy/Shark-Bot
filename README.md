@@ -1,6 +1,8 @@
 # Shark-Bot
 This is a discord bot that was created for a streamer's, sharkocalypse, discord server.
 
+If you want to replicate this bot and use it for your own use, you can initially run setup.py to download all the requirements needed without opening the terminal!
+
 # Features:
 ## 1. Welcome and Goodbye:
 The bot can welcome people to the server and announce their departure from the server.
