@@ -111,11 +111,13 @@ class MyBot(commands.Bot):
                             logging.error(str(e))
                 self.mod_loop.start_for(guild.id)
 
+            await self.ticket_system.setup_hook()
+
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
                     if not value:
                         print("set up not done")
-                        await self.ticket_system.setup_hook()
+
                         logging.info("[TICKETING SYSTEM] Ticket system set up, checking for messages now")
 
                         embed_message_ids = ticket_config.embed_messages
