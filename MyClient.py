@@ -24,6 +24,7 @@ from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
+from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
 from utils.pullingFromTwitch import get_clips
@@ -780,6 +781,14 @@ async def clips(interaction: discord.Interaction, days_ago: int, hours_ago: int,
     for message in messages:
         if isinstance(channel, discord.TextChannel):
             await channel.send(message)
+
+@bot.tree.command(name="shark-frenzy-live", description="Sign up to automatically tell others you're live in #shark-frenzy")
+@discord.app_commands.describe()
+async def live_setup(interaction: discord.Interaction, twitch_username: str, custom_message: str):
+    await interaction.response.send_message("Adding you to the service.")
+    discord_id = interaction.user.id
+    add_twitch_live_user(twitch_username, discord_id, custom_message)
+
 
 
 bot.run(token=token, log_handler=handler)
