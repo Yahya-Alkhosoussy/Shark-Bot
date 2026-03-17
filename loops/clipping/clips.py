@@ -76,7 +76,7 @@ class ClipLoop:
                 else:
                     continue
 
-        loop = tasks.loop(seconds=10, reconnect=True)(_tick)
+        loop = tasks.loop(minutes=10, reconnect=True)(_tick)
         guild_name = self.config.guilds[guild_id]
 
         @loop.before_loop
