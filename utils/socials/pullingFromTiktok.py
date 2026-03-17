@@ -10,7 +10,7 @@ async def get_latest_videos() -> list[str]:
 
         user = api.user("sharkocalypse")
         video_links: list[str] = []
-        async for video in user.videos(count=10):
+        async for video in user.videos(count=5):
             video_links.append(f"https://www.tiktok.com/@sharkocalypse/video/{video.id}")
 
         return video_links
