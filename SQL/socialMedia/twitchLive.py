@@ -43,3 +43,6 @@ def get_users() -> list[str]:
 def get_custom_message(twitch_username: str):
     cur.execute("SELECT custom_message FROM twitch_users WHERE twitch_username=?", (twitch_username,))
     return cur.fetchone()[0]
+
+def update_live_status(username: str, status: bool):
+    cur.execute("UPDATE twitch_users SET live_status=? WHERE twitch_username=?", (status, username))
