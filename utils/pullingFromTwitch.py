@@ -36,7 +36,7 @@ def refresh_token(user: str):
     return data["access_token"]
 
 
-def twitch_request(url: str, params: dict, user: str):
+def twitch_request(url: str, params: dict, user: str | None):
     if user == "shark" or user == "spider":
         headers = {
             "Client-ID": getenv("mod_log_id"),
@@ -54,14 +54,14 @@ def twitch_request(url: str, params: dict, user: str):
         access_token = token_r.json()["access_token"]
         headers = {"Client-ID": getenv("twitch_client_id"), "Authorization": f"Bearer {access_token}"}
     r = requests.get(url, params=params, headers=headers)
-    if r.status_code == 401:
+    if r.status_code == 401 and user is not None:
         new_token = refresh_token(user)
         headers["Authorization"] = f"Bearer {new_token}"
         r = requests.get(url, params=params, headers=headers)
     return r.json()
 
 
-def get_user_id(twitch_user: str, user: str):
+def get_user_id(twitch_user: str, user: str | None):
     user_r = twitch_request("https://api.twitch.tv/helix/users", params={"login": twitch_user}, user=user)
     return user_r["data"][0]["id"]
 
@@ -99,7 +99,7 @@ def internal_handle_stream_end(username: str, user: str):
     return clips
 
 
-def is_live(username: str, user: str = "spider") -> bool:
+def is_live(username: str, user: str | None = None) -> bool:
     broadcaster_id = get_user_id(user=user, twitch_user=username)
 
     response = twitch_request(
