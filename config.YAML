@@ -16,6 +16,9 @@ channels:
   log:
     shark squad: 1443585446830407703
     test server: 1482092300292198490
+  clips:
+    shark squad: 1427482909375336500
+    test server: 1465678481324245165
 guild role messages:
   test server:
     colour: 1474800508370686095
