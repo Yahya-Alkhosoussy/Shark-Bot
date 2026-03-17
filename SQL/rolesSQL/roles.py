@@ -170,3 +170,8 @@ def add_role(
     except sqlite3.OperationalError as e:
         raise e
     return True
+
+
+def get_role_id(role_name: str) -> int:
+    cur.execute("SELECT role_id FROM roles WHERE name=?", (role_name))
+    return cur.fetchone()[0]

@@ -16,8 +16,10 @@ from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from logModActions.modActions import ModLoop
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
+from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
+from socialMedia.tiktok import TikTokLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
@@ -74,6 +76,8 @@ class MyBot(commands.Bot):
         self.reaction_handler = reaction_handler(config=config, roles_per_guild=fill_emoji_map(), bot=self)
         self.fishing = Fishing(self)
         self.mod_loop = ModLoop(self, config)
+        self.tiktok_loop = TikTokLoop(self, config)
+        self.clipping_loop = ClipLoop(self, config)
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -110,6 +114,8 @@ class MyBot(commands.Bot):
                         except Exception as e:
                             logging.error(str(e))
                 self.mod_loop.start_for(guild.id)
+                self.tiktok_loop.start_for(guild.id)
+                self.clipping_loop.start_for(guild.id)
 
             await self.ticket_system.setup_hook()
 
