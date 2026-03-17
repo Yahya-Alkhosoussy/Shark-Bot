@@ -13,6 +13,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS tiktok_videos
 
 def add_link(link: str):
     cur.execute("INSERT OR IGNORE INTO tiktok_videos (link) VALUES (?)", (link,))
+    conn.commit()
 
 
 def check_if_link_exists(link: str) -> bool:
