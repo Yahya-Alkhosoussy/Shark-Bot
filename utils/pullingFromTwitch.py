@@ -110,6 +110,11 @@ def is_live(username: str, user: str | None = None) -> bool:
 
     return bool(len(response["data"]) > 0)
 
+def user_exists(username: str, user: str | None = None) -> bool:
+    user_r = twitch_request("https://api.twitch.tv/helix/users", params={"login": username}, user=user)
+    
+    return bool(len(user_r['data']) > 0)
+
 
 def get_clips(
     username: str = "sharkocalypse",
