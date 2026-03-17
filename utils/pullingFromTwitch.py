@@ -99,7 +99,7 @@ def internal_handle_stream_end(username: str, user: str):
     return clips
 
 
-def is_live(user: str, username: str) -> bool:
+def is_live(username: str, user: str = "spider") -> bool:
     broadcaster_id = get_user_id(user=user, twitch_user=username)
 
     response = twitch_request(
