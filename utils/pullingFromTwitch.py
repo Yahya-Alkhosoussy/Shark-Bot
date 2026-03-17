@@ -142,6 +142,16 @@ def get_clips(
 
     return links
 
+# live stream stuff
+def get_stream_title(username: str, user: str | None = None):
+    broadcaster_id = get_user_id(twitch_user=username, user=user)
+    # get title
+    stream_r = twitch_request(
+        "",
+        params={"broadcaster_id": broadcaster_id},
+        user=user
+    )
+
 
 # mod stuff
 def get_bans(user: str, twitch_user: str) -> tuple[list[str], list[str | None], list[str], list[timedelta | None], list[str]]:
