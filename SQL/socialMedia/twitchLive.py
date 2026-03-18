@@ -12,14 +12,14 @@ cur.execute("""CREATE TABLE IF NOT EXISTS twitch_users
                 twitch_username TEXT UNIQUE,
                 live_status BOOLEAN,
                 custom_message TEXT,
-                discord_id INTEGER UNIQUE
+                discord_id BIGINT UNIQUE
             )""")
 
 
 def add_user(twitch_username: str, discord_id: int, custom_message: str):
     live_status = is_live(username=twitch_username)
     cur.execute(
-        "INSERT OR IGNORE INTO twitch_users (twitch_username, discord_id, live_status, custom_message) VALUES (?, ?, ?)",
+        "INSERT OR IGNORE INTO twitch_users (twitch_username, discord_id, live_status, custom_message) VALUES (?, ?, ?, ?)",
         (twitch_username, discord_id, live_status, custom_message),
     )
     conn.commit()

@@ -19,6 +19,7 @@ from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, a
 from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
+from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from socialMedia.tiktok import TikTokLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
@@ -79,6 +80,7 @@ class MyBot(commands.Bot):
         self.mod_loop = ModLoop(self, config)
         self.tiktok_loop = TikTokLoop(self, config)
         self.clipping_loop = ClipLoop(self, config)
+        self.twitch_loop = TwitchLiveLoop(self, config)
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -117,6 +119,7 @@ class MyBot(commands.Bot):
                 self.mod_loop.start_for(guild.id)
                 self.tiktok_loop.start_for(guild.id)
                 self.clipping_loop.start_for(guild.id)
+                self.twitch_loop.start_for(guild.id)
 
             await self.ticket_system.setup_hook()
 
@@ -819,22 +822,28 @@ async def live_setup(interaction: discord.Interaction, twitch_username: str, cus
 
 @bot.tree.command(name="only-for-spider")
 @discord.app_commands.describe()
-async def live_setup_2(interaction: discord.Interaction, twitch_username: str, custom_message: str, discord_id: int):
+async def live_setup_2(interaction: discord.Interaction, twitch_username: str, custom_message: str, discord_id: str):
     await interaction.response.send_message("Validating the information")
     channel = interaction.channel
     guild = interaction.guild
     assert isinstance(channel, discord.TextChannel)
+    try:
+        discord_id_int = int(discord_id)
+    except BaseException as e:
+        await channel.send(f"invalid user ID, error {e}")
+        return
+
     if guild is None:
         await channel.send("Error, guild not found")
         return
-    user = guild.get_member(discord_id)
+    user = guild.get_member(discord_id_int)
     if user is None:
         await channel.send("Error, member not found")
         return
     roles = user.roles
     role_found = False
     for role in roles:
-        if role.name == "Shark's VIPs":
+        if role.name == "Shark's VIPs" or "Admin":
             role_found = True
             break
 
@@ -847,7 +856,7 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
         )
         return
 
-    add_twitch_live_user(twitch_username, discord_id, custom_message)
+    add_twitch_live_user(twitch_username, discord_id_int, custom_message)
 
     await channel.send(f"{user.mention}, data validated. Thank you!")
     return
