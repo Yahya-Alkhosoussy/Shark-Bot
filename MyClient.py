@@ -858,7 +858,7 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
 
     add_twitch_live_user(twitch_username, discord_id_int, custom_message)
 
-    await channel.send(f"{user.mention}, data validated. Thank you!")
+    await channel.send(f"{user} data validated. Thank you!")
     return
 
 
