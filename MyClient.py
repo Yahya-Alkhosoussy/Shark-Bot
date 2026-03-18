@@ -818,7 +818,44 @@ async def live_setup(interaction: discord.Interaction, twitch_username: str, cus
 
 @bot.tree.command(name="only-for-spider")
 @discord.app_commands.describe()
-async def live_setup_2(interaction: discord.Integration)
+async def live_setup_2(interaction: discord.Interaction, twitch_username: str, custom_message: str, discord_id: int):
+    await interaction.response.send_message("Validating the information")
+    channel = interaction.channel
+    guild = interaction.guild
+    if guild is None:
+        if isinstance(channel, discord.TextChannel):
+            await channel.send("Error, guild not found")
+        return
+    user = guild.get_member(discord_id)
+    if user is None:
+        if isinstance(channel, discord.TextChannel):
+            await channel.send("Error, member not found")
+        return
+    roles = user.roles
+    role_found = False
+    for role in roles:
+        if role.name == "Shark's VIPs":
+            role_found = True
+            break
+    
+    if not role_found:
+        if isinstance(channel, discord.TextChannel):
+            await channel.send(f"{user.name} does not have the necessary role.")
+        return
+    if not user_exists(username=twitch_username):
+        if isinstance(channel, discord.TextChannel):
+            await channel.send(
+                f"{user.mention}, I was unable to find your twitch, are you sure your username ({twitch_username}) is correct?"
+            )
+        return
+    
+    add_twitch_live_user(twitch_username, discord_id, custom_message)
+    
+    if isinstance(channel, discord.TextChannel):
+        await channel.send(f"{user.mention}, data validated. Thank you!")
+        return
+
+
 
 
 bot.run(token=token, log_handler=handler)
