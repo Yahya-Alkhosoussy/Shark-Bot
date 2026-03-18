@@ -110,10 +110,11 @@ def is_live(username: str, user: str | None = None) -> bool:
 
     return bool(len(response["data"]) > 0)
 
+
 def user_exists(username: str, user: str | None = None) -> bool:
     user_r = twitch_request("https://api.twitch.tv/helix/users", params={"login": username}, user=user)
-    
-    return bool(len(user_r['data']) > 0)
+
+    return bool(len(user_r["data"]) > 0)
 
 
 def get_clips(
@@ -142,15 +143,12 @@ def get_clips(
 
     return links
 
+
 # live stream stuff
 def get_stream_title(username: str, user: str | None = None):
     broadcaster_id = get_user_id(twitch_user=username, user=user)
     # get title
-    stream_r = twitch_request(
-        "",
-        params={"broadcaster_id": broadcaster_id},
-        user=user
-    )
+    stream_r = twitch_request("", params={"broadcaster_id": broadcaster_id}, user=user)
 
 
 # mod stuff
