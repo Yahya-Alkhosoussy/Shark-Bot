@@ -145,10 +145,30 @@ def get_clips(
 
 
 # live stream stuff
-def get_stream_title(username: str, user: str | None = None):
+def get_stream_details(username: str, user: str | None = None):
+    "Returns the title, game name and viewer count of a stream!"
     broadcaster_id = get_user_id(twitch_user=username, user=user)
     # get title
-    stream_r = twitch_request("", params={"broadcaster_id": broadcaster_id}, user=user)
+    stream_r = twitch_request("https://api.twitch.tv/helix/streams", params={"user_id": broadcaster_id}, user=user)
+
+    data = stream_r["data"]
+
+    if data:
+        title = data[0]["title"]
+        game_name = data[0]["game_name"]
+        return title, game_name
+    return None
+
+
+def get_profile_picture(username: str, user: str | None = None):
+    "returns a profile picture of a twitch user"
+    broadcaster_id = get_user_id(username, user)
+
+    user_r = twitch_request("https://api.twitch.tv/helix/users", params={"id": broadcaster_id}, user=user)
+
+    user_data = user_r["data"][0]
+
+    return user_data["profile_image_url"]
 
 
 # mod stuff
