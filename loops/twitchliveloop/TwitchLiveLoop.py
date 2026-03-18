@@ -1,24 +1,27 @@
-import discord
-from utils.core import AppConfig
-from discord.ext import tasks
 import logging
+
+import discord
+from discord.ext import tasks
+
+from SQL.socialMedia.twitchLive import get_custom_message, get_live_status, get_users, update_live_status
+from utils.core import AppConfig
 from utils.pullingFromTwitch import is_live
-from SQL.socialMedia.twitchLive import add_user, get_live_status, get_custom_message, get_twitch_username, get_users, update_live_status
+
 
 class TwitchLiveLoop:
     def __init__(self, bot: discord.Client, config: AppConfig):
         self.bot = bot
         self.config = config
-        self._loops: dict[int, tasks.Loop] = {} # guild_id -> tasks.Loop
-    
+        self._loops: dict[int, tasks.Loop] = {}  # guild_id -> tasks.Loop
+
     def is_running(self, guild_id: int) -> bool:
-        loop = self._loops.get(guild_id) # returns None if it's empty
+        loop = self._loops.get(guild_id)  # returns None if it's empty
         return bool(loop and loop.is_running())
-    
+
     def start_for(self, guild_id: int):
         if self.is_running(guild_id):
             return
-        
+
         async def _tick():
             users = get_users()
             for user in users:
@@ -27,8 +30,8 @@ class TwitchLiveLoop:
                 if saved_live_status != new_live_status and (not saved_live_status):
                     update_live_status(username=user, status=new_live_status)
                     live_link = f"www.twitch.tv/{user}"
+                    custom_message = get_custom_message(user)
                     embed_to_send = discord.Embed()
-
 
         loop = tasks.loop(minutes=2, reconnect=True)(_tick)
         guild_name = self.config.guilds[guild_id]
@@ -52,4 +55,3 @@ class TwitchLiveLoop:
 
         self._loops[guild_id] = loop
         loop.start()
-
