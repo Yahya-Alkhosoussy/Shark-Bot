@@ -782,6 +782,7 @@ async def clips(interaction: discord.Interaction, days_ago: int, hours_ago: int,
         if isinstance(channel, discord.TextChannel):
             await channel.send(message)
 
+
 @bot.tree.command(name="shark-frenzy-live", description="Sign up to automatically tell others you're live in #shark-frenzy")
 @discord.app_commands.describe()
 async def live_setup(interaction: discord.Interaction, twitch_username: str, custom_message: str):
@@ -789,7 +790,7 @@ async def live_setup(interaction: discord.Interaction, twitch_username: str, cus
     user = interaction.user
     channel = interaction.channel
     assert isinstance(user, discord.Member)
-    
+
     roles = user.roles
     role_found = False
     for role in roles:
@@ -803,7 +804,9 @@ async def live_setup(interaction: discord.Interaction, twitch_username: str, cus
             return
     if not user_exists(username=twitch_username):
         if isinstance(channel, discord.TextChannel):
-            await channel.send(f"{user.mention}, I was unable to find your twitch, are you sure your username ({twitch_username}) is correct?")
+            await channel.send(
+                f"{user.mention}, I was unable to find your twitch, are you sure your username ({twitch_username}) is correct?"
+            )
             return
 
     discord_id = interaction.user.id
@@ -812,6 +815,10 @@ async def live_setup(interaction: discord.Interaction, twitch_username: str, cus
     if isinstance(channel, discord.TextChannel):
         await channel.send(f"{user.mention}, data validated. Thank you!")
         return
+
+@bot.tree.command(name="only-for-spider")
+@discord.app_commands.describe()
+async def live_setup_2(interaction: discord.Integration)
 
 
 bot.run(token=token, log_handler=handler)
