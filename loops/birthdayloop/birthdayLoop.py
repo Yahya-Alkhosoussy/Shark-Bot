@@ -144,7 +144,6 @@ class BirthdayLoop:
             birthdays_today: list[discord.User] = []
             for user_id, birthday in zip(user_ids, birthdays):
                 if birthday != current_date:
-                    print("skipping")
                     continue
 
                 user = await self.client.fetch_user(user_id)
