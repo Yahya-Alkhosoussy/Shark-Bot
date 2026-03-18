@@ -9,3 +9,4 @@ Pillow
 websockets
 requests
 TikTokAPI
+tzdata
