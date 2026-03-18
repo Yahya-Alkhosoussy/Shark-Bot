@@ -19,14 +19,16 @@ from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, a
 from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
+from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from socialMedia.tiktok import TikTokLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
+from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig
-from utils.pullingFromTwitch import get_clips
+from utils.pullingFromTwitch import get_clips, user_exists
 from utils.ticketing import TicketingConfig
 
 # ======= Logging/Env =======
@@ -78,6 +80,7 @@ class MyBot(commands.Bot):
         self.mod_loop = ModLoop(self, config)
         self.tiktok_loop = TikTokLoop(self, config)
         self.clipping_loop = ClipLoop(self, config)
+        self.twitch_loop = TwitchLiveLoop(self, config)
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -116,6 +119,7 @@ class MyBot(commands.Bot):
                 self.mod_loop.start_for(guild.id)
                 self.tiktok_loop.start_for(guild.id)
                 self.clipping_loop.start_for(guild.id)
+                self.twitch_loop.start_for(guild.id)
 
             await self.ticket_system.setup_hook()
 
@@ -780,6 +784,82 @@ async def clips(interaction: discord.Interaction, days_ago: int, hours_ago: int,
     for message in messages:
         if isinstance(channel, discord.TextChannel):
             await channel.send(message)
+
+
+@bot.tree.command(name="shark-frenzy-live", description="Sign up to automatically tell others you're live in #shark-frenzy")
+@discord.app_commands.describe()
+async def live_setup(interaction: discord.Interaction, twitch_username: str, custom_message: str):
+    await interaction.response.send_message("Validating your information")
+    user = interaction.user
+    channel = interaction.channel
+    assert isinstance(user, discord.Member)
+
+    roles = user.roles
+    role_found = False
+    for role in roles:
+        if role.name == "Shark's VIPs":
+            role_found = True
+            break
+
+    if not role_found:
+        if isinstance(channel, discord.TextChannel):
+            await channel.send(f"{user.mention}, I was unable to verify your information. You do not have the necessary role.")
+            return
+    if not user_exists(username=twitch_username):
+        if isinstance(channel, discord.TextChannel):
+            await channel.send(
+                f"{user.mention}, I was unable to find your twitch, are you sure your username ({twitch_username}) is correct?"
+            )
+            return
+
+    discord_id = interaction.user.id
+    add_twitch_live_user(twitch_username, discord_id, custom_message)
+
+    if isinstance(channel, discord.TextChannel):
+        await channel.send(f"{user.mention}, data validated. Thank you!")
+        return
+
+
+@bot.tree.command(name="only-for-spider")
+@discord.app_commands.describe()
+async def live_setup_2(interaction: discord.Interaction, twitch_username: str, custom_message: str, discord_id: str):
+    await interaction.response.send_message("Validating the information")
+    channel = interaction.channel
+    guild = interaction.guild
+    assert isinstance(channel, discord.TextChannel)
+    try:
+        discord_id_int = int(discord_id)
+    except BaseException as e:
+        await channel.send(f"invalid user ID, error {e}")
+        return
+
+    if guild is None:
+        await channel.send("Error, guild not found")
+        return
+    user = guild.get_member(discord_id_int)
+    if user is None:
+        await channel.send("Error, member not found")
+        return
+    roles = user.roles
+    role_found = False
+    for role in roles:
+        if role.name == "Shark's VIPs" or "Admin":
+            role_found = True
+            break
+
+    if not role_found:
+        await channel.send(f"{user.name} does not have the necessary role.")
+        return
+    if not user_exists(username=twitch_username):
+        await channel.send(
+            f"{user.mention}, I was unable to find your twitch, are you sure your username ({twitch_username}) is correct?"
+        )
+        return
+
+    add_twitch_live_user(twitch_username, discord_id_int, custom_message)
+
+    await channel.send(f"{user.mention}, data validated. Thank you!")
+    return
 
 
 bot.run(token=token, log_handler=handler)

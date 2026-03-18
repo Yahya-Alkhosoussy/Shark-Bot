@@ -36,7 +36,7 @@ def refresh_token(user: str):
     return data["access_token"]
 
 
-def twitch_request(url: str, params: dict, user: str):
+def twitch_request(url: str, params: dict, user: str | None):
     if user == "shark" or user == "spider":
         headers = {
             "Client-ID": getenv("mod_log_id"),
@@ -54,14 +54,14 @@ def twitch_request(url: str, params: dict, user: str):
         access_token = token_r.json()["access_token"]
         headers = {"Client-ID": getenv("twitch_client_id"), "Authorization": f"Bearer {access_token}"}
     r = requests.get(url, params=params, headers=headers)
-    if r.status_code == 401:
+    if r.status_code == 401 and user is not None:
         new_token = refresh_token(user)
         headers["Authorization"] = f"Bearer {new_token}"
         r = requests.get(url, params=params, headers=headers)
     return r.json()
 
 
-def get_user_id(twitch_user: str, user: str):
+def get_user_id(twitch_user: str, user: str | None):
     user_r = twitch_request("https://api.twitch.tv/helix/users", params={"login": twitch_user}, user=user)
     return user_r["data"][0]["id"]
 
@@ -99,7 +99,7 @@ def internal_handle_stream_end(username: str, user: str):
     return clips
 
 
-def is_live(user: str, username: str) -> bool:
+def is_live(username: str, user: str | None = None) -> bool:
     broadcaster_id = get_user_id(user=user, twitch_user=username)
 
     response = twitch_request(
@@ -109,6 +109,12 @@ def is_live(user: str, username: str) -> bool:
     )
 
     return bool(len(response["data"]) > 0)
+
+
+def user_exists(username: str, user: str | None = None) -> bool:
+    user_r = twitch_request("https://api.twitch.tv/helix/users", params={"login": username}, user=user)
+
+    return bool(len(user_r["data"]) > 0)
 
 
 def get_clips(
@@ -136,6 +142,33 @@ def get_clips(
         links.append(clip["url"])
 
     return links
+
+
+# live stream stuff
+def get_stream_details(username: str, user: str | None = None):
+    "Returns the title, game name and viewer count of a stream!"
+    broadcaster_id = get_user_id(twitch_user=username, user=user)
+    # get title
+    stream_r = twitch_request("https://api.twitch.tv/helix/streams", params={"user_id": broadcaster_id}, user=user)
+
+    data = stream_r["data"]
+
+    if data:
+        title = data[0]["title"]
+        game_name = data[0]["game_name"]
+        return title, game_name
+    return None
+
+
+def get_profile_picture(username: str, user: str | None = None):
+    "returns a profile picture of a twitch user"
+    broadcaster_id = get_user_id(username, user)
+
+    user_r = twitch_request("https://api.twitch.tv/helix/users", params={"id": broadcaster_id}, user=user)
+
+    user_data = user_r["data"][0]
+
+    return user_data["profile_image_url"]
 
 
 # mod stuff
