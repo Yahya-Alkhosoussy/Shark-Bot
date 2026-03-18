@@ -25,6 +25,7 @@ class TwitchLiveLoop:
         async def _tick():
             users = get_users()
             for user in users:
+                user = user[0]
                 saved_live_status: bool = get_live_status(user)
                 new_live_status: bool = is_live(username=user)
                 if saved_live_status != new_live_status and (not saved_live_status):
