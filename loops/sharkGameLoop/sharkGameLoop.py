@@ -11,7 +11,8 @@ from discord.ext import tasks
 # import your helpers/config
 import SQL.sharkGamesSQL.sharkGameSQL as sg
 from utils.core import AppConfig
-from utils.fishing import FishingConfig, remove_net_use
+from utils.fishing import FishingConfig
+from utils.fishing import remove_net_use as get_warning
 
 fishing_config = FishingConfig(Path(r"fishing\fishing.yaml"))
 
@@ -130,8 +131,7 @@ class SharkLoops:
                 net = lists_of_after[user] if lists_of_after[user] else "rope net"
                 net_uses = 0
                 if net != "rope net":
-                    warning, net_uses = remove_net_use(net=net, user=user)
-                    net_uses -= 1
+                    warning, net_uses = get_warning(net=net, user=user)
                     if warning:
                         await channel.send(warning)
 
