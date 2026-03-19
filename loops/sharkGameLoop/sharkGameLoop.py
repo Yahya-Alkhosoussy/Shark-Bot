@@ -132,6 +132,7 @@ class SharkLoops:
                 net_uses = 0
                 if net != "rope net":
                     warning, net_uses = get_warning(net=net, user=user)
+                    net_uses -= 1
                     if warning:
                         await channel.send(warning)
 
@@ -161,7 +162,7 @@ class SharkLoops:
 
                 if net != "rope net" and net is not None:
                     sg.remove_net_use(user, net, net_uses)
-                    if net_uses == 0:
+                    if net_uses == -1:
                         sg.remove_net(user, net)
             if not success:
                 await channel.send(f"A {rarity} {name_to_drop} has escaped, no one caught it. 😞")
