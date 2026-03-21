@@ -27,15 +27,15 @@ class TikTokLoop:
         guild = self.bot.get_guild(guild_id)
 
         async def _tick():
-            all_links = await get_latest_videos()
+            all_links, all_ids = await get_latest_videos()
             channel_id = self.config.get_channel_id(guild_name=guild_name, channel="clips")
             channel = self.bot.get_channel(channel_id)
-            for link in all_links:
+            for link, id in zip(all_links, all_ids):
                 is_existing: bool = check_if_link_exists(link)
                 if is_existing:
                     continue
 
-                add_link(link)
+                add_link(link, id)
                 if isinstance(channel, discord.TextChannel) and guild is not None:
                     role_id = get_role_id("shark updates")
                     role = guild.get_role(role_id)
