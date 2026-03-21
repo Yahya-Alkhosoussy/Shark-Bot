@@ -20,5 +20,5 @@ def check_if_link_exists(link: str) -> bool:
     cur.execute("SELECT COUNT(id) FROM tiktok_videos WHERE link=?", (link,))
     count = cur.fetchone()[0]
     if count != 0:
-        return False
-    return True
+        return True
+    return False
