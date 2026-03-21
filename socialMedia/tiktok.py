@@ -60,6 +60,9 @@ class TikTokLoop:
         async def _error(self, error: BaseException):
             logging.exception(f"An Error has occured: {str(error)}")
 
+        self._loops[guild_id] = loop
+        loop.start()
+
     def stop_for(self, guild_id: int):
         loop = self._loops.get(guild_id)
         if loop and loop.is_running():
