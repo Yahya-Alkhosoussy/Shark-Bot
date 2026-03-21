@@ -173,5 +173,5 @@ def add_role(
 
 
 def get_role_id(role_name: str) -> int:
-    cur.execute("SELECT role_id FROM roles WHERE name=?", (role_name))
+    cur.execute("SELECT role_id FROM roles WHERE name=?", (role_name,))
     return cur.fetchone()[0]
