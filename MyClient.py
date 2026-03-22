@@ -101,7 +101,6 @@ class MyBot(commands.Bot):
 
         for guild in self.guilds:
             guild_name: str = config.guilds[guild.id]
-            self.birthday_loops.start_for(guild.id)
             if guild_name == "shark squad":
                 for member in guild.members:
                     try:
@@ -116,6 +115,7 @@ class MyBot(commands.Bot):
                                 logging.warning(f"Failed to add role to member {member}, returned None")
                         except Exception as e:
                             logging.error(str(e))
+                self.birthday_loops.start_for(guild.id)
                 self.mod_loop.start_for(guild.id)
                 self.tiktok_loop.start_for(guild.id)
                 self.clipping_loop.start_for(guild.id)
