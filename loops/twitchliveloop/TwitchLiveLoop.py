@@ -30,7 +30,7 @@ class TwitchLiveLoop:
                 new_live_status: bool = is_live(username=user)
                 if saved_live_status != new_live_status and (not saved_live_status):
                     update_live_status(username=user, status=new_live_status)
-                    live_link = f"www.twitch.tv/{user}"
+                    live_link = f"https://www.twitch.tv/{user}"
                     custom_message = get_custom_message(user)
                     details = get_stream_details(user)
                     if details is not None:
