@@ -34,7 +34,7 @@ class TwitchLiveLoop:
                     custom_message = get_custom_message(user)
                     details = get_stream_details(user)
                     if details is not None:
-                        title, game_name = details
+                        title, game_name, thumbnail = details
                     else:
                         continue
                     embed_to_send = discord.Embed(
@@ -42,9 +42,11 @@ class TwitchLiveLoop:
                         colour=discord.Color(0xF6A6BB),
                         description=f"[{title}]({live_link})",
                     )
+                    thumbnail = thumbnail.replace(r"{width}", "1280").replace(r"{height}", "720")
                     profile_url = get_profile_picture(username=user)
                     embed_to_send.set_thumbnail(url=profile_url)
                     embed_to_send.add_field(name="Game", value=game_name)
+                    embed_to_send.set_image(url=thumbnail)
                     view = discord.ui.View()
                     view.add_item(discord.ui.Button(label="Watch Stream", url=live_link))
                     channel_id = self.config.get_channel_id("shark squad", "live")
@@ -55,6 +57,8 @@ class TwitchLiveLoop:
                     channel = guild.get_channel(channel_id)
                     if isinstance(channel, discord.TextChannel):
                         await channel.send(content=custom_message, embed=embed_to_send, view=view)
+                elif saved_live_status != new_live_status:  # ended live
+                    update_live_status(username=user, status=new_live_status)
 
         loop = tasks.loop(minutes=2, reconnect=True)(_tick)
         guild_name = self.config.guilds[guild_id]

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import discord
 from discord.ext import tasks
 
-from SQL.modActions.modActionsSQL import add_ban, add_timeout, get_streamers, get_timeouts
+from SQL.modActions.modActionsSQL import add_ban, add_timeout, check_if_timeout_exists, get_streamers, get_timeouts
 from SQL.modActions.modActionsSQL import get_bans as saved_bans
 from utils.core import AppConfig
 from utils.pullingFromTwitch import get_bans as twitch_bans
@@ -89,6 +89,9 @@ class ModLoop:
                                 print(str(e))
                             add_ban(streamer=streamer_name, user=user[i], reason=reason[i], mod=mod[i], when=when)
                     else:
+                        if check_if_timeout_exists(when=when):
+                            continue
+
                         await self.config.send_discord_mod_log(
                             log_message=f"[AUTO MOD LOG] {mod[i]} has timedout {user[i]} for {int(dur[i].total_seconds())} seconds. {f'Reason given: {reason[i]}.' if reason[i] else ''} The timeout happened at {str(when)}",  # type: ignore # noqa: E501
                             bot=self.bot,
