@@ -156,7 +156,8 @@ def get_stream_details(username: str, user: str | None = None):
     if data:
         title = data[0]["title"]
         game_name = data[0]["game_name"]
-        return title, game_name
+        thumbnail = data[0]["thumbnail_url"]
+        return title, game_name, thumbnail
     return None
 
 
