@@ -93,3 +93,11 @@ def get_streamers() -> set[str]:
     timeout_set = set(timeout_strings)
 
     return ban_set | timeout_set
+
+
+def check_if_timeout_exists(when: datetime) -> bool:
+    when_str = when.strftime(r"%Y-%m-%d %H:%M")
+    cur.execute("SELECT COUNT(*) FROM timeouts WHERE when_timed_out=?", (when_str,))
+    if cur.fetchone()[0] > 0:
+        return True
+    return False

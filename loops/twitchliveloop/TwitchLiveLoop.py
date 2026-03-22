@@ -57,6 +57,8 @@ class TwitchLiveLoop:
                     channel = guild.get_channel(channel_id)
                     if isinstance(channel, discord.TextChannel):
                         await channel.send(content=custom_message, embed=embed_to_send, view=view)
+                elif saved_live_status != new_live_status:  # ended live
+                    update_live_status(username=user, status=new_live_status)
 
         loop = tasks.loop(minutes=2, reconnect=True)(_tick)
         guild_name = self.config.guilds[guild_id]
