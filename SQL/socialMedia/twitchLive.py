@@ -58,3 +58,4 @@ def get_custom_message(twitch_username: str):
 
 def update_live_status(username: str, status: bool):
     cur.execute("UPDATE twitch_users SET live_status=? WHERE twitch_username=?", (status, username))
+    conn.commit()
