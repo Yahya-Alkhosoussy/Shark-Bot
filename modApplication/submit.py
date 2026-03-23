@@ -10,6 +10,7 @@ import chat_exporter  # noqa: F401
 import discord
 from pydantic import ValidationError
 
+from loops.levellingloop.levellingLoop import get_level
 from utils.ticketing import TicketingConfig
 
 try:
@@ -118,11 +119,20 @@ class submit(discord.ui.View):
         try:
             transcript_info = discord.Embed(title=f"Ticket Deleted | {channel.name}", color=discord.colour.Color.blue())
             transcript_info.add_field(name="ID", value=ID, inline=True)
+            joined = None
             if ticket_creator:
                 transcript_info.add_field(name="Opened by", value=ticket_creator.mention, inline=True)
+                if ticket_creator.joined_at is not None:
+                    date_string = str(ticket_creator.joined_at).split(".")[0]
+                    joined = self.convert_to_unix_timestamp(date_string)
             transcript_info.add_field(name="Closed by", value=interaction.user.mention, inline=True)
             transcript_info.add_field(name="Ticket Created", value=f"<t:{ticket_created_unix}:f>", inline=True)
             transcript_info.add_field(name="Ticket Closed", value=f"<t:{ticket_closed_unix}:f>", inline=True)
+            if joined:
+                transcript_info.add_field(name="Joined", value=f"<t:{joined}:f>", inline=True)
+            # message_count = await self.get_message_count(user=ticket_creator)
+            # transcript_info.add_field(name="Total Messages Sent", value=message_count, inline=True)
+            transcript_info.add_field(name="level", value=get_level(user=ticket_creator), inline=True)
             await where_to_send.send(
                 content="Here's your transcript: \n In order to view it you will have to download the file and open it in your web browser!",  # noqa: E501
                 embed=transcript_info,
@@ -130,6 +140,17 @@ class submit(discord.ui.View):
             )
         except Exception as e:
             logging.error(f"Failed to send transcript to log channel: {e}")
+
+    # async def get_message_count(self, user: discord.Member):
+    #     guild = user.guild
+    #     channels = guild.channels
+    #     counter = 0
+    #     for channel in channels:
+    #         if isinstance(channel, discord.TextChannel):
+    #             async for message in channel.history(limit=None):
+    #                 if message.author.id == user.id:
+    #                     counter += 1
+    #     return counter
 
     def convert_to_unix_timestamp(self, date_string):
         date_format = r"%Y-%m-%d %H:%M:%S"

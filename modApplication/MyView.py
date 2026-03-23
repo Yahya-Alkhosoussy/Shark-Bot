@@ -9,6 +9,7 @@ import discord
 from pydantic import ValidationError
 
 from modApplication.CloseButton import CloseButton
+from modApplication.ModQuestions import ModQuestions
 from utils.ticketing import TicketingConfig
 
 try:
@@ -27,6 +28,7 @@ class MyView(discord.ui.View):
     def __init__(self, bot: discord.Client):
         super().__init__(timeout=None)
         self.bot = bot
+        self.mod_questions = ModQuestions(bot=self.bot, channel=None)
 
     @discord.ui.button(label="Apply", style=discord.ButtonStyle.blurple, custom_id="mod_app_button")
     async def callback(self, interaction: discord.Interaction, select):
@@ -125,10 +127,11 @@ class MyView(discord.ui.View):
                     guild.default_role, send_messages=False, read_messages=False, view_channel=False
                 )
                 embed = discord.Embed(
-                    description=f"Welcome {interaction.user.mention}, \n please run `?app` and follow the directions given by the bot",  # ticket welcome message  # noqa: E501
+                    description=f"Welcome {interaction.user.mention}, \n please follow the directions given by the bot",  # ticket welcome message  # noqa: E501
                     color=discord.colour.Color.blue(),
                 )
                 await ticket_channel.send(embed=embed, view=CloseButton(bot=self.bot))
+
                 channel_id = ticket_channel.id
                 cur.execute("UPDATE application SET ticket_channel = ? WHERE id = ?", (channel_id, ticket_number))
                 conn.commit()
@@ -146,3 +149,4 @@ class MyView(discord.ui.View):
                 )
                 assert interaction.message
                 await interaction.message.edit(embed=embed, view=MyView(bot=self.bot))  # This will reset the select menu
+                await self.mod_questions.send_questions(channel=ticket_channel)

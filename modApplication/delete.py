@@ -49,7 +49,7 @@ class delete(discord.ui.View):
             await interaction.channel.delete(reason="Ticket Deleted")
         else:
             raise TypeError("interaction.channel is a GroupChannel?! We can't delete from those!")
-        cur.execute("DELETE FROM ticket WHERE discord_id=?", (ticket_creator_id,))
+        cur.execute("DELETE FROM application WHERE discord_id=?", (ticket_creator_id,))
         conn.commit()
 
     def convert_to_unix_timestamp(self, date_string):
