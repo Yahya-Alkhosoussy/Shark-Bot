@@ -48,7 +48,7 @@ class MyView(discord.ui.View):
 
         guild_name = config.guilds[guild_id]
         # Check if the user already has a ticket
-        cur.execute("SELECT id FROM ticket WHERE discord_id=?", (user_id,))
+        cur.execute("SELECT id FROM application WHERE discord_id=?", (user_id,))
         existing_ticket = cur.fetchone()
 
         if existing_ticket is not None:
@@ -74,19 +74,19 @@ class MyView(discord.ui.View):
             if interaction.data:
                 if interaction.channel and interaction.channel.id == config.ticket_channels[guild_name]:
                     cur.execute(
-                        "INSERT INTO ticket (discord_name, discord_id, ticket_created) VALUES (?, ?, ?)",
+                        "INSERT INTO application (discord_name, discord_id, ticket_created) VALUES (?, ?, ?)",
                         (user_name, user_id, creation_date),
                     )
                     conn.commit()
                     await asyncio.sleep(1)
 
-                    cur.execute("SELECT id FROM ticket WHERE discord_id=?", (user_id,))
+                    cur.execute("SELECT id FROM application WHERE discord_id=?", (user_id,))
                     ticket_number = cur.fetchone()[0]
                     category = self.bot.get_channel(category_ids["mod app"])
 
                     if isinstance(category, discord.CategoryChannel):
                         ticket_channel = await guild.create_text_channel(
-                            f"mod ticket-{ticket_number}", category=category, topic=f"{interaction.user.id}"
+                            f"mod application-{ticket_number}", category=category, topic=f"{interaction.user.id}"
                         )
                     else:
                         raise TypeError(
@@ -132,18 +132,18 @@ class MyView(discord.ui.View):
                     )
                     await ticket_channel.send(embed=embed, view=CloseButton(bot=self.bot))
                     channel_id = ticket_channel.id
-                    cur.execute("UPDATE ticket SET ticket_channel = ? WHERE id = ?", (channel_id, ticket_number))
+                    cur.execute("UPDATE application SET ticket_channel = ? WHERE id = ?", (channel_id, ticket_number))
                     conn.commit()
                     embed = discord.Embed(
-                        description=f"📬 Ticket was created! Look here --> {ticket_channel.mention}",
+                        description=f"📬 application was created! Look here --> {ticket_channel.mention}",
                         color=discord.colour.Color.green(),
                     )
 
                     await interaction.followup.send(embed=embed, ephemeral=True)
                     await asyncio.sleep(1)
                     embed = discord.Embed(
-                        title="Support ticket",
-                        description="This is where you can raise a ticket for tech support or access mod mail",
+                        title="Mod Applications",
+                        description="This is where you can apply to be a mod",
                         color=discord.colour.Color.blue(),
                     )
                     assert interaction.message
