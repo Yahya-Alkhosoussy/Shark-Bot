@@ -20,6 +20,7 @@ from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
+from modApplication.ApplicationSystem import ApplicationSystem
 from socialMedia.tiktok import TikTokLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
@@ -81,6 +82,7 @@ class MyBot(commands.Bot):
         self.tiktok_loop = TikTokLoop(self, config)
         self.clipping_loop = ClipLoop(self, config)
         self.twitch_loop = TwitchLiveLoop(self, config)
+        self.mod_application = ApplicationSystem(bot=self)
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -122,6 +124,10 @@ class MyBot(commands.Bot):
                 self.twitch_loop.start_for(guild.id)
 
             await self.ticket_system.setup_hook()
+            channel_id = config.get_channel_id(guild_name=guild_name, channel="mod app")
+            channel = self.get_channel(channel_id)
+            assert isinstance(channel, discord.TextChannel)
+            await self.mod_application.setup_hook(guild_name=guild_name, channel=channel)
 
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
