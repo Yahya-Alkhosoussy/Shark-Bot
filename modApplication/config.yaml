@@ -1,0 +1,24 @@
+guilds:
+  shark squad: 1273776575266951268
+  test server: 1066090135839580231
+ticket channels:
+  test server: 1446051942202609785
+  shark squad: 0
+categories:
+  test server:
+    mod app: 1446052298747805797
+  shark squad:
+    mod app: 1463517852299558932
+roles:
+  test server:
+    mods: 1446052643935096894
+  shark squad:
+    mods: 1386628035591012393
+embed messages:
+  test server: 1485507728561410121
+  shark squad: 0
+log channels:
+  test server:
+    mod app: 1446462012157726730
+  shark squad:
+    mod app: 1485254726579785798

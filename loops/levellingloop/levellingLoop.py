@@ -121,6 +121,12 @@ async def create_rank_card(user: discord.Member, rank: int, level: int, xp: int,
 ROLES_SHARK_SQUAD: LevelRoleSet = config.level_roles["shark squad"]
 
 
+# ============= UTILITY =======================
+def get_level(user: discord.Member):
+    level, _, _, _ = ls.get_info(username=user.name)
+    return level
+
+
 # ============== LOOP LOGIC ===================
 class levelingLoop:
     def __init__(self, bot):
@@ -129,14 +135,19 @@ class levelingLoop:
     async def add_users(self, user: discord.Member):
         return ls.add_user(username=user.name)
 
-    async def add_role(self, user: discord.Member):
+    async def check_role(self, user: discord.Member):
         level, _, _, _ = ls.get_info(username=user.name)
-        print("got level")
-        level_role_id = ROLES_SHARK_SQUAD[f"{level}"]
-        print("god role level id")
+        level_role_id = ROLES_SHARK_SQUAD["level 10"]
         guild = user.guild
         role = guild.get_role(level_role_id)
-        print("got role")
+        if level >= 10 and role is not None:
+            await user.add_roles(role)
+
+    async def add_role(self, user: discord.Member):
+        level, _, _, _ = ls.get_info(username=user.name)
+        level_role_id = ROLES_SHARK_SQUAD[f"{level}"]
+        guild = user.guild
+        role = guild.get_role(level_role_id)
         if level >= 5:
             print(f"User {user.name} is higher than level 5!")
             role_found = False

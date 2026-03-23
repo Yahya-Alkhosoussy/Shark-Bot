@@ -21,6 +21,9 @@ channels:
     test server: 1465678481324245165
   live:
     shark squad: 1435095474745901096
+  mod app:
+    shark squad: 0
+    test server: 1446051942202609785
 guild role messages:
   test server:
     colour: 1474800508370686095
