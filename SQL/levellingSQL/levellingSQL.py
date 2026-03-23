@@ -58,7 +58,7 @@ def calculate_xp_needed(username: str) -> int:
     return xp_needed
 
 
-def get_info(username: str):
+def get_info(username: str) -> tuple[int, int, int, int]:
     """
     Docstring for get_info
 
@@ -70,11 +70,14 @@ def get_info(username: str):
     for row in cur.execute("SELECT * FROM level WHERE username=?", (username,)):
         info.extend(row)
 
+    rank = get_rank(username=username)
+    assert rank is not None
+
     return (
         info[indicies.LEVEL.value],
         info[indicies.EXP.value],
         info[indicies.UNTIL_NEXT_LEVEL.value],
-        get_rank(username=username),
+        rank,
     )
 
 
@@ -118,7 +121,7 @@ def add_to_level(username: str, boost: bool, boost_amount: int):
     connection.commit()
 
 
-def get_rank(username: str):
+def get_rank(username: str) -> int | None:
     data = cur.execute("SELECT level, exp FROM level WHERE username=?", (username,)).fetchone()
 
     if not data:
