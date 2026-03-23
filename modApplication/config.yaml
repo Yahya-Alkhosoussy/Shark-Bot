@@ -15,10 +15,10 @@ roles:
   shark squad:
     mods: 1386628035591012393
 embed messages:
-  test server: 0
+  test server: 1485507728561410121
   shark squad: 0
 log channels:
   test server:
-    mod mail: 1446462012157726730
+    mod app: 1446462012157726730
   shark squad:
     mod app: 1485254726579785798
