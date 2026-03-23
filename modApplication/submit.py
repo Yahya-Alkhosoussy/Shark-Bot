@@ -44,7 +44,7 @@ class submit(discord.ui.View):
         guild_log_channels = config.log_channels[config.guilds[guild_id]]
         mod_app_channel = self.bot.get_channel(guild_log_channels["mod app"])
         if not isinstance(mod_app_channel, discord.TextChannel):
-            raise TypeError("Tech support channel is not a Text Channel!")
+            raise TypeError("mod app channel is not a Text Channel!")
         channel_id = interaction.channel.id if interaction.channel else None
 
         # RESPOND IMMEDIATELY
