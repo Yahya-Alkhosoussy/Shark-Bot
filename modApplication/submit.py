@@ -84,10 +84,10 @@ class submit(discord.ui.View):
         assert isinstance(ticket_creator, discord.Member)
 
         await self.generate_discord_transcript(
-            interaction, transcript, ticket_creator, ticket_created_unix, ticket_closed_unix, mod_app_channel
+            interaction, id, transcript, ticket_creator, ticket_created_unix, ticket_closed_unix, mod_app_channel
         )
         await self.generate_discord_transcript(
-            interaction, transcript, ticket_creator, ticket_created_unix, ticket_closed_unix, ticket_creator
+            interaction, id, transcript, ticket_creator, ticket_created_unix, ticket_closed_unix, ticket_creator
         )
         assert not isinstance(interaction.channel, discord.DMChannel)
         assert interaction.channel is not None
@@ -96,12 +96,13 @@ class submit(discord.ui.View):
             await interaction.channel.delete(reason="Ticket Deleted")
         else:
             raise TypeError("interaction.channel is a GroupChannel?! We can't delete from those!")
-        cur.execute("DELETE FROM ticket WHERE discord_id=?", (ticket_creator_id,))
+        cur.execute("DELETE FROM application WHERE discord_id=?", (ticket_creator_id,))
         conn.commit()
 
     async def generate_discord_transcript(
         self,
         interaction: discord.Interaction,
+        ID: int,
         transcript: str,
         ticket_creator: discord.Member,
         ticket_created_unix: int,
@@ -116,7 +117,7 @@ class submit(discord.ui.View):
         transcript_info: discord.Embed | None = None
         try:
             transcript_info = discord.Embed(title=f"Ticket Deleted | {channel.name}", color=discord.colour.Color.blue())
-            transcript_info.add_field(name="ID", value=id, inline=True)
+            transcript_info.add_field(name="ID", value=ID, inline=True)
             if ticket_creator:
                 transcript_info.add_field(name="Opened by", value=ticket_creator.mention, inline=True)
             transcript_info.add_field(name="Closed by", value=interaction.user.mention, inline=True)
