@@ -17,7 +17,7 @@ class ApplicationSystem:
         self.bot = bot
 
         cur.execute(
-            """CREATE TABLE IF NOT EXISTS applications
+            """CREATE TABLE IF NOT EXISTS application
             (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 discord_name TEXT NOT NULL,
@@ -27,11 +27,13 @@ class ApplicationSystem:
             )"""
         )
 
-    def setup_hook(self):
+    async def setup_hook(self, guild_name: str, channel: discord.TextChannel):
         self.bot.add_view(MyView(bot=self.bot))
         self.bot.add_view(CloseButton(bot=self.bot))
         self.bot.add_view(submit(bot=self.bot))
         self.bot.add_view(delete(bot=self.bot))
+        if config.embed_messages[guild_name] == 0:
+            await self.send_ticket_panel(channel=channel)
         print("MOD APP SYSTEM LOADED")
 
     async def send_ticket_panel(self, channel: discord.TextChannel):
