@@ -701,7 +701,8 @@ Rarity: {facts[fact_nums.RARITY.value]}
 
         if message.content.startswith(prefix + "Apply"):
             assert isinstance(message.channel, discord.TextChannel)
-            await self.mod_questions.send_questions(message.channel)
+            assert isinstance(message.author, discord.Member)
+            await self.mod_questions.send_questions(message.channel, author=message.author)
 
         await self.process_commands(message)
 

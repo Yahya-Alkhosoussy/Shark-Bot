@@ -44,17 +44,17 @@ class ModQuestions:
             },
         }
 
-    async def send_questions(self, channel: discord.TextChannel | None):
+    async def send_questions(self, channel: discord.TextChannel | None, author: discord.Member):
         if self.channel is None and channel is not None:
             self.channel = channel
-
-        assert self.channel
+        channel = self.channel
+        assert channel is not None
 
         bot = self.bot.user
         assert bot
-        await self.channel.send("""Before you start your application, make sure to read every question carefully.
+        await channel.send("""Before you start your application, make sure to read every question carefully.
 For open ended questions you will have 60 seconds to write your answers, and please send it all in one message or it will confuse the bot.""")  # noqa: E501
-        await self.channel.send(
+        await channel.send(
             "Starting your mod application now. Spider has access to this channel so feel free to @ him if needed"
         )
 
@@ -72,20 +72,32 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                     for letter, choice in zip(choices.keys(), choices.values()):
                         message += f"\n{letter}: {choice}"
 
-                    await self.channel.send("You have 2 minutes to choose: \n" + message)
+                    await channel.send("You have 2 minutes to choose: \n" + message)
 
                     def check(m: discord.Message) -> bool:
                         letters = ["A", "B", "C", "D", "E", "F", "G"]
                         if i == 2:
                             selections = m.content.upper().split()  # Split By White space
-                            return m.author.id != bot.id and len(selections) >= 1 and all(s in letters for s in selections)
+                            return (
+                                m.author.id != bot.id
+                                and len(selections) >= 1
+                                and all(s in letters for s in selections)
+                                and m.author.id == author.id
+                                and m.channel.id == channel.id
+                            )
                         selection = m.content.upper()
-                        return m.author.id != bot.id and len(selection) == 1 and selection in letters
+                        return (
+                            m.author.id != bot.id
+                            and len(selection) == 1
+                            and selection in letters
+                            and m.author.id == author.id
+                            and m.channel.id == channel.id
+                        )
 
                     try:
                         follow = await self.bot.wait_for("message", check=check, timeout=120)
                     except asyncio.TimeoutError:
-                        await self.channel.send("Timed out, try again with `?Apply`")
+                        await channel.send("Timed out, try again with `?Apply`")
                         return
 
                     if i == 2:
@@ -95,40 +107,50 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                         message = "To confirm, You are available on the following days: " + ", ".join(new_selection)
 
                         message += "\nSend Y for yes and N for no"
-                        await self.channel.send(message)
+                        await channel.send(message)
                     else:
                         selection = choices.get(follow.content)
-                        await self.channel.send(
+                        await channel.send(
                             f"To confirm, you chose '{selection}' as your answer(s). Send Y for yes and N for no"
                         )
 
                     def confirm_Y_N(m: discord.Message) -> bool:
-                        return m.author.id != bot.id and (m.content.upper() == "Y" or m.content.upper() == "N")
+                        return (
+                            m.author.id != bot.id
+                            and (m.content.upper() == "Y" or m.content.upper() == "N")
+                            and m.channel.id == channel.id
+                            and m.author.id == author.id
+                        )
 
                     try:
                         confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=120)
                     except asyncio.TimeoutError:
-                        await self.channel.send("Timed out, try again with `?Apply`")
+                        await channel.send("Timed out, try again with `?Apply`")
                         return
 
                     if confirmation.content.upper() == "N":
-                        await self.channel.send("I will ask the question again.")
+                        await channel.send("I will ask the question again.")
                     else:
                         break
             elif "Y/N" in question:  # yes or no
                 while True:
-                    await self.channel.send(question)
+                    await channel.send(question)
 
                     def check_Y_N(m: discord.Message) -> bool:
-                        return m.author.id != bot.id and (
-                            (m.content.upper() == "Y" or m.content.upper() == "N")
-                            or (m.content.upper() == "YES" or m.content.upper() == "NO")
+                        return (
+                            m.author.id != bot.id
+                            and (
+                                (m.content.upper() == "Y" or m.content.upper() == "N")
+                                or (m.content.upper() == "YES" or m.content.upper() == "NO")
+                            )
+                            and m.channel.id == channel.id
+                            and m.author.id == author.id
                         )
 
                     try:
                         follow = await self.bot.wait_for("message", check=check_Y_N, timeout=120)
                     except asyncio.TimeoutError:
-                        await self.channel.send("Timed out, try again with `?Apply`")
+                        await channel.send("Timed out, try again with `?Apply`")
                         return
 
                     if follow.content.lower() == "yes" or follow.content.lower() == "no":
@@ -138,47 +160,57 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                     else:
                         answer = "No"
 
-                    await self.channel.send(f"To confirm you answered '{answer}' right? If yes then send Y, if not send N")
+                    await channel.send(f"To confirm you answered '{answer}' right? If yes then send Y, if not send N")
 
                     def confirm_Y_N(m: discord.Message) -> bool:
-                        return m.author.id != bot.id and (m.content.upper() == "Y" or m.content.upper() == "N")
+                        return (
+                            m.author.id != bot.id
+                            and (m.content.upper() == "Y" or m.content.upper() == "N")
+                            and m.channel.id == channel.id
+                            and m.author.id == author.id
+                        )
 
                     try:
                         confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=120)
                     except asyncio.TimeoutError:
-                        await self.channel.send("Timed out, try again with `?Apply`")
+                        await channel.send("Timed out, try again with `?Apply`")
                         return
 
                     if confirmation.content.upper() == "N":
-                        await self.channel.send("I will ask the question again.")
+                        await channel.send("I will ask the question again.")
                     elif i == 7:
                         while True:
-                            await self.channel.send("how did you support the streamer/community?")
+                            await channel.send("how did you support the streamer/community?")
 
                             def check(m: discord.Message) -> bool:
-                                return m.author.id != bot.id
+                                return m.author.id != bot.id and m.channel.id == channel.id
 
                             try:
                                 follow = await self.bot.wait_for("message", check=check, timeout=120)
                             except asyncio.TimeoutError:
-                                await self.channel.send("Timed out, try again with `?Apply`")
+                                await channel.send("Timed out, try again with `?Apply`")
                                 return
 
-                            await self.channel.send(
+                            await channel.send(
                                 f"To confirm you answered '{follow.content}' right? If yes then send Y, if not send N"
                             )
 
                             def confirm_Y_N(m: discord.Message) -> bool:
-                                return m.author.id != bot.id and (m.content.upper() == "Y" or m.content.upper() == "N")
+                                return (
+                                    m.author.id != bot.id
+                                    and (m.content.upper() == "Y" or m.content.upper() == "N")
+                                    and m.channel.id == channel.id
+                                    and m.author.id == author.id
+                                )
 
                             try:
                                 confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=120)
                             except asyncio.TimeoutError:
-                                await self.channel.send("Timed out, try again with `?Apply`")
+                                await channel.send("Timed out, try again with `?Apply`")
                                 return
 
                             if confirmation.content.upper() == "N":
-                                await self.channel.send("I will ask the question again.")
+                                await channel.send("I will ask the question again.")
                             else:
                                 break
                         break
@@ -187,36 +219,39 @@ For open ended questions you will have 60 seconds to write your answers, and ple
 
             else:  # open ended
                 while True:
-                    await self.channel.send(question)
+                    await channel.send(question)
 
                     def check(m: discord.Message) -> bool:
-                        return m.author.id != bot.id
+                        return m.author.id != bot.id and m.channel.id == channel.id and m.author.id == author.id
 
                     try:
                         follow = await self.bot.wait_for("message", check=check, timeout=120)
                     except asyncio.TimeoutError:
-                        await self.channel.send("Timed out, try again with `?Apply`")
+                        await channel.send("Timed out, try again with `?Apply`")
                         return
 
-                    await self.channel.send(
-                        f"To confirm you answered '{follow.content}' right? If yes then send Y, if not send N"
-                    )
+                    await channel.send(f"To confirm you answered '{follow.content}' right? If yes then send Y, if not send N")
 
                     def confirm_Y_N(m: discord.Message) -> bool:
-                        return m.author.id != bot.id and (m.content.upper() == "Y" or m.content.upper() == "N")
+                        return (
+                            m.author.id != bot.id
+                            and (m.content.upper() == "Y" or m.content.upper() == "N")
+                            and m.channel.id == channel.id
+                            and m.author.id == author.id
+                        )
 
                     try:
                         confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=120)
                     except asyncio.TimeoutError:
-                        await self.channel.send("Timed out, try again with `?Apply`")
+                        await channel.send("Timed out, try again with `?Apply`")
                         return
 
                     if confirmation.content.upper() == "N":
-                        await self.channel.send("I will ask the question again.")
+                        await channel.send("I will ask the question again.")
                     else:
                         break
 
-        await self.channel.send(
+        await channel.send(
             "Thank you for filling in the application. You can choose to submit it now or use `?Apply` to reapply and change your answers"  # noqa
         )
 
@@ -224,4 +259,4 @@ For open ended questions you will have 60 seconds to write your answers, and ple
             description="Do you want to submit or delete?",  # ticket welcome message  # noqa: E501
             color=discord.colour.Color.blue(),
         )
-        await self.channel.send(embed=embed, view=CloseButton(bot=self.bot))
+        await channel.send(embed=embed, view=CloseButton(bot=self.bot))

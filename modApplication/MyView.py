@@ -151,7 +151,7 @@ class MyView(discord.ui.View):
                 )
                 assert interaction.message
                 await interaction.message.edit(embed=embed, view=MyView(bot=self.bot))  # This will reset the select menu
-                await self.mod_questions.send_questions(channel=ticket_channel)
+                await self.mod_questions.send_questions(channel=ticket_channel, author=interaction.user)
                 # Re-enable after a delay
                 await asyncio.sleep(3)
                 button.disabled = False
