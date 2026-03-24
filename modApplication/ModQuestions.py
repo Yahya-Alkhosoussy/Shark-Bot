@@ -2,6 +2,8 @@ import asyncio
 
 import discord
 
+from modApplication.CloseButton import CloseButton
+
 
 class ModQuestions:
     def __init__(self, bot: discord.Client, channel: discord.TextChannel | None):
@@ -70,7 +72,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                     for letter, choice in zip(choices.keys(), choices.values()):
                         message += f"\n{letter}: {choice}"
 
-                    await self.channel.send("You have a minute to choose: \n" + message)
+                    await self.channel.send("You have 2 minutes to choose: \n" + message)
 
                     def check(m: discord.Message) -> bool:
                         letters = ["A", "B", "C", "D", "E", "F", "G"]
@@ -81,7 +83,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                         return m.author.id != bot.id and len(selection) == 1 and selection in letters
 
                     try:
-                        follow = await self.bot.wait_for("message", check=check, timeout=60)
+                        follow = await self.bot.wait_for("message", check=check, timeout=120)
                     except asyncio.TimeoutError:
                         await self.channel.send("Timed out, try again with `?Apply`")
                         return
@@ -104,7 +106,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                         return m.author.id != bot.id and (m.content.upper() == "Y" or m.content.upper() == "N")
 
                     try:
-                        confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=60)
+                        confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=120)
                     except asyncio.TimeoutError:
                         await self.channel.send("Timed out, try again with `?Apply`")
                         return
@@ -124,7 +126,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                         )
 
                     try:
-                        follow = await self.bot.wait_for("message", check=check_Y_N, timeout=60)
+                        follow = await self.bot.wait_for("message", check=check_Y_N, timeout=120)
                     except asyncio.TimeoutError:
                         await self.channel.send("Timed out, try again with `?Apply`")
                         return
@@ -142,7 +144,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                         return m.author.id != bot.id and (m.content.upper() == "Y" or m.content.upper() == "N")
 
                     try:
-                        confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=60)
+                        confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=120)
                     except asyncio.TimeoutError:
                         await self.channel.send("Timed out, try again with `?Apply`")
                         return
@@ -157,7 +159,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                                 return m.author.id != bot.id
 
                             try:
-                                follow = await self.bot.wait_for("message", check=check, timeout=60)
+                                follow = await self.bot.wait_for("message", check=check, timeout=120)
                             except asyncio.TimeoutError:
                                 await self.channel.send("Timed out, try again with `?Apply`")
                                 return
@@ -170,7 +172,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                                 return m.author.id != bot.id and (m.content.upper() == "Y" or m.content.upper() == "N")
 
                             try:
-                                confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=60)
+                                confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=120)
                             except asyncio.TimeoutError:
                                 await self.channel.send("Timed out, try again with `?Apply`")
                                 return
@@ -191,7 +193,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                         return m.author.id != bot.id
 
                     try:
-                        follow = await self.bot.wait_for("message", check=check, timeout=60)
+                        follow = await self.bot.wait_for("message", check=check, timeout=120)
                     except asyncio.TimeoutError:
                         await self.channel.send("Timed out, try again with `?Apply`")
                         return
@@ -204,7 +206,7 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                         return m.author.id != bot.id and (m.content.upper() == "Y" or m.content.upper() == "N")
 
                     try:
-                        confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=60)
+                        confirmation = await self.bot.wait_for("message", check=confirm_Y_N, timeout=120)
                     except asyncio.TimeoutError:
                         await self.channel.send("Timed out, try again with `?Apply`")
                         return
@@ -213,3 +215,13 @@ For open ended questions you will have 60 seconds to write your answers, and ple
                         await self.channel.send("I will ask the question again.")
                     else:
                         break
+
+        await self.channel.send(
+            "Thank you for filling in the application. You can choose to submit it now or use `?Apply` to reapply and change your answers"  # noqa
+        )
+
+        embed = discord.Embed(
+            description="Do you want to submit or delete?",  # ticket welcome message  # noqa: E501
+            color=discord.colour.Color.blue(),
+        )
+        await self.channel.send(embed=embed, view=CloseButton(bot=self.bot))
