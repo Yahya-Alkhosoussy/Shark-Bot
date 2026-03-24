@@ -137,7 +137,7 @@ class levelingLoop:
 
     async def check_role(self, user: discord.Member):
         level, _, _, _ = ls.get_info(username=user.name)
-        level_role_id = ROLES_SHARK_SQUAD["level 10"]
+        level_role_id = ROLES_SHARK_SQUAD["10"]
         guild = user.guild
         role = guild.get_role(level_role_id)
         if level >= 10 and role is not None:
