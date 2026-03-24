@@ -31,8 +31,10 @@ class MyView(discord.ui.View):
         self.mod_questions = ModQuestions(bot=self.bot, channel=None)
 
     @discord.ui.button(label="Apply", style=discord.ButtonStyle.blurple, custom_id="mod_app_button")
-    async def callback(self, interaction: discord.Interaction, select):
-        await interaction.response.defer(ephemeral=True)
+    async def callback(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
 
         creation_date = dt.datetime.now(timezone).strftime(r"%Y-%m-%d %H:%M:%S")
         user_name = interaction.user.name
@@ -150,3 +152,7 @@ class MyView(discord.ui.View):
                 assert interaction.message
                 await interaction.message.edit(embed=embed, view=MyView(bot=self.bot))  # This will reset the select menu
                 await self.mod_questions.send_questions(channel=ticket_channel)
+                # Re-enable after a delay
+                await asyncio.sleep(3)
+                button.disabled = False
+                await interaction.message.edit(view=self)  # re-enable it on the embed
