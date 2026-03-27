@@ -2,6 +2,9 @@ import asyncio
 import datetime as dt
 import logging
 import os
+import subprocess
+import sys
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from sqlite3 import OperationalError
@@ -89,6 +92,7 @@ class MyBot(commands.Bot):
     # ======= ON RUN =======
     async def on_ready(self):
         assert self.user is not None
+        print("\n")
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
@@ -126,10 +130,31 @@ class MyBot(commands.Bot):
                 self.clipping_loop.start_for(guild.id)
                 self.twitch_loop.start_for(guild.id)
 
+                shark_message_id = config.shark_message_id
+                shark_channel_id = config.get_channel_id(guild_name, channel="game")
+                shark_channel = self.get_channel(shark_channel_id)
+                if not isinstance(shark_channel, discord.TextChannel):
+                    print("channel is in an incorrect format")
+                    return
+                shark_message = await shark_channel.fetch_message(shark_message_id)
+                if not isinstance(shark_message, discord.Message):
+                    print("message is not the right type: ", type(shark_message))
+                    return
+                dt = timedelta(minutes=30)
+                now = datetime.now(timezone.utc)
+                delta = now - shark_message.created_at
+                if delta >= dt:
+                    self.shark_loops.start_for(guild.id)
+                else:
+                    remaining = dt - delta
+                    asyncio.create_task(self.start_shark_game_after_delay(guild_id=guild.id, remaining=remaining))
+
             await self.ticket_system.setup_hook()
             channel_id = config.get_channel_id(guild_name=guild_name, channel="mod app")
             channel = self.get_channel(channel_id)
-            assert isinstance(channel, discord.TextChannel)
+            if not isinstance(channel, discord.TextChannel):
+                print("channel is in an incorrect format")
+                return
             await self.mod_application.setup_hook(guild_name=guild_name, channel=channel)
 
             for key, value in self._ticket_setup_done.items():
@@ -706,6 +731,11 @@ Rarity: {facts[fact_nums.RARITY.value]}
 
         await self.process_commands(message)
 
+    async def start_shark_game_after_delay(self, guild_id: int, remaining: timedelta):
+        print(f"Going to wait {remaining.total_seconds()}")
+        await asyncio.sleep(remaining.total_seconds())
+        self.shark_loops.start_for(guild_id)
+
 
 # ===== RUN =====
 intents = discord.Intents.default()
@@ -874,6 +904,32 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
 
     await channel.send(f"{user} data validated. Thank you!")
     return
+
+
+@bot.command(name="restart", hidden=True)
+async def restart_bot(ctx: commands.Context):
+
+    while True:
+        if not bot.shark_loops.is_idle:
+            await ctx.send("Waiting for shark loop to finish iterating...")
+            await asyncio.sleep(10)
+        else:
+            break
+
+    await ctx.send("Checking for updates...")
+
+    try:
+        res = subprocess.run(["git", "pull"], capture_output=True, check=True, text=True)
+        await ctx.send("Pulled successfully")
+        await ctx.send(res.stdout)
+    except subprocess.CalledProcessError as e:
+        await ctx.send(f"failed: error {e.stderr}")
+
+    await ctx.send("Restarting now...")
+
+    subprocess.Popen([sys.executable] + sys.argv)
+
+    await bot.close()  # closes the bot normally
 
 
 bot.run(token=token, log_handler=handler)
