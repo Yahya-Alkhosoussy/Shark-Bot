@@ -384,6 +384,7 @@ class AppConfig(BaseConfig):
     time_per_loop: int = Field(default=0, serialization_alias="time per loop")
     window_time: int = Field(default=0, serialization_alias="window time")
     set_up_done: dict[Guild, bool] = Field(default_factory=dict, serialization_alias="set up done")
+    shark_message_id: int = Field(default=0, serialization_alias="shark message id")
 
     mod_roles: ClassVar[list[str]] = ["Mommy", "Daddy", "Lead Shark Wranglers", "Shark Wranglers", "Admin"]
     model_config = ConfigDict(serialize_by_alias=True)
@@ -449,6 +450,9 @@ class AppConfig(BaseConfig):
                 case "window time":
                     if confvalue and isinstance(confvalue, int):
                         self.window_time = confvalue
+                case "shark message id":
+                    if confvalue and isinstance(confvalue, int):
+                        self.shark_message_id = confvalue
 
         # Filling up guilds
         self._afterLoad(confPath)
