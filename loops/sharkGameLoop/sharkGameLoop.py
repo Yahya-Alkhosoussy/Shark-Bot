@@ -23,6 +23,7 @@ class SharkLoops:
         self.client = client
         self._loops: dict[int, tasks.Loop] = {}  # guild id -> Loop.
         self.check_interval = self.load_interval()
+        self.iteration_done = False
 
     def is_running(self, guild_id: int) -> bool:
         loop = self._loops.get(guild_id)  # returns none if it doesn't exist
@@ -32,12 +33,25 @@ class SharkLoops:
         self.config.reload()
         return self.config.time_per_loop
 
+    @property
+    def is_idle(self):
+        running = False
+        for loop in self._loops.values():
+            if loop.is_running():
+                running = True
+
+        if running:
+            return self.iteration_done and running
+        else:
+            return True
+
     def start_for(self, guild_id: int):
         if self.is_running(guild_id=guild_id):
             return
         c = self.client
 
         async def _tick():
+            self.iteration_done = False
             # Check if interval changed
             new_interval = self.load_interval()
             if new_interval != self.check_interval:
@@ -81,7 +95,11 @@ class SharkLoops:
                 channel_id = self.config.get_channel_id(guild_name=guild_name, channel="game")
                 channel = c.get_channel(channel_id)
                 if channel and isinstance(channel, discord.TextChannel):
-                    await channel.send("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
+                    message = await channel.send(
+                        "A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣"
+                    )
+                    self.config.shark_message_id = message.id
+                    self.config.saveConfig()
                 else:
                     print(f"channel could be None, here's channel: {channel} and here's ID {channel_id}")
                     raise TypeError(f"Request for Channel ID {channel_id} returned a non-text channel or None")
@@ -183,6 +201,7 @@ class SharkLoops:
                 await channel.send(
                     f"Congratulations to {people} for catching a {rarity} {name_to_drop} 👏. You have been granted {coins}"
                 )
+            self.iteration_done = True
 
         loop = tasks.loop(seconds=self.check_interval, reconnect=True)(_tick)
         guild_name: str = self.config.guilds[guild_id]
