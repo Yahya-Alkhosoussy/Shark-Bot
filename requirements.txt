@@ -10,3 +10,4 @@ websockets
 requests
 TikTokAPI
 tzdata
+google-api-python-client
