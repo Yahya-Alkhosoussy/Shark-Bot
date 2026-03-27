@@ -1,5 +1,7 @@
 import sqlite3
 
+from exceptions.exceptions import ItemNotFound
+
 conn = sqlite3.connect("databases/dueling.db")
 cur = conn.cursor()
 
@@ -157,7 +159,7 @@ def add_default_weapon(weapon_id: int, discord_id: int):
         raise e
 
 
-def get_stat(discord_id: int, stat: str) -> int | str | None:
+def get_stat(discord_id: int, stat: str) -> int | str:
     match stat:
         case "xp":
             cur.execute("SELECT xp FROM players WHERE player_id=?", (discord_id,))
@@ -181,7 +183,26 @@ def get_stat(discord_id: int, stat: str) -> int | str | None:
             weapon_id = cur.fetchone()[0]
             cur.execute("SELECT name FROM weapons WHERE weapon_id=?", (weapon_id,))
             return cur.fetchone()[0]
+        case _:
+            raise ItemNotFound(f"Could not find {stat} in the player database", 1012)
 
 
-def add_stance_to_table_internal(stance: str, chance: int):
-    return
+# stances table:
+def add_stance(name: str, description: str, style: str) -> None:
+    cur.execute("INSERT OR IGNORE INTO stances (name, description, style) VALUES (?, ?, ?)", (name, description, style))
+    conn.commit()
+
+
+def get_stance_info(stance_id: int, info: str) -> str:
+    match info:
+        case "description":
+            cur.execute("SELECT description FROM stances WHERE stance_id=?", (stance_id,))
+            return cur.fetchone()[0]
+        case "style":
+            cur.execute("SELECT style FROM stances WHERE stance_id=?", (stance_id,))
+            return cur.fetchone()[0]
+        case _:
+            raise ItemNotFound(f"Could not find {info} in the stances database", 1012)
+
+# stance match up:
+def add_stance_matchup(stand_id_1: int, stand_id_2: int, hit_chance: int, counter_chance: int, damage_modifer: int)
