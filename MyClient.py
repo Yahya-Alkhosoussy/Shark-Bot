@@ -92,7 +92,7 @@ class MyBot(commands.Bot):
     # ======= ON RUN =======
     async def on_ready(self):
         assert self.user is not None
-        print("\n")
+        print("")
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
@@ -732,7 +732,6 @@ Rarity: {facts[fact_nums.RARITY.value]}
         await self.process_commands(message)
 
     async def start_shark_game_after_delay(self, guild_id: int, remaining: timedelta):
-        print(f"Going to wait {remaining.total_seconds()}")
         await asyncio.sleep(remaining.total_seconds())
         self.shark_loops.start_for(guild_id)
 
