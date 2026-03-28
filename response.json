@@ -1,0 +1,2326 @@
+{
+  "kind": "youtube#playlistItemListResponse",
+  "etag": "Nyt2ZARozpLE20q5LH1qqbDsMV4",
+  "nextPageToken": "EAAaHlBUOkNESWlFRUV5TlVaQ1FUSXhSa0pGUmpORlJURQ",
+  "items": [
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "4hic15b_AmWic_7MODdyO12A30I",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLldHRHkwRUduVnRJ",
+      "snippet": {
+        "publishedAt": "2026-03-26T12:09:42Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 13 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/WGDy0EGnVtI/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/WGDy0EGnVtI/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/WGDy0EGnVtI/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/WGDy0EGnVtI/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/WGDy0EGnVtI/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 0,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "WGDy0EGnVtI"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "75zYqAyDtWXMJGmujXa1BAUnYfs",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLk5TY2l5ak1RRVpV",
+      "snippet": {
+        "publishedAt": "2026-03-22T15:23:56Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Into the Shark-Verse, pt. 2 ~ twitch2youtube ~",
+        "description": "Hi there! Here is my first ever playthrough of Marvel's Spider-Man. I've only seen clips and pieces out of context so do not know the full story, and I'm also just generally not familiar with Spider-Man. Playing this game is going to be so awesome - I'm super excited to swing in! This was originally streamed on my twitch and later uploaded to YouTube, hence the Twitch2YouTube series name. I hope you enjoy!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/NSciyjMQEZU/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/NSciyjMQEZU/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/NSciyjMQEZU/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/NSciyjMQEZU/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/NSciyjMQEZU/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 1,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "NSciyjMQEZU"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "6s0mQdbEaxXDbUm7ynL5KMbUtpM",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmdJNG1pdE9PUHpv",
+      "snippet": {
+        "publishedAt": "2026-03-21T13:47:27Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Into the Shark-Verse, pt. 1 ~ twitch2youtube ~",
+        "description": "Hi there! Here is my first ever playthrough of Marvel's Spider-Man. I've only seen clips and pieces out of context so do not know the full story, and I'm also just generally not familiar with Spider-Man. Playing this game is going to be so awesome - I'm super excited to swing in! This was originally streamed on my twitch and later uploaded to YouTube, hence the Twitch2YouTube series name. I hope you enjoy!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/gI4mitOOPzo/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/gI4mitOOPzo/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/gI4mitOOPzo/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/gI4mitOOPzo/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/gI4mitOOPzo/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 2,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "gI4mitOOPzo"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "QZZr16qjDUsWHUPiEdk6H0ii-3k",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLjFuUGp6REhuOTM4",
+      "snippet": {
+        "publishedAt": "2026-03-21T04:00:02Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 12 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/1nPjzDHn938/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/1nPjzDHn938/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/1nPjzDHn938/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/1nPjzDHn938/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/1nPjzDHn938/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 3,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "1nPjzDHn938"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "X07Q8PV9w_1TGg6A-ys_PcxWC2M",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLnRZMWJBd0t6S3pz",
+      "snippet": {
+        "publishedAt": "2026-03-20T07:01:01Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 11 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/tY1bAwKzKzs/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/tY1bAwKzKzs/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/tY1bAwKzKzs/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/tY1bAwKzKzs/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/tY1bAwKzKzs/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 4,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "tY1bAwKzKzs"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "aFFyf5Ulonf-Of7BflYYVG2QCzc",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmd4YlFfakpCZTdr",
+      "snippet": {
+        "publishedAt": "2026-03-20T06:00:29Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 10 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/gxbQ_jJBe7k/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/gxbQ_jJBe7k/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/gxbQ_jJBe7k/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/gxbQ_jJBe7k/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/gxbQ_jJBe7k/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 5,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "gxbQ_jJBe7k"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "7Nh8oSJVB-VNG2Igfo-n50n3lzA",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLjQ0YTg2NFp1RzZn",
+      "snippet": {
+        "publishedAt": "2026-03-20T05:00:08Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 9 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/44a864ZuG6g/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/44a864ZuG6g/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/44a864ZuG6g/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/44a864ZuG6g/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/44a864ZuG6g/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 6,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "44a864ZuG6g"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "79KiwZAWI5fU0G4pJce8ZP3pTb4",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmptaWd0c0d2RllF",
+      "snippet": {
+        "publishedAt": "2026-03-20T04:00:50Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 8 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/jmigtsGvFYE/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/jmigtsGvFYE/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/jmigtsGvFYE/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/jmigtsGvFYE/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/jmigtsGvFYE/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 7,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "jmigtsGvFYE"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "ltHiHn26LHRSXWfImHRnUSvdUPk",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLlZXUkppNkR1Vi1J",
+      "snippet": {
+        "publishedAt": "2026-03-19T14:43:37Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 7 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/VWRJi6DuV-I/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/VWRJi6DuV-I/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/VWRJi6DuV-I/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/VWRJi6DuV-I/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/VWRJi6DuV-I/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 8,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "VWRJi6DuV-I"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "0HjhI9H0ecg118EpbjTPRIyrf98",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLjl3OTVpUXVnT29R",
+      "snippet": {
+        "publishedAt": "2026-03-16T14:15:41Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "it has been a wild day in #cyberpunk2077 \ud83d\ude02 #cyberpunk #vtuber #sharkcult #fyp",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/9w95iQugOoQ/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/9w95iQugOoQ/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/9w95iQugOoQ/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/9w95iQugOoQ/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/9w95iQugOoQ/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 9,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "9w95iQugOoQ"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "ViEQ15u_LAFllbC5XEmMd4ekCzw",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmM3X3Z5Uy1fZ1dB",
+      "snippet": {
+        "publishedAt": "2026-03-13T16:25:07Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "oh boy, I sure love trash. #vtuber #cyberpunk2077 #corpo #gaming",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/c7_vyS-_gWA/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/c7_vyS-_gWA/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/c7_vyS-_gWA/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/c7_vyS-_gWA/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/c7_vyS-_gWA/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 10,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "c7_vyS-_gWA"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "luupq3jVDDiNX3R4x3ulZEdgIog",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLks2dWI0RXZzcmY4",
+      "snippet": {
+        "publishedAt": "2026-03-11T13:47:57Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "The amount of betrayals last community night was to damn high. #amongus #vtuber #sharkcult",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/K6ub4Evsrf8/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/K6ub4Evsrf8/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/K6ub4Evsrf8/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/K6ub4Evsrf8/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/K6ub4Evsrf8/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 11,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "K6ub4Evsrf8"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "QjCUVYL3ORNbOKLxhBhnkegb1_I",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmhDWTBwX0NHajhj",
+      "snippet": {
+        "publishedAt": "2026-03-10T04:00:43Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 6 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/hCY0p_CGj8c/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/hCY0p_CGj8c/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/hCY0p_CGj8c/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/hCY0p_CGj8c/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/hCY0p_CGj8c/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 12,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "hCY0p_CGj8c"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "f-Z3G6rRDpsz2o48KQYnv_Bx7Xk",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmZRc21BQUNGNFpR",
+      "snippet": {
+        "publishedAt": "2026-03-09T05:42:47Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 5 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/fQsmAACF4ZQ/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/fQsmAACF4ZQ/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/fQsmAACF4ZQ/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/fQsmAACF4ZQ/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/fQsmAACF4ZQ/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 13,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "fQsmAACF4ZQ"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "jBNpGR13y2Mw8tY9gMVnWY8gFUw",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLjlCdUt2X0lEd1lF",
+      "snippet": {
+        "publishedAt": "2026-03-08T05:00:08Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 4 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/9BuKv_IDwYE/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/9BuKv_IDwYE/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/9BuKv_IDwYE/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/9BuKv_IDwYE/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/9BuKv_IDwYE/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 14,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "9BuKv_IDwYE"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "L_Rf9zsJEJOe1_B0Y-hki_xhkF8",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLkl4NHZCd2pEaDFN",
+      "snippet": {
+        "publishedAt": "2026-03-07T05:00:14Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 3 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/Ix4vBwjDh1M/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Ix4vBwjDh1M/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/Ix4vBwjDh1M/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/Ix4vBwjDh1M/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/Ix4vBwjDh1M/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 15,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "Ix4vBwjDh1M"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "gN9HBLlQOy_XxTHVfVZtSimaTZE",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLnJ3YnM0ckdnY3RF",
+      "snippet": {
+        "publishedAt": "2026-03-06T05:00:58Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 2 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/rwbs4rGgctE/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/rwbs4rGgctE/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/rwbs4rGgctE/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/rwbs4rGgctE/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/rwbs4rGgctE/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 16,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "rwbs4rGgctE"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "g1QnDWPiwFIaUyS1oYLC8Tiix8g",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLkFMTnFPOTY5M2Yw",
+      "snippet": {
+        "publishedAt": "2026-03-05T05:00:17Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "~ shark goes corpo! pt. 1 ~ twitch2youtube ~",
+        "description": "Hi choom! This is only my SECOND run of CyberPunk 2077, and both my first modded and corpo run! I'm super excited to see how this story turns out, and we're giving ourselves permission to be the absolute worst. This was originally streamed on my twitch, hence the Twitch2YouTube series name. I am also playing on hard mode for the first time ever. Thank you for joining me on this journey to become a legend!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/ALNqO9693f0/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/ALNqO9693f0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/ALNqO9693f0/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/ALNqO9693f0/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/ALNqO9693f0/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 17,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "ALNqO9693f0"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "0S_jApxssalHOE91SsrzwP6PZ7A",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLk5IMVlxNi12X0JN",
+      "snippet": {
+        "publishedAt": "2026-02-20T11:40:25Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "I keep losing my clothes! #cyberpunk2077 #vtuber #cyberpunkclips #edgerunners",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/NH1Yq6-v_BM/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/NH1Yq6-v_BM/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/NH1Yq6-v_BM/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/NH1Yq6-v_BM/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/NH1Yq6-v_BM/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 18,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "NH1Yq6-v_BM"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "tP-Gyfe3SiNe7BGPzReXglCpzEc",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLkJzSEp2V1B4cFVv",
+      "snippet": {
+        "publishedAt": "2026-02-18T06:34:37Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ I am not emotionally ready ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/BsHJvWPxpUo/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/BsHJvWPxpUo/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/BsHJvWPxpUo/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/BsHJvWPxpUo/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/BsHJvWPxpUo/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 19,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "BsHJvWPxpUo"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "GMrn7Rp-s7z0mYPM3_nTPWj1HZ8",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmN3LXhHRVMxNFUw",
+      "snippet": {
+        "publishedAt": "2026-02-11T05:00:43Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ Idris Elba is not making this easy  ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/cw-xGES14U0/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/cw-xGES14U0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/cw-xGES14U0/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/cw-xGES14U0/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/cw-xGES14U0/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 20,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "cw-xGES14U0"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "uBV1I0QpcjmoenVY2Mh1zMbSilE",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLno0aWlpcWNudUFn",
+      "snippet": {
+        "publishedAt": "2026-02-07T05:01:07Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ I don't trust either one of them  ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/z4iiiqcnuAg/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/z4iiiqcnuAg/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/z4iiiqcnuAg/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/z4iiiqcnuAg/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/z4iiiqcnuAg/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 21,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "z4iiiqcnuAg"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "hPqCn1BM8ixEeWUWbqgikwEsfOg",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLm9HNE1Hd0gxeDA4",
+      "snippet": {
+        "publishedAt": "2026-02-06T15:52:34Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ Judy is such a bean \u2764\ufe0f  ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/oG4MGwH1x08/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/oG4MGwH1x08/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/oG4MGwH1x08/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/oG4MGwH1x08/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/oG4MGwH1x08/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 22,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "oG4MGwH1x08"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "iSosCx1qKhLQa7y5NgMbDNkvpyc",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLlBXYmdEUTZoMFIw",
+      "snippet": {
+        "publishedAt": "2026-02-04T05:00:24Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ secret agent V?  ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/PWbgDQ6h0R0/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/PWbgDQ6h0R0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/PWbgDQ6h0R0/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/PWbgDQ6h0R0/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/PWbgDQ6h0R0/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 23,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "PWbgDQ6h0R0"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "AGDCPOVjg-8K0jZdMqHqpaG3HSk",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLnNtbHFYN2NLWHdV",
+      "snippet": {
+        "publishedAt": "2026-02-04T02:11:39Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "who just starts a conversation like that??? #cyberpunk #vtuber #cyberpunk2077 #firstplaythrough",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/smlqX7cKXwU/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/smlqX7cKXwU/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/smlqX7cKXwU/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/smlqX7cKXwU/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/smlqX7cKXwU/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 24,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "smlqX7cKXwU"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "gqgc2iPKZeAFJ-6Pf5YFFqmUSss",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmVTMk5Mb1VGS3Jr",
+      "snippet": {
+        "publishedAt": "2026-02-03T05:00:52Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ I played myself ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/eS2NLoUFKrk/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/eS2NLoUFKrk/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/eS2NLoUFKrk/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/eS2NLoUFKrk/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/eS2NLoUFKrk/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 25,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "eS2NLoUFKrk"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "sAb5i851NNzY4ib01nmIneY-o9U",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmREcHQxY05fYnFZ",
+      "snippet": {
+        "publishedAt": "2026-02-02T05:00:45Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ Daddy Silverhand is growing on me ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/dDpt1cN_bqY/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/dDpt1cN_bqY/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/dDpt1cN_bqY/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/dDpt1cN_bqY/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/dDpt1cN_bqY/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 26,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "dDpt1cN_bqY"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "4uOQBpM1uZH-LsBQS92pdNYNkQM",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLjhfVGowaTJKbEkw",
+      "snippet": {
+        "publishedAt": "2026-02-01T14:57:22Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "or whatever that phrase is supposed to be \ud83d\ude02 #cyberpunk2077 #cyberpunk #vtuber",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/8_Tj0i2JlI0/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/8_Tj0i2JlI0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/8_Tj0i2JlI0/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/8_Tj0i2JlI0/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/8_Tj0i2JlI0/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 27,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "8_Tj0i2JlI0"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "Tq6N7q3-Fhe6XdTLfhTonVSerfk",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLnBGd2tHdjNHT2Z3",
+      "snippet": {
+        "publishedAt": "2026-02-01T05:00:59Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ is Johnny starting to be nice? ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/pFwkGv3GOfw/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/pFwkGv3GOfw/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/pFwkGv3GOfw/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/pFwkGv3GOfw/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 28,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "pFwkGv3GOfw"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "QMKaHAqtyFNNWWq78BVd4O7404g",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLjRVOEVsR3RGTnhJ",
+      "snippet": {
+        "publishedAt": "2026-01-31T05:00:05Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ I do NOT trust Johnny at all ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/4U8ElGtFNxI/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/4U8ElGtFNxI/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/4U8ElGtFNxI/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/4U8ElGtFNxI/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 29,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "4U8ElGtFNxI"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "Mex4-vg25Bqoyzat0HQD7R2LqoA",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLlh2d0ZNQkRJMkow",
+      "snippet": {
+        "publishedAt": "2026-01-30T05:00:45Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ Silverhand is stressing me out ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/XvwFMBDI2J0/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/XvwFMBDI2J0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/XvwFMBDI2J0/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/XvwFMBDI2J0/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/XvwFMBDI2J0/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 30,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "XvwFMBDI2J0"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "m7jFtf2N8SK8mG2EjhYZRlY3Ma8",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmhnajl2TjZSSmRj",
+      "snippet": {
+        "publishedAt": "2026-01-29T05:00:49Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ bad vibes, all around ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/hgj9vN6RJdc/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/hgj9vN6RJdc/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/hgj9vN6RJdc/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/hgj9vN6RJdc/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/hgj9vN6RJdc/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 31,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "hgj9vN6RJdc"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "uYMXC3itFBuRh8HTN1-APZmjpEA",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLnAzWFBXZ1BWVHFr",
+      "snippet": {
+        "publishedAt": "2026-01-28T05:01:03Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ Silverhand is hiding something... ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/p3XPWgPVTqk/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/p3XPWgPVTqk/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/p3XPWgPVTqk/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/p3XPWgPVTqk/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/p3XPWgPVTqk/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 32,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "p3XPWgPVTqk"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "lvEq3SqsnJBxy2JwQFotLuh7r6I",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLktwNDNWbHhkTXJn",
+      "snippet": {
+        "publishedAt": "2026-01-27T13:03:04Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Frankenstein (The Modern Prometheus) by Mary Shelley ~ Letter 4",
+        "description": "This is my first ASMR project, where I'll be reading each chapter of Frankenstein by by Mary Wollstonecraft (Godwin) Shelley and uploading them as they are completed. I hope you enjoy!\n\nThank you to Project Gutenberg for supplying the material.",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/Kp43VlxdMrg/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Kp43VlxdMrg/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/Kp43VlxdMrg/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/Kp43VlxdMrg/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/Kp43VlxdMrg/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 33,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "Kp43VlxdMrg"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "NHAI6OMQTD3V5TiIP54WeFLEyGE",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLnZRMzBDWGVLVXFZ",
+      "snippet": {
+        "publishedAt": "2026-01-27T12:44:03Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Frankenstein (The Modern Prometheus) by Mary Shelley ~ Letter 3",
+        "description": "This is my first ASMR project, where I'll be reading each chapter of Frankenstein by by Mary Wollstonecraft (Godwin) Shelley and uploading them as they are completed. I hope you enjoy!\n\nThank you to Project Gutenberg for supplying the material.",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/vQ30CXeKUqY/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/vQ30CXeKUqY/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/vQ30CXeKUqY/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/vQ30CXeKUqY/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/vQ30CXeKUqY/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 34,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "vQ30CXeKUqY"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "8BlkwsJ5wChHnMc3griVlWsfK9Y",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLlFmNnVSRzNFM19v",
+      "snippet": {
+        "publishedAt": "2026-01-27T05:00:26Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ is John Wick Silverhand's origin? ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/Qf6uRG3E3_o/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Qf6uRG3E3_o/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/Qf6uRG3E3_o/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/Qf6uRG3E3_o/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/Qf6uRG3E3_o/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 35,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "Qf6uRG3E3_o"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "B-ac4O4ndQuerKrdOjlgPDQhsPk",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLkNRSWRMd0w4UTU0",
+      "snippet": {
+        "publishedAt": "2026-01-26T05:00:25Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ Keanu Reeves is actually being nice ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/CQIdLwL8Q54/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/CQIdLwL8Q54/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/CQIdLwL8Q54/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/CQIdLwL8Q54/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/CQIdLwL8Q54/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 36,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "CQIdLwL8Q54"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "ulz_91NeDBeAGfkXMfkLGMv-moU",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLnhpRGtXUHVNc0JF",
+      "snippet": {
+        "publishedAt": "2026-01-25T05:01:04Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~  Keanu Reeves is warming up to me? ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/xiDkWPuMsBE/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/xiDkWPuMsBE/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/xiDkWPuMsBE/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/xiDkWPuMsBE/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/xiDkWPuMsBE/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 37,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "xiDkWPuMsBE"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "HRdKOdLKY_pZfwm-5FgH-75WaRU",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLjR3WEVUekdoeUxZ",
+      "snippet": {
+        "publishedAt": "2026-01-24T05:00:12Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ why is Keanu Reeves so mean? ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/4wXETzGhyLY/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/4wXETzGhyLY/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/4wXETzGhyLY/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/4wXETzGhyLY/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/4wXETzGhyLY/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 38,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "4wXETzGhyLY"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "SQD3YwuyhDom4ayKBTBWeuMGXy0",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmJySUo3LVZiVnJZ",
+      "snippet": {
+        "publishedAt": "2026-01-23T05:00:43Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ still looking for Keanu Reeves ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/brIJ7-VbVrY/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/brIJ7-VbVrY/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/brIJ7-VbVrY/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/brIJ7-VbVrY/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/brIJ7-VbVrY/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 39,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "brIJ7-VbVrY"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "rcNs_fiv6d5mHjBufATeCKryWmI",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLjVMeGtuU2hnaFVZ",
+      "snippet": {
+        "publishedAt": "2026-01-22T12:41:01Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "proof my driving skills are getting better! \ud83e\ude77 #cyberpunk2077 #firstplaythrough #vtuber",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/5LxknShghUY/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/5LxknShghUY/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/5LxknShghUY/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/5LxknShghUY/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/5LxknShghUY/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 40,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "5LxknShghUY"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "u4fb_DwG8NkrlPG_cNYZaM2Rzig",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLklyQ3dTS1g4Zlhr",
+      "snippet": {
+        "publishedAt": "2026-01-22T05:00:19Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "twitch2youtube ~ when do I get to meet Keanu Reeves? ~ Shark's first playthrough of CyberPunk 2077 ~",
+        "description": "Hi! I recently started CyberPunk 2077, of which I had previously ignored because I thought it was similar to GTA, which had never really peaked my interest. Now that I have started playing this game, I have realized I judged it wayyyyy to harshly. This game has been amazing to play, made me laugh, cry, and crave even more. My community requested I upload the series, and I'm more than happy to oblige. Thank you anyone who comes by and takes a moment to watch. Btw, this is a no mod, complete vanilla run!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/IrCwSKX8fXk/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/IrCwSKX8fXk/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/IrCwSKX8fXk/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/IrCwSKX8fXk/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/IrCwSKX8fXk/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 41,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "IrCwSKX8fXk"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "e1cOaVoH5EP3RQYiJNiuEryGZhw",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLkMzcEZ2UjVBOGNj",
+      "snippet": {
+        "publishedAt": "2026-01-18T02:43:35Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "why wouldn't you love me as a thousand foot mechanical worm? #babytenno #firstplaythrough #warframe",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/C3pFvR5A8cc/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/C3pFvR5A8cc/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/C3pFvR5A8cc/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/C3pFvR5A8cc/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/C3pFvR5A8cc/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 42,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "C3pFvR5A8cc"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "u1WNrzDhFrrhs8qpbQglGSkaZqQ",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmJFUDJVNmN6dlFz",
+      "snippet": {
+        "publishedAt": "2026-01-18T02:10:11Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "I swear the wildest shit always happens around me. \ud83d\ude2d\ud83d\ude02 #warframe #vtuber #babytenno #firstplaythrough",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/bEP2U6czvQs/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/bEP2U6czvQs/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/bEP2U6czvQs/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/bEP2U6czvQs/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/bEP2U6czvQs/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 43,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "bEP2U6czvQs"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "AD1FLEzEOQ3WlfUS6e31fwaHuCU",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmFhT1FGT1U4R2VF",
+      "snippet": {
+        "publishedAt": "2026-01-16T18:03:04Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "more adventures in #cyberpunk - what an awesome game! #vtuber #cyberpunk2077 #firstplaythrough",
+        "description": "",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/aaOQFOU8GeE/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/aaOQFOU8GeE/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/aaOQFOU8GeE/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/aaOQFOU8GeE/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          },
+          "maxres": {
+            "url": "https://i.ytimg.com/vi/aaOQFOU8GeE/maxresdefault.jpg",
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 44,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "aaOQFOU8GeE"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "IT9tuJnQTjrfmUqA3RlcWgzGqw4",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLkRzLTRDUllZYXVB",
+      "snippet": {
+        "publishedAt": "2026-01-16T15:30:09Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Twitch2YouTube - Kingdom Hearts first time playthrough - pt. 141",
+        "description": "My First Time Playing Kingdom Hearts | Blind Playthrough\n\nWelcome to my first-ever playthrough of Kingdom Hearts! I never had the kind of upbringing that allowed me to explore gaming like many of my peers, so this entire series is a fresh and authentic experience for me. This is a completely clean, unmodded run\u2014no cheats, no prior knowledge aside from the occasional meme and cutscene I've seen. Just me and the help of chat guiding me along the way. Thanks for joining me on this journey through a classic I missed growing up!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/Ds-4CRYYauA/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Ds-4CRYYauA/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/Ds-4CRYYauA/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/Ds-4CRYYauA/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 45,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "Ds-4CRYYauA"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "hacyZ4XUInjXiOno9TZIHNEzPZ8",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmtEV0paMlNQbzFF",
+      "snippet": {
+        "publishedAt": "2026-01-16T15:25:56Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Twitch2YouTube - Kingdom Hearts first time playthrough - pt. 135",
+        "description": "My First Time Playing Kingdom Hearts | Blind Playthrough\n\nWelcome to my first-ever playthrough of Kingdom Hearts! I never had the kind of upbringing that allowed me to explore gaming like many of my peers, so this entire series is a fresh and authentic experience for me. This is a completely clean, unmodded run\u2014no cheats, no prior knowledge aside from the occasional meme and cutscene I've seen. Just me and the help of chat guiding me along the way. Thanks for joining me on this journey through a classic I missed growing up!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/kDWJZ2SPo1E/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/kDWJZ2SPo1E/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/kDWJZ2SPo1E/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/kDWJZ2SPo1E/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 46,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "kDWJZ2SPo1E"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "dI8FJBfK7MxzunS1dxxcMKuCq-w",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmtaY0VSQWxPSjdn",
+      "snippet": {
+        "publishedAt": "2026-01-16T15:15:08Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Twitch2YouTube - Kingdom Hearts first time playthrough - pt. 143",
+        "description": "My First Time Playing Kingdom Hearts | Blind Playthrough\n\nWelcome to my first-ever playthrough of Kingdom Hearts! I never had the kind of upbringing that allowed me to explore gaming like many of my peers, so this entire series is a fresh and authentic experience for me. This is a completely clean, unmodded run\u2014no cheats, no prior knowledge aside from the occasional meme and cutscene I've seen. Just me and the help of chat guiding me along the way. Thanks for joining me on this journey through a classic I missed growing up!\n\nPlease know this series is still ongoing - we will be playing the Kingdom Hearts Re:Mind DLC and Melody of Memory before Kingdom Hearts 4's release date to refresh ourselves on the series.",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/kZcERAlOJ7g/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/kZcERAlOJ7g/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/kZcERAlOJ7g/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/kZcERAlOJ7g/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 47,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "kZcERAlOJ7g"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "NaQ5WbOwF3pkB3XOfYnp8zPf78w",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLmtFWE5DUEdpUmpN",
+      "snippet": {
+        "publishedAt": "2026-01-16T15:11:53Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Twitch2YouTube - Kingdom Hearts first time playthrough - pt. 137",
+        "description": "My First Time Playing Kingdom Hearts | Blind Playthrough\n\nWelcome to my first-ever playthrough of Kingdom Hearts! I never had the kind of upbringing that allowed me to explore gaming like many of my peers, so this entire series is a fresh and authentic experience for me. This is a completely clean, unmodded run\u2014no cheats, no prior knowledge aside from the occasional meme and cutscene I've seen. Just me and the help of chat guiding me along the way. Thanks for joining me on this journey through a classic I missed growing up!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/kEXNCPGiRjM/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/kEXNCPGiRjM/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/kEXNCPGiRjM/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/kEXNCPGiRjM/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 48,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "kEXNCPGiRjM"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    },
+    {
+      "kind": "youtube#playlistItem",
+      "etag": "iYlxRNRW537vUgZ0GshXRBd7ggs",
+      "id": "VVU0X3Z0Q0dhenR1WjNfTjRjdEN2OU5RLkdRcGVDaTFCQ0hB",
+      "snippet": {
+        "publishedAt": "2026-01-16T15:10:05Z",
+        "channelId": "UC4_vtCGaztuZ3_N4ctCv9NQ",
+        "title": "Twitch2YouTube - Kingdom Hearts first time playthrough - pt. 136",
+        "description": "My First Time Playing Kingdom Hearts | Blind Playthrough\n\nWelcome to my first-ever playthrough of Kingdom Hearts! I never had the kind of upbringing that allowed me to explore gaming like many of my peers, so this entire series is a fresh and authentic experience for me. This is a completely clean, unmodded run\u2014no cheats, no prior knowledge aside from the occasional meme and cutscene I've seen. Just me and the help of chat guiding me along the way. Thanks for joining me on this journey through a classic I missed growing up!",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/GQpeCi1BCHA/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/GQpeCi1BCHA/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "https://i.ytimg.com/vi/GQpeCi1BCHA/hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          },
+          "standard": {
+            "url": "https://i.ytimg.com/vi/GQpeCi1BCHA/sddefault.jpg",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "channelTitle": "sharkocalypse",
+        "playlistId": "UU4_vtCGaztuZ3_N4ctCv9NQ",
+        "position": 49,
+        "resourceId": {
+          "kind": "youtube#video",
+          "videoId": "GQpeCi1BCHA"
+        },
+        "videoOwnerChannelTitle": "sharkocalypse",
+        "videoOwnerChannelId": "UC4_vtCGaztuZ3_N4ctCv9NQ"
+      }
+    }
+  ],
+  "pageInfo": {
+    "totalResults": 316,
+    "resultsPerPage": 50
+  }
+}

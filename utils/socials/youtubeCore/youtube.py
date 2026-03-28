@@ -24,7 +24,7 @@ def get_uploads_id(youtube_handle: str) -> str:
     return response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
 
 
-def get_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
+def get_video_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
 
     uploads_playlist_id = get_uploads_id(youtube_handle)
     # Make your API call
