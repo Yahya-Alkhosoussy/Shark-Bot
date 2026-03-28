@@ -10,7 +10,7 @@ cur.execute(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         handle TEXT NOT NULL,
         video_title TEXT NOT NULL,
-        video_id INTEGER NOT NULL,
+        video_id TEXT NOT NULL,
         video_url TEXT UNIQUE NOT NULL,
         UNIQUE (video_title, video_id)
     )
@@ -18,7 +18,7 @@ cur.execute(
 )
 
 
-def add_video(youtube_handle: str, title: str, id: int, url: str):
+def add_video(youtube_handle: str, title: str, id: str, url: str):
     cur.execute(
         "INSERT OR IGNORE INTO videos (handle, video_title, video_id, video_url) VALUES (?, ?, ?, ?)",
         (youtube_handle, title, id, url),
@@ -38,11 +38,11 @@ def get_youtube_handles() -> list[str]:
     return cur.fetchall()
 
 
-def get_video_title(id: int) -> str:
+def get_video_title(id: str) -> str:
     cur.execute("SELECT video_title FROM videos WHERE video_id=?", (id,))
     return cur.fetchone()[0]
 
 
-def get_video_url(id: int) -> str:
+def get_video_url(id: str) -> str:
     cur.execute("SELECT video_url FROM videos WHERE video_id=?", (id,))
     return cur.fetchone()[0]
