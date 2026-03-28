@@ -26,6 +26,7 @@ from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from modApplication.ApplicationSystem import ApplicationSystem
 from modApplication.ModQuestions import ModQuestions
 from socialMedia.tiktok import TikTokLoop
+from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
@@ -88,6 +89,7 @@ class MyBot(commands.Bot):
         self.twitch_loop = TwitchLiveLoop(self, config)
         self.mod_application = ApplicationSystem(bot=self)
         self.mod_questions = ModQuestions(bot=self, channel=None)
+        self.youtube_loop = YoutubeLoop(bot=self, config=config)
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -156,6 +158,7 @@ class MyBot(commands.Bot):
                 print("channel is in an incorrect format")
                 return
             await self.mod_application.setup_hook(guild_name=guild_name, channel=channel)
+            self.youtube_loop.start_for(guild.id)
 
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
