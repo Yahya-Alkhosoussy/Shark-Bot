@@ -46,3 +46,18 @@ def get_video_title(id: str) -> str:
 def get_video_url(id: str) -> str:
     cur.execute("SELECT video_url FROM videos WHERE video_id=?", (id,))
     return cur.fetchone()[0]
+
+
+if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+
+    # So it would always run from the most parent directory and avoid import errors
+    project_root = Path(__file__).parent.parent.parent
+    sys.path.insert(0, str(project_root))
+    import utils.socials.youtubeCore.youtube as y
+
+    items = y.get_video_items(youtube_handle="sharkocalypse")
+
+    for item in items:
+        add_video("sharkocalypse", item.snippet.title, item.snippet.resourceId.videoId, item.snippet.url)
