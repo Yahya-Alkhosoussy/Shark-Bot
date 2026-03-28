@@ -2,6 +2,7 @@ import asyncio
 import datetime as dt
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -920,8 +921,11 @@ async def restart_bot(ctx: commands.Context):
 
     await ctx.send("Checking for updates...")
 
+    git_path = shutil.which("git")
+
     try:
-        res = subprocess.run(["git", "pull"], capture_output=True, check=True, text=True, shell=True)
+        assert git_path
+        res = subprocess.run([git_path, "pull"], capture_output=True, check=True, text=True, shell=True)
         await ctx.send("Pulled successfully")
         await ctx.send(res.stdout)
         res_2 = subprocess.run([sys.executable, "setup.py"], check=True, capture_output=True, text=True)
@@ -929,6 +933,8 @@ async def restart_bot(ctx: commands.Context):
         await ctx.send(res_2.stdout[-len(" Setup complete!") :])
     except subprocess.CalledProcessError as e:
         await ctx.send(f"failed: error {e.stderr}")
+    except Exception as e:
+        await ctx.send(f"Failed: Error {str(e)}")
 
     await ctx.send("Restarting now...")
 
