@@ -921,7 +921,7 @@ async def restart_bot(ctx: commands.Context):
     await ctx.send("Checking for updates...")
 
     try:
-        res = subprocess.run(["git", "pull"], capture_output=True, check=True, text=True)
+        res = subprocess.run(["git", "pull"], capture_output=True, check=True, text=True, shell=True)
         await ctx.send("Pulled successfully")
         await ctx.send(res.stdout)
         res_2 = subprocess.run([sys.executable, "setup.py"], check=True, capture_output=True, text=True)
