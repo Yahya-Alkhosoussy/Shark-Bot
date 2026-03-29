@@ -59,3 +59,12 @@ class AuthError(SharkBotException):
 
     def __str__(self):
         return f"{self.message} (Error code: {self.error_code})"
+
+
+class InvalidRole(SharkBotException):
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self) -> str:
+        return self.message
