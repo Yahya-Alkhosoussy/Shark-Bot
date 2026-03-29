@@ -9,7 +9,6 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from sqlite3 import OperationalError
-from typing import Union
 
 import discord
 from discord.ext import commands
@@ -778,6 +777,16 @@ bot = MyBot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=T
 bot.owner_id = 604366329302220820  # replace with own ID if replicating
 
 
+def is_mod():
+    async def check(ctx: commands.Context):
+        assert isinstance(ctx.author, discord.Member)
+        if not config.check_for_mod_role(ctx.author.roles):
+            raise ex.InvalidRole("Invalid role, this is only for mods")
+        return True
+
+    return commands.check(check)
+
+
 @bot.tree.command(name="add-birthday", description="Adds your birthday to wish you a happy birthday on that day")
 @discord.app_commands.describe(
     birth_month="This is your birth month (i.e 2 for february, 6 for june etc.)", birthday="Your birth day"
@@ -977,6 +986,19 @@ async def restart_bot(ctx: commands.Context):
     await bot.close()  # closes the bot normally
 
 
+@bot.command(name="timeout")
+@is_mod()
+async def timeout(ctx: commands.Context, user: discord.Member, duration: int):
+    assert ctx.guild
+    until = dt.timedelta(seconds=duration)
+    await user.timeout(until)
+    await config.send_discord_mod_log(
+        log_message=f"{ctx.author.name} has timed out user ({user.name} {f'(nicknamed: {user.nick})) ' if user.nick else ''}for {timeout_duration_int} seconds",  # noqa: E501
+        bot=bot,
+        guild_id=ctx.guild.id,
+    )
+
+
 @bot.group()
 async def update(ctx: commands.Context):
     pass
@@ -996,15 +1018,24 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
 
 # check for errors
 @bot.event
-async def on_command_error(
-    ctx: commands.Context, error: Union[commands.CommandNotFound, commands.MissingPermissions, commands.CheckFailure]
-):
+async def on_command_error(ctx: commands.Context, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.reply("I don't know that command")
     elif isinstance(error, commands.MissingPermissions):
         await ctx.reply("You do not have permissions to use that command. Go away")
-    else:
+    elif isinstance(error, commands.CheckFailure):
         await ctx.reply("You cannot use this command. Go away")
+    elif isinstance(error, ex.InvalidRole):
+        await ctx.reply(f"You cannot use this role. Error message {error.message}")
+    elif isinstance(error, commands.CommandInvokeError):
+        origin = error.original
+        if isinstance(origin, ValueError):
+            await ctx.reply("I cannot fulfil your request. One of your values isn't in the correct format")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        missing = error.param.name
+        await ctx.reply(f"I cannot fulfil your request, I am missing a component: {missing}")
+    elif isinstance(error, commands.TooManyArguments):
+        await ctx.reply("I cannot fulfil your request, you have given me too much information to work with.")
 
     bot_channel = bot.get_channel(1430445244733722694)
     if isinstance(bot_channel, discord.TextChannel):
