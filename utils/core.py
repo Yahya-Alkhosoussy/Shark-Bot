@@ -1,3 +1,5 @@
+import os
+import winreg
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from datetime import datetime
@@ -509,3 +511,25 @@ class AppConfig(BaseConfig):
             else:
                 continue
         return False
+
+
+def get_full_path():
+    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment") as key:
+        system_path, _ = winreg.QueryValueEx(key, "Path")
+
+    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Environment") as key:
+        try:
+            user_path, _ = winreg.QueryValueEx(key, "Path")
+        except FileNotFoundError:
+            user_path = ""
+
+    # Combine registry paths with the bot's existing PATH, deduplicating
+    all_paths = os.environ["PATH"].split(";") + system_path.split(";") + user_path.split(";")
+    seen = set()
+    deduped = []
+    for p in all_paths:
+        if p and p not in seen:
+            seen.add(p)
+            deduped.append(p)
+
+    return ";".join(deduped)

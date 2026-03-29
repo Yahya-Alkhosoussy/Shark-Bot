@@ -34,7 +34,7 @@ from SQL.fishingSQL.baits import get_baits
 from SQL.rolesSQL.roles import fill_emoji_map
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
-from utils.core import AppConfig
+from utils.core import AppConfig, get_full_path
 from utils.pullingFromTwitch import get_clips, user_exists
 from utils.ticketing import TicketingConfig
 
@@ -920,6 +920,9 @@ async def restart_bot(ctx: commands.Context):
             break
 
     await ctx.send("Checking for updates...")
+
+    # sync up python's PATH with window's PATH
+    os.environ["PATH"] = get_full_path()
 
     git_path = shutil.which("git")
 
