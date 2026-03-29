@@ -12,7 +12,7 @@ from sqlite3 import OperationalError
 
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 from pydantic import ValidationError
 
 from exceptions import exceptions as ex
@@ -746,6 +746,7 @@ intents.message_content = True
 intents.members = True
 intents.message_content = True
 bot = MyBot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=True))
+bot.owner_id = 604366329302220820  # replace with own ID if replicating
 
 
 @bot.tree.command(name="add-birthday", description="Adds your birthday to wish you a happy birthday on that day")
@@ -802,7 +803,7 @@ async def add_channel_to_clips(interaction: discord.Interaction, twitch_username
         add_user(discord_id=user.id, user=user.name, username=username, dms=False, channel_id=channel_id)
 
 
-@bot.tree.command(name="clips", description="Get clips manually")
+@bot.tree.command(name="clips", description="Get twitch clips manually")
 @discord.app_commands.describe()
 @discord.app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @discord.app_commands.allowed_installs(guilds=True, users=True)
@@ -868,7 +869,7 @@ async def live_setup(interaction: discord.Interaction, twitch_username: str, cus
 
 
 @bot.tree.command(name="only-for-spider")
-@discord.app_commands.describe()
+@commands.is_owner()
 async def live_setup_2(interaction: discord.Interaction, twitch_username: str, custom_message: str, discord_id: str):
     await interaction.response.send_message("Validating the information")
     channel = interaction.channel
@@ -910,6 +911,7 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
 
 
 @bot.command(name="restart", hidden=True)
+@commands.is_owner()
 async def restart_bot(ctx: commands.Context):
 
     while True:
@@ -944,6 +946,23 @@ async def restart_bot(ctx: commands.Context):
     subprocess.Popen([sys.executable] + sys.argv)
 
     await bot.close()  # closes the bot normally
+
+
+@bot.group()
+async def update(ctx: commands.Context):
+    pass
+
+
+@update.command(name="env")
+@commands.is_owner()
+async def env(ctx: commands.Context, var_name: str, var_value: str):
+    # update in memory
+    os.environ[var_name] = var_value
+
+    # update .env file
+    set_key(".env", var_name, var_value)
+
+    await ctx.send("Updated environmental variable!")
 
 
 bot.run(token=token, log_handler=handler)
