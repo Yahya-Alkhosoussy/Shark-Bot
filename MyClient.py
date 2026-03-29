@@ -296,91 +296,6 @@ The following are mod exclusive actions:
                 await message.reply(to_send)
                 handled = True
 
-        if message.content.startswith(prefix + "kick"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                user_id = message.content.split()[1]
-                user_id = int(user_id[2:-1])
-                member = await message.guild.fetch_member(user_id)
-                await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has kicked user {member.name} (nicknamed: {member.nick}) from the server.",  # noqa: E501
-                    bot=self,
-                    guild_id=message.guild.id,
-                )
-                await member.kick()
-            handled = True
-
-        if message.content.startswith(prefix + "ban"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                user_id = message.content.split()[1]
-                user_id = int(user_id[2:-1])
-                member = await message.guild.fetch_member(user_id)
-                await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has banned user {member.name} (nicknamed: {member.nick}) from the server.",  # noqa: E501
-                    bot=self,
-                    guild_id=message.guild.id,
-                )
-                await member.ban()
-            handled = True
-
-        if message.content.startswith(prefix + "add role"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                try:
-                    role_id = await self.reaction_handler.add_to_react_roles(message)
-                    await config.send_discord_mod_log(
-                        log_message=f"{message.author.name} has added a role (<@&{role_id}>) to react roles.",
-                        bot=self,
-                        guild_id=message.guild.id,
-                    )
-                except ex.RoleNotAdded as e:
-                    await message.reply(f"Encountered an issue: {str(e)}")
-            handled = True
-
-        if message.content.startswith(prefix + "update shop items"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                try:
-                    await self.fishing.add_into_shop_internal(message=message)
-                except Exception as e:
-                    await message.reply(str(e))
-            handled = True
-
-        if message.content.startswith(prefix + "update shop prices"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                try:
-                    await self.fishing.update_shop_prices_internal(message=message)
-                except Exception as e:
-                    await message.reply(str(e))
-            handled = True
-
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")
             handled = True
@@ -442,16 +357,6 @@ Shark Catch Game:
 12. `?buy bait` - Use this when trying to buy bait!
             """  # noqa: E501
             await message.reply(send)
-            handled = True
-
-        if message.content.startswith(prefix + "game on"):
-            active_guild_id = message.guild.id
-            if self.shark_loops.is_running(active_guild_id):
-                await message.reply("Game is already running")
-                return
-
-            self.shark_loops.start_for(active_guild_id)
-            await message.reply("Started!")
             handled = True
 
         if message.content.startswith(prefix + "stop"):
@@ -594,12 +499,6 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             await message.reply(f"You have {coins} coins!")
             handled = True
 
-        if message.content.startswith(prefix + "add coins"):
-            sg.add_coins(str(user), 500)
-
-            await message.reply("done")
-            handled = True
-
         if message.content.startswith(prefix + "buy net"):
             send = "Choose a net to buy: (choose within the next 30 seconds) \n To choose type the number of the net or type cancel to cancel \n"  # noqa: E501
 
@@ -696,36 +595,6 @@ Weight: {facts[fact_nums.WEIGHT.value]}
 Rarity: {facts[fact_nums.RARITY.value]}
             """
             await follow.reply(result)
-            handled = True
-
-        if message.content.startswith(prefix + "add gif"):
-            await message.reply("Adding the gif")
-            try:
-                content = message.content.split("https://")  # Guarantees it's a link
-                try:
-                    link = "https://" + content[1]
-                except IndexError:
-                    await message.reply("No link found!!!")
-                    return
-
-                add_gif_to_table(link)
-            except ex.FormatError as e:
-                await message.reply(f"Something went wrong, error: {str(e)}")
-                return
-
-            await message.reply("Gif added to the list!!")
-            handled = True
-
-        if message.content.startswith(prefix + "add message"):
-            await message.reply("Adding message")
-            try:
-                message_to_add = message.content[13:]
-                add_birthday_message(message_to_add)
-            except ex.FormatError as e:
-                await message.reply(f"Something went wrong, error: {str(e)}")
-                return
-
-            await message.reply("Message added to the list!!")
             handled = True
 
         if message.content.startswith(prefix + "Apply"):
@@ -962,15 +831,82 @@ async def restart_bot(ctx: commands.Context):
 
 @bot.command(name="timeout")
 @is_mod()
-async def timeout(ctx: commands.Context, user: discord.Member, duration: int):
+async def timeout(ctx: commands.Context, member: discord.Member, duration: int):
     assert ctx.guild
     until = dt.timedelta(seconds=duration)
-    await user.timeout(until)
+    await member.timeout(until)
     await config.send_discord_mod_log(
-        log_message=f"{ctx.author.name} has timed out user ({user.name} {f'(nicknamed: {user.nick})) ' if user.nick else ''}for {duration} seconds",  # noqa: E501
+        log_message=f"{ctx.author.name} has timed out user ({member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''}for {duration} seconds",  # noqa: E501
         bot=bot,
         guild_id=ctx.guild.id,
     )
+
+
+@bot.command(name="kick")
+@is_mod()
+async def kick(ctx: commands.Context, member: discord.Member):
+    assert ctx.guild
+    await member.kick()
+    await config.send_discord_mod_log(
+        log_message=f"{ctx.author.name} has kicked user {member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''}from the server.",  # noqa: E501
+        bot=bot,
+        guild_id=ctx.guild.id,
+    )
+
+
+@bot.command(name="ban")
+@is_mod()
+async def ban(ctx: commands.Context, member: discord.Member):
+    assert ctx.guild
+    await member.ban()
+    await config.send_discord_mod_log(
+        log_message=f"{ctx.author.name} has banned user {member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''}from the server.",  # noqa: E501
+        bot=bot,
+        guild_id=ctx.guild.id,
+    )
+
+
+@bot.group()
+async def add(ctx: commands.Context):
+    pass
+
+
+@add.command(name="role")
+@is_mod()
+async def add_role(ctx: commands.Context):
+    assert ctx.guild
+    role_id = await bot.reaction_handler.add_to_react_roles(ctx.message)
+    if role_id is not None:
+        await config.send_discord_mod_log(
+            log_message=f"{ctx.author.name} has added a role (<@&{role_id}>) to react roles.",
+            bot=bot,
+            guild_id=ctx.guild.id,
+        )
+
+
+@add.command(name="coins")
+@commands.is_owner()
+async def add_coins(ctx: commands.Context, member: discord.Member, coins: int):
+    sg.add_coins(member.name, coins)
+    await ctx.reply(f"{coins} added to {member.name}'s account")
+
+
+@add.command(name="gif")
+@is_mod()
+async def add_gif(ctx: commands.Context, link: str):
+    await ctx.reply("Attempting to add gif...")
+    if link[:6] != "https://":
+        raise ex.FormatError("Gif is not a link", 1006)
+    add_gif_to_table(link)
+    await ctx.reply("Gif added")
+
+
+@add.command(name="message")
+@is_mod()
+async def add_message(ctx: commands.Context, message: str):
+    await ctx.reply("Attempting to add message")
+    add_birthday_message(message)
+    await ctx.reply("Message added!")
 
 
 @bot.group()
@@ -988,6 +924,35 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
     set_key(".env", var_name, var_value)
 
     await ctx.send("Updated environmental variable!")
+
+
+@update.group()
+async def shop(ctx: commands.Context):
+    pass
+
+
+@shop.command(name="items")
+@is_mod()
+async def update_shop_items(ctx: commands.Context):
+    assert ctx.guild
+    await bot.fishing.add_into_shop_internal(message=ctx.message)
+    await config.send_discord_mod_log(
+        log_message=f"{ctx.author.name} has added an item to the shop.",
+        bot=bot,
+        guild_id=ctx.guild.id,
+    )
+
+
+@shop.command(name="prices")
+@is_mod()
+async def update_shop_prices(ctx: commands.Context):
+    assert ctx.guild
+    await bot.fishing.update_shop_prices_internal(message=ctx.message)
+    await config.send_discord_mod_log(
+        log_message=f"{ctx.author.name} has updated prices in the shop.",
+        bot=bot,
+        guild_id=ctx.guild.id,
+    )
 
 
 # check for errors
@@ -1010,6 +975,10 @@ async def on_command_error(ctx: commands.Context, error):
         await ctx.reply(f"I cannot fulfil your request, I am missing a component: {missing}")
     elif isinstance(error, commands.TooManyArguments):
         await ctx.reply("I cannot fulfil your request, you have given me too much information to work with.")
+    elif isinstance(error, ex.RoleNotAdded):
+        await ctx.reply(f"I could not add the role. Error: {str(error)}")
+    elif isinstance(error, ex.FormatError):
+        await ctx.reply(f"The format is incorrect, format error: {error.message}")
 
     bot_channel = bot.get_channel(1430445244733722694)
     if isinstance(bot_channel, discord.TextChannel):
