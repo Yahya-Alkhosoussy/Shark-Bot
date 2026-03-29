@@ -296,34 +296,6 @@ The following are mod exclusive actions:
                 await message.reply(to_send)
                 handled = True
 
-        if message.content.startswith(prefix + "update shop items"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                try:
-                    await self.fishing.add_into_shop_internal(message=message)
-                except Exception as e:
-                    await message.reply(str(e))
-            handled = True
-
-        if message.content.startswith(prefix + "update shop prices"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                try:
-                    await self.fishing.update_shop_prices_internal(message=message)
-                except Exception as e:
-                    await message.reply(str(e))
-            handled = True
-
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")
             handled = True
@@ -973,6 +945,35 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
     set_key(".env", var_name, var_value)
 
     await ctx.send("Updated environmental variable!")
+
+
+@update.group()
+async def shop(ctx: commands.Context):
+    pass
+
+
+@shop.command(name="items")
+@is_mod()
+async def update_shop_items(ctx: commands.Context):
+    assert ctx.guild
+    await bot.fishing.add_into_shop_internal(message=ctx.message)
+    await config.send_discord_mod_log(
+        log_message=f"{ctx.author.name} has added an item to the shop.",
+        bot=bot,
+        guild_id=ctx.guild.id,
+    )
+
+
+@shop.command(name="prices")
+@is_mod()
+async def update_shop_prices(ctx: commands.Context):
+    assert ctx.guild
+    await bot.fishing.update_shop_prices_internal(message=ctx.message)
+    await config.send_discord_mod_log(
+        log_message=f"{ctx.author.name} has updated prices in the shop.",
+        bot=bot,
+        guild_id=ctx.guild.id,
+    )
 
 
 # check for errors
