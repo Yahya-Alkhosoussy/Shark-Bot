@@ -371,6 +371,7 @@ Shark Catch Game:
             handled = True
 
         if message.content.startswith(prefix + "fish"):
+            self.loop_processing = True
             after: str | None = None if len(message.content[6:]) == 0 else message.content[6:]
             if after is not None:
                 baits, _ = get_baits(message.author.name)
@@ -381,6 +382,7 @@ Shark Catch Game:
                 await self.fishing.fish(message=message, bait=after)
             except ex.ItemNotFound as e:
                 await message.channel.send(f"{message.author.mention} {str(e)}")
+            self.loop_processing = False
             handled = True
 
         if message.content.startswith(prefix + "buy bait"):
