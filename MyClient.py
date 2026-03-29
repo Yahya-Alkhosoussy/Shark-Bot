@@ -296,25 +296,6 @@ The following are mod exclusive actions:
                 await message.reply(to_send)
                 handled = True
 
-        if message.content.startswith(prefix + "add role"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                try:
-                    role_id = await self.reaction_handler.add_to_react_roles(message)
-                    await config.send_discord_mod_log(
-                        log_message=f"{message.author.name} has added a role (<@&{role_id}>) to react roles.",
-                        bot=self,
-                        guild_id=message.guild.id,
-                    )
-                except ex.RoleNotAdded as e:
-                    await message.reply(f"Encountered an issue: {str(e)}")
-            handled = True
-
         if message.content.startswith(prefix + "update shop items"):
             if isinstance(message.author, discord.Member):
                 is_mod: bool = config.check_for_mod_role(message.author.roles)
@@ -960,6 +941,24 @@ async def ban(ctx: commands.Context, member: discord.Member):
 
 
 @bot.group()
+async def add(ctx: commands.Context):
+    pass
+
+
+@add.command(name="role")
+@is_mod()
+async def add_role(ctx: commands.Context):
+    assert ctx.guild
+    role_id = await bot.reaction_handler.add_to_react_roles(ctx.message)
+    if role_id is not None:
+        await config.send_discord_mod_log(
+            log_message=f"{ctx.author.name} has added a role (<@&{role_id}>) to react roles.",
+            bot=bot,
+            guild_id=ctx.guild.id,
+        )
+
+
+@bot.group()
 async def update(ctx: commands.Context):
     pass
 
@@ -996,6 +995,8 @@ async def on_command_error(ctx: commands.Context, error):
         await ctx.reply(f"I cannot fulfil your request, I am missing a component: {missing}")
     elif isinstance(error, commands.TooManyArguments):
         await ctx.reply("I cannot fulfil your request, you have given me too much information to work with.")
+    elif isinstance(error, ex.RoleNotAdded):
+        await ctx.reply(f"I could not add the role. Error: {str(error)}")
 
     bot_channel = bot.get_channel(1430445244733722694)
     if isinstance(bot_channel, discord.TextChannel):
