@@ -1,9 +1,13 @@
+import json
 from os import getenv
 
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
-from utils.socials.youtubeCore.core import PlaylistItem
+if __name__ != "__main__":
+    from utils.socials.youtubeCore.core import PlaylistItem
+else:
+    from core import PlaylistItem
 
 load_dotenv()
 
@@ -37,6 +41,8 @@ def get_video_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
         )
         .execute()
     )
+    with open("response.json", mode="w") as f:
+        json.dump(raw_response, f)
 
     items = [PlaylistItem(**item) for item in raw_response["items"]]
 
