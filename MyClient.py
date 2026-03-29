@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from sqlite3 import OperationalError
+from typing import Union
 
 import discord
 from discord.ext import commands
@@ -259,6 +260,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
     async def on_message(self, message: discord.Message) -> None:
         user = message.author
+        handled = False
 
         # ignore if it's the bot's message
         if self.user and user.id == self.user.id:
@@ -274,6 +276,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "check level") and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.check_level(message)
+            handled = True
 
         if message.content.startswith(prefix + "mod help"):
             if isinstance(message.author, discord.Member):
@@ -292,6 +295,7 @@ The following are mod exclusive actions:
 5. `?update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
 6. `?update shop prices` - same as above but for prices."""  # noqa: E501
                 await message.reply(to_send)
+                handled = True
 
         if message.content.startswith(prefix + "timeout"):
             if isinstance(message.author, discord.Member):
@@ -317,6 +321,7 @@ The following are mod exclusive actions:
                     bot=self,
                     guild_id=message.guild.id,
                 )
+            handled = True
 
         if message.content.startswith(prefix + "kick"):
             if isinstance(message.author, discord.Member):
@@ -335,6 +340,7 @@ The following are mod exclusive actions:
                     guild_id=message.guild.id,
                 )
                 await member.kick()
+            handled = True
 
         if message.content.startswith(prefix + "ban"):
             if isinstance(message.author, discord.Member):
@@ -353,6 +359,7 @@ The following are mod exclusive actions:
                     guild_id=message.guild.id,
                 )
                 await member.ban()
+            handled = True
 
         if message.content.startswith(prefix + "add role"):
             if isinstance(message.author, discord.Member):
@@ -371,6 +378,7 @@ The following are mod exclusive actions:
                     )
                 except ex.RoleNotAdded as e:
                     await message.reply(f"Encountered an issue: {str(e)}")
+            handled = True
 
         if message.content.startswith(prefix + "update shop items"):
             if isinstance(message.author, discord.Member):
@@ -384,6 +392,7 @@ The following are mod exclusive actions:
                     await self.fishing.add_into_shop_internal(message=message)
                 except Exception as e:
                     await message.reply(str(e))
+            handled = True
 
         if message.content.startswith(prefix + "update shop prices"):
             if isinstance(message.author, discord.Member):
@@ -397,9 +406,11 @@ The following are mod exclusive actions:
                     await self.fishing.update_shop_prices_internal(message=message)
                 except Exception as e:
                     await message.reply(str(e))
+            handled = True
 
         if message.content.startswith(prefix + "hello"):
             await message.reply("Hello!")
+            handled = True
 
         if message.content.startswith(prefix + "rules"):
             rules_part1 = """
@@ -430,10 +441,12 @@ A few notes:
 
             await message.reply(rules_part1)
             await message.reply(rules_part2)
+            handled = True
 
         if message.content.startswith(prefix + "describe game"):
             send = f"The shark catch game is a game where once every {config.time_per_loop / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"  # noqa: E501
             await message.reply(send)
+            handled = True
 
         if message.content.startswith(prefix + "help"):
             send = """Thank you for asking for help! Here are my commands:
@@ -456,6 +469,7 @@ Shark Catch Game:
 12. `?buy bait` - Use this when trying to buy bait!
             """  # noqa: E501
             await message.reply(send)
+            handled = True
 
         if message.content.startswith(prefix + "game on"):
             active_guild_id = message.guild.id
@@ -465,6 +479,7 @@ Shark Catch Game:
 
             self.shark_loops.start_for(active_guild_id)
             await message.reply("Started!")
+            handled = True
 
         if message.content.startswith(prefix + "stop"):
             active_guild_id = message.guild.id
@@ -473,6 +488,7 @@ Shark Catch Game:
                 await message.reply("Stopped.")
             else:
                 await message.reply("Huh? I'm not running.")
+            handled = True
 
         if message.content.startswith(prefix + "fish"):
             after: str | None = None if len(message.content[6:]) == 0 else message.content[6:]
@@ -485,12 +501,14 @@ Shark Catch Game:
                 await self.fishing.fish(message=message, bait=after)
             except ex.ItemNotFound as e:
                 await message.channel.send(f"{message.author.mention} {str(e)}")
+            handled = True
 
         if message.content.startswith(prefix + "buy bait"):
             try:
                 await self.fishing.buy_bait(message)
             except ex.ItemNotFound as e:
                 await message.reply(f"Had issues buying bait. Error: {str(e)}")
+            handled = True
 
         if message.content.startswith(prefix + "my baits"):
             bait_names, uses = get_baits(username=message.author.name)
@@ -503,9 +521,11 @@ Shark Catch Game:
                 i += 1
                 send += f"{i}. {bait} - {uses[i - 1]} use{'s' if uses[i - 1] > 1 else ''} \n"
             await message.reply(send)
+            handled = True
 
         if message.content.startswith(prefix + "my fish"):
             await self.fishing.get_fish(message=message)
+            handled = True
 
         if message.content.startswith(prefix + "get dex"):
             basic_dex = sg.get_basic_dex(str(user.name))
@@ -543,6 +563,7 @@ Shark Catch Game:
                 if len(all_messages) > 1:
                     for msg in all_messages:
                         await channel.send(msg)
+            handled = True
 
         if message.content.startswith(prefix + "detailed dex"):
             dex = sg.get_dex(str(user))
@@ -555,14 +576,13 @@ Shark Catch Game:
 
                 for item in dex:
                     string = f"""shark {index}:
-    name: {item[sharks_index.SHARK_NAME.value]} 🦈
-    rarity: {item[sharks_index.RARITY.value]}
-    time caught: {item[sharks_index.TIME_CAUGHT.value]} 🕰️
-    facts: {item[sharks_index.SHARK_FACT.value]} 📰
-    weight: {item[sharks_index.SHARK_WEIGHT.value]} ⚖️
-    net used: {item[sharks_index.NET_TYPE.value]} 🎣
-    coins balance: {item[sharks_index.COINS.value]} 🪙
-
+name: {item[sharks_index.SHARK_NAME.value]} 🦈
+rarity: {item[sharks_index.RARITY.value]}
+time caught: {item[sharks_index.TIME_CAUGHT.value]} 🕰️
+facts: {item[sharks_index.SHARK_FACT.value]} 📰
+weight: {item[sharks_index.SHARK_WEIGHT.value]} ⚖️
+net used: {item[sharks_index.NET_TYPE.value]} 🎣
+coins balance: {item[sharks_index.COINS.value]} 🪙
     """
                     if len(messages + string) < 2000:
                         messages += string
@@ -575,9 +595,9 @@ Shark Catch Game:
                     all_messages.append(messages)
                 for msg in all_messages:
                     await user.send(msg)
-
             else:
                 await user.send("You have not caught a shark so you have no dex, go catch sharks!")
+            handled = True
 
         if message.content.startswith(prefix + "my nets"):
             nets, about_to_break, _, _ = sg.get_net_availability(str(user))
@@ -593,16 +613,19 @@ Shark Catch Game:
                     send += f"{i}. {atb} \n"
 
             await message.reply(send)
+            handled = True
 
         if message.content.startswith(prefix + "coins"):
             coins = 0 if sg.check_currency(str(user)) is None else sg.check_currency(str(user))
 
             await message.reply(f"You have {coins} coins!")
+            handled = True
 
         if message.content.startswith(prefix + "add coins"):
             sg.add_coins(str(user), 500)
 
             await message.reply("done")
+            handled = True
 
         if message.content.startswith(prefix + "buy net"):
             send = "Choose a net to buy: (choose within the next 30 seconds) \n To choose type the number of the net or type cancel to cancel \n"  # noqa: E501
@@ -652,6 +675,7 @@ Shark Catch Game:
                 else:
                     logging.info(f"Could not buy {net_name} for {user}")
                     await follow.reply(f"Could not buy net because {reason}")
+            handled = True
 
         if message.content.startswith(prefix + "shark facts"):
             await message.reply(
@@ -699,6 +723,7 @@ Weight: {facts[fact_nums.WEIGHT.value]}
 Rarity: {facts[fact_nums.RARITY.value]}
             """
             await follow.reply(result)
+            handled = True
 
         if message.content.startswith(prefix + "add gif"):
             await message.reply("Adding the gif")
@@ -716,6 +741,7 @@ Rarity: {facts[fact_nums.RARITY.value]}
                 return
 
             await message.reply("Gif added to the list!!")
+            handled = True
 
         if message.content.startswith(prefix + "add message"):
             await message.reply("Adding message")
@@ -727,13 +753,16 @@ Rarity: {facts[fact_nums.RARITY.value]}
                 return
 
             await message.reply("Message added to the list!!")
+            handled = True
 
         if message.content.startswith(prefix + "Apply"):
             assert isinstance(message.channel, discord.TextChannel)
             assert isinstance(message.author, discord.Member)
             await self.mod_questions.send_questions(message.channel, author=message.author)
+            handled = True
 
-        await self.process_commands(message)
+        if not handled:
+            await self.process_commands(message)
 
     async def start_shark_game_after_delay(self, guild_id: int, remaining: timedelta):
         await asyncio.sleep(remaining.total_seconds())
@@ -963,6 +992,14 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
     set_key(".env", var_name, var_value)
 
     await ctx.send("Updated environmental variable!")
+
+
+# check for errors
+@bot.event
+async def on_command_error(
+    ctx: commands.Context, error: Union[commands.CommandNotFound, commands.MissingPermissions, commands.CheckFailure]
+):
+    pass
 
 
 bot.run(token=token, log_handler=handler)
