@@ -973,6 +973,18 @@ async def timeout(ctx: commands.Context, member: discord.Member, duration: int):
     )
 
 
+@bot.command(name="kick")
+@is_mod()
+async def kick(ctx: commands.Context, member: discord.Member):
+    assert ctx.guild
+    await member.kick()
+    await config.send_discord_mod_log(
+        log_message=f"{ctx.author.name} has kicked user {member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''} from the server.",  # noqa: E501
+        bot=bot,
+        guild_id=ctx.guild.id,
+    )
+
+
 @bot.group()
 async def update(ctx: commands.Context):
     pass
