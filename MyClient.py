@@ -160,7 +160,6 @@ class MyBot(commands.Bot):
                 print("channel is in an incorrect format")
                 return
             await self.mod_application.setup_hook(guild_name=guild_name, channel=channel)
-            
 
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
@@ -296,32 +295,6 @@ The following are mod exclusive actions:
 6. `?update shop prices` - same as above but for prices."""  # noqa: E501
                 await message.reply(to_send)
                 handled = True
-
-        if message.content.startswith(prefix + "timeout"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                content = message.content.split()
-                user_id = content[1]
-                user_id = int(user_id[2:-1])
-                try:
-                    timeout_duration_int = int(content[2])
-                except ValueError:
-                    await message.reply(f"You put {content[2]} as timeout duration but it is not a number.")
-                    return
-                timeout_duration = dt.timedelta(seconds=timeout_duration_int)
-                member = await message.guild.fetch_member(user_id)
-                await member.timeout(timeout_duration)
-                await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has timed out user ({member.name} (nicknamed: {member.nick})) for {timeout_duration_int} seconds",  # noqa: E501
-                    bot=self,
-                    guild_id=message.guild.id,
-                )
-            handled = True
 
         if message.content.startswith(prefix + "kick"):
             if isinstance(message.author, discord.Member):
@@ -994,7 +967,7 @@ async def timeout(ctx: commands.Context, user: discord.Member, duration: int):
     until = dt.timedelta(seconds=duration)
     await user.timeout(until)
     await config.send_discord_mod_log(
-        log_message=f"{ctx.author.name} has timed out user ({user.name} {f'(nicknamed: {user.nick})) ' if user.nick else ''}for {timeout_duration_int} seconds",  # noqa: E501
+        log_message=f"{ctx.author.name} has timed out user ({user.name} {f'(nicknamed: {user.nick})) ' if user.nick else ''}for {duration} seconds",  # noqa: E501
         bot=bot,
         guild_id=ctx.guild.id,
     )
