@@ -91,6 +91,8 @@ class MyBot(commands.Bot):
         self.mod_application = ApplicationSystem(bot=self)
         self.mod_questions = ModQuestions(bot=self, channel=None)
         self.youtube_loop = YoutubeLoop(bot=self, config=config)
+        self.updating_store = False
+        self.loop_processing = False
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -875,7 +877,9 @@ async def add(ctx: commands.Context):
 @is_mod()
 async def add_role(ctx: commands.Context):
     assert ctx.guild
+    bot.loop_processing = True
     role_id = await bot.reaction_handler.add_to_react_roles(ctx.message)
+    bot.loop_processing = False
     if role_id is not None:
         await config.send_discord_mod_log(
             log_message=f"{ctx.author.name} has added a role (<@&{role_id}>) to react roles.",
@@ -935,7 +939,9 @@ async def shop(ctx: commands.Context):
 @is_mod()
 async def update_shop_items(ctx: commands.Context):
     assert ctx.guild
+    bot.updating_store = True
     await bot.fishing.add_into_shop_internal(message=ctx.message)
+    bot.updating_store = False
     await config.send_discord_mod_log(
         log_message=f"{ctx.author.name} has added an item to the shop.",
         bot=bot,
@@ -947,7 +953,9 @@ async def update_shop_items(ctx: commands.Context):
 @is_mod()
 async def update_shop_prices(ctx: commands.Context):
     assert ctx.guild
+    bot.updating_store = True
     await bot.fishing.update_shop_prices_internal(message=ctx.message)
+    bot.updating_store = False
     await config.send_discord_mod_log(
         log_message=f"{ctx.author.name} has updated prices in the shop.",
         bot=bot,
@@ -960,6 +968,10 @@ async def update_shop_prices(ctx: commands.Context):
 async def on_command_error(ctx: commands.Context, error):
 
     if not bot.shark_loops.is_idle:
+        return
+    elif bot.loop_processing:
+        return
+    elif bot.updating_store:
         return
     else:
         if isinstance(error, commands.CommandNotFound):
