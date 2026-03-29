@@ -359,16 +359,6 @@ Shark Catch Game:
             await message.reply(send)
             handled = True
 
-        if message.content.startswith(prefix + "game on"):
-            active_guild_id = message.guild.id
-            if self.shark_loops.is_running(active_guild_id):
-                await message.reply("Game is already running")
-                return
-
-            self.shark_loops.start_for(active_guild_id)
-            await message.reply("Started!")
-            handled = True
-
         if message.content.startswith(prefix + "stop"):
             active_guild_id = message.guild.id
             if self.shark_loops.is_running(active_guild_id):
@@ -509,12 +499,6 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             await message.reply(f"You have {coins} coins!")
             handled = True
 
-        if message.content.startswith(prefix + "add coins"):
-            sg.add_coins(str(user), 500)
-
-            await message.reply("done")
-            handled = True
-
         if message.content.startswith(prefix + "buy net"):
             send = "Choose a net to buy: (choose within the next 30 seconds) \n To choose type the number of the net or type cancel to cancel \n"  # noqa: E501
 
@@ -611,36 +595,6 @@ Weight: {facts[fact_nums.WEIGHT.value]}
 Rarity: {facts[fact_nums.RARITY.value]}
             """
             await follow.reply(result)
-            handled = True
-
-        if message.content.startswith(prefix + "add gif"):
-            await message.reply("Adding the gif")
-            try:
-                content = message.content.split("https://")  # Guarantees it's a link
-                try:
-                    link = "https://" + content[1]
-                except IndexError:
-                    await message.reply("No link found!!!")
-                    return
-
-                add_gif_to_table(link)
-            except ex.FormatError as e:
-                await message.reply(f"Something went wrong, error: {str(e)}")
-                return
-
-            await message.reply("Gif added to the list!!")
-            handled = True
-
-        if message.content.startswith(prefix + "add message"):
-            await message.reply("Adding message")
-            try:
-                message_to_add = message.content[13:]
-                add_birthday_message(message_to_add)
-            except ex.FormatError as e:
-                await message.reply(f"Something went wrong, error: {str(e)}")
-                return
-
-            await message.reply("Message added to the list!!")
             handled = True
 
         if message.content.startswith(prefix + "Apply"):
@@ -930,6 +884,31 @@ async def add_role(ctx: commands.Context):
         )
 
 
+@add.command(name="coins")
+@commands.is_owner()
+async def add_coins(ctx: commands.Context, member: discord.Member, coins: int):
+    sg.add_coins(member.name, coins)
+    await ctx.reply(f"{coins} added to {member.name}'s account")
+
+
+@add.command(name="gif")
+@is_mod()
+async def add_gif(ctx: commands.Context, link: str):
+    await ctx.reply("Attempting to add gif...")
+    if link[:6] != "https://":
+        raise ex.FormatError("Gif is not a link", 1006)
+    add_gif_to_table(link)
+    await ctx.reply("Gif added")
+
+
+@add.command(name="message")
+@is_mod()
+async def add_message(ctx: commands.Context, message: str):
+    await ctx.reply("Attempting to add message")
+    add_birthday_message(message)
+    await ctx.reply("Message added!")
+
+
 @bot.group()
 async def update(ctx: commands.Context):
     pass
@@ -998,6 +977,8 @@ async def on_command_error(ctx: commands.Context, error):
         await ctx.reply("I cannot fulfil your request, you have given me too much information to work with.")
     elif isinstance(error, ex.RoleNotAdded):
         await ctx.reply(f"I could not add the role. Error: {str(error)}")
+    elif isinstance(error, ex.FormatError):
+        await ctx.reply(f"The format is incorrect, format error: {error.message}")
 
     bot_channel = bot.get_channel(1430445244733722694)
     if isinstance(bot_channel, discord.TextChannel):
