@@ -27,20 +27,28 @@ class TikTokLoop:
         guild = self.bot.get_guild(guild_id)
 
         async def _tick():
-            all_links, all_ids = await get_latest_videos()
+            all_links, all_ids, all_thumbnails, profile_picture = await get_latest_videos()
             channel_id = self.config.get_channel_id(guild_name=guild_name, channel="clips")
             channel = self.bot.get_channel(channel_id)
-            for link, id in zip(all_links, all_ids):
+            for link, id, thumbnail in zip(all_links, all_ids, all_thumbnails):
                 is_existing: bool = check_if_link_exists(link)
                 if is_existing:
                     continue
 
                 add_link(link, id)
+                embed = discord.Embed(title="New Tiktok!", colour=discord.Color(0xF6A6BB))
+                embed.set_author(name="sharkocalypse", icon_url=profile_picture)
+                embed.set_thumbnail(url=thumbnail)
+                view = discord.ui.View()
+                view.add_item(discord.ui.Button(label="Watch Video", url=link))
+
                 if isinstance(channel, discord.TextChannel) and guild is not None:
                     role_id = get_role_id("shark updates")
                     role = guild.get_role(role_id)
                     if role is not None:
-                        await channel.send(f"new post alert! Check out Shark's latest TikTok here. {role.mention} \n{link}")
+                        await channel.send(
+                            f"new post alert! Check out Shark's latest TikTok here. {role.mention}", embed=embed, view=view
+                        )
 
         loop = tasks.loop(hours=1, reconnect=True)(_tick)
 
