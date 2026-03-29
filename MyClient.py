@@ -132,6 +132,7 @@ class MyBot(commands.Bot):
                 self.tiktok_loop.start_for(guild.id)
                 self.clipping_loop.start_for(guild.id)
                 self.twitch_loop.start_for(guild.id)
+                self.youtube_loop.start_for(guild.id)
 
                 shark_message_id = config.shark_message_id
                 shark_channel_id = config.get_channel_id(guild_name, channel="game")
@@ -159,7 +160,7 @@ class MyBot(commands.Bot):
                 print("channel is in an incorrect format")
                 return
             await self.mod_application.setup_hook(guild_name=guild_name, channel=channel)
-            self.youtube_loop.start_for(guild.id)
+            
 
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
