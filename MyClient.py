@@ -958,41 +958,45 @@ async def update_shop_prices(ctx: commands.Context):
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
-    if isinstance(error, commands.CommandNotFound):
-        await ctx.reply("I don't know that command")
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.reply("You do not have permissions to use that command. Go away")
-    elif isinstance(error, commands.CheckFailure):
-        await ctx.reply("You cannot use this command. Go away")
-    elif isinstance(error, ex.InvalidRole):
-        await ctx.reply(f"You cannot use this role. Error message {error.message}")
-    elif isinstance(error, commands.CommandInvokeError):
-        origin = error.original
-        if isinstance(origin, ValueError):
-            await ctx.reply("I cannot fulfil your request. One of your values isn't in the correct format")
-    elif isinstance(error, commands.MissingRequiredArgument):
-        missing = error.param.name
-        await ctx.reply(f"I cannot fulfil your request, I am missing a component: {missing}")
-    elif isinstance(error, commands.TooManyArguments):
-        await ctx.reply("I cannot fulfil your request, you have given me too much information to work with.")
-    elif isinstance(error, ex.RoleNotAdded):
-        await ctx.reply(f"I could not add the role. Error: {str(error)}")
-    elif isinstance(error, ex.FormatError):
-        await ctx.reply(f"The format is incorrect, format error: {error.message}")
 
-    bot_channel = bot.get_channel(1430445244733722694)
-    if isinstance(bot_channel, discord.TextChannel):
-        author = ctx.author
-        if not author or isinstance(author, discord.User):
-            return
-        user = author.nick if author.nick else author.name
-        if isinstance(error, commands.CommandNotFound):
-            await ctx.reply(f"{user} tried using command {ctx.message.content} and I do not recognize that")
-        elif isinstance(error, commands.MissingPermissions):
-            await ctx.reply(f"{user} tried using command {ctx.command} but does not have the permissions needed")
-        else:
-            await ctx.reply(f"{user} tried using command {ctx.command} but is missing something")
+    if not bot.shark_loops.is_idle:
         return
+    else:
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.reply("I don't know that command")
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.reply("You do not have permissions to use that command. Go away")
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.reply("You cannot use this command. Go away")
+        elif isinstance(error, ex.InvalidRole):
+            await ctx.reply(f"You cannot use this role. Error message {error.message}")
+        elif isinstance(error, commands.CommandInvokeError):
+            origin = error.original
+            if isinstance(origin, ValueError):
+                await ctx.reply("I cannot fulfil your request. One of your values isn't in the correct format")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            missing = error.param.name
+            await ctx.reply(f"I cannot fulfil your request, I am missing a component: {missing}")
+        elif isinstance(error, commands.TooManyArguments):
+            await ctx.reply("I cannot fulfil your request, you have given me too much information to work with.")
+        elif isinstance(error, ex.RoleNotAdded):
+            await ctx.reply(f"I could not add the role. Error: {str(error)}")
+        elif isinstance(error, ex.FormatError):
+            await ctx.reply(f"The format is incorrect, format error: {error.message}")
+
+        bot_channel = bot.get_channel(1430445244733722694)
+        if isinstance(bot_channel, discord.TextChannel):
+            author = ctx.author
+            if not author or isinstance(author, discord.User):
+                return
+            user = author.nick if author.nick else author.name
+            if isinstance(error, commands.CommandNotFound):
+                await ctx.reply(f"{user} tried using command {ctx.message.content} and I do not recognize that")
+            elif isinstance(error, commands.MissingPermissions):
+                await ctx.reply(f"{user} tried using command {ctx.command} but does not have the permissions needed")
+            else:
+                await ctx.reply(f"{user} tried using command {ctx.command} but is missing something")
+            return
 
 
 bot.run(token=token, log_handler=handler)
