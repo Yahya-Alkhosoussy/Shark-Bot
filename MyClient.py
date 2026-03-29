@@ -296,44 +296,6 @@ The following are mod exclusive actions:
                 await message.reply(to_send)
                 handled = True
 
-        if message.content.startswith(prefix + "kick"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                user_id = message.content.split()[1]
-                user_id = int(user_id[2:-1])
-                member = await message.guild.fetch_member(user_id)
-                await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has kicked user {member.name} (nicknamed: {member.nick}) from the server.",  # noqa: E501
-                    bot=self,
-                    guild_id=message.guild.id,
-                )
-                await member.kick()
-            handled = True
-
-        if message.content.startswith(prefix + "ban"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                user_id = message.content.split()[1]
-                user_id = int(user_id[2:-1])
-                member = await message.guild.fetch_member(user_id)
-                await config.send_discord_mod_log(
-                    log_message=f"{message.author.name} has banned user {member.name} (nicknamed: {member.nick}) from the server.",  # noqa: E501
-                    bot=self,
-                    guild_id=message.guild.id,
-                )
-                await member.ban()
-            handled = True
-
         if message.content.startswith(prefix + "add role"):
             if isinstance(message.author, discord.Member):
                 is_mod: bool = config.check_for_mod_role(message.author.roles)
