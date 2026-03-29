@@ -962,12 +962,12 @@ async def restart_bot(ctx: commands.Context):
 
 @bot.command(name="timeout")
 @is_mod()
-async def timeout(ctx: commands.Context, user: discord.Member, duration: int):
+async def timeout(ctx: commands.Context, member: discord.Member, duration: int):
     assert ctx.guild
     until = dt.timedelta(seconds=duration)
-    await user.timeout(until)
+    await member.timeout(until)
     await config.send_discord_mod_log(
-        log_message=f"{ctx.author.name} has timed out user ({user.name} {f'(nicknamed: {user.nick})) ' if user.nick else ''}for {duration} seconds",  # noqa: E501
+        log_message=f"{ctx.author.name} has timed out user ({member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''}for {duration} seconds",  # noqa: E501
         bot=bot,
         guild_id=ctx.guild.id,
     )
