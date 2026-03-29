@@ -36,9 +36,9 @@ class TikTokLoop:
                     continue
 
                 add_link(link, id)
-                embed = discord.Embed(title="New Tiktok!", colour=discord.Color(0xF6A6BB))
+                embed = discord.Embed(title="New Tiktok!", colour=discord.Color(0xF6A6BB), url=link)
                 embed.set_author(name="sharkocalypse", icon_url=profile_picture)
-                embed.set_thumbnail(url=thumbnail)
+                embed.set_image(url=thumbnail)
                 view = discord.ui.View()
                 view.add_item(discord.ui.Button(label="Watch Video", url=link))
 
