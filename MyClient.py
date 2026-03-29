@@ -999,7 +999,26 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
 async def on_command_error(
     ctx: commands.Context, error: Union[commands.CommandNotFound, commands.MissingPermissions, commands.CheckFailure]
 ):
-    pass
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.reply("I don't know that command")
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.reply("You do not have permissions to use that command. Go away")
+    else:
+        await ctx.reply("You cannot use this command. Go away")
+
+    bot_channel = bot.get_channel(1430445244733722694)
+    if isinstance(bot_channel, discord.TextChannel):
+        author = ctx.author
+        if not author or isinstance(author, discord.User):
+            return
+        user = author.nick if author.nick else author.name
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.reply(f"{user} tried using command {ctx.message.content} and I do not recognize that")
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.reply(f"{user} tried using command {ctx.command} but does not have the permissions needed")
+        else:
+            await ctx.reply(f"{user} tried using command {ctx.command} but is missing something")
+        return
 
 
 bot.run(token=token, log_handler=handler)
