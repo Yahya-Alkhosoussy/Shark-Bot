@@ -33,9 +33,10 @@ def is_video_existing(url: str) -> bool:
     return False
 
 
-def get_youtube_handles() -> list[str]:
+def get_youtube_handles() -> set[str]:
     cur.execute("SELECT handle FROM videos")
-    return cur.fetchall()
+    handles: set[str] = set(cur.fetchall())
+    return handles
 
 
 def get_video_title(id: str) -> str:
