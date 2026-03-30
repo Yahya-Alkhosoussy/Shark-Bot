@@ -86,6 +86,9 @@ class Fishing:
 
             await message.reply("Net found, fishing now! 🎣")
             net = follow.content.strip().lower()[1:]
+        elif follow.content.strip().lower()[1:] == "rope net":
+            await message.reply("Net found, fishing now!🎣")
+            net = "rope net"
         elif follow.content.strip().lower()[1:] == "none":
             await channel.send("Using basic net. Fishing now! 🎣")
             net = "rope net"
