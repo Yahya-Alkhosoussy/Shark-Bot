@@ -27,12 +27,12 @@ class TwitchLiveLoop:
             for user in users:
                 user = user[0]
                 saved_live_status: bool = get_live_status(user)
-                new_live_status: bool = is_live(username=user)
+                new_live_status: bool = await is_live(username=user)
                 if saved_live_status != new_live_status and (not saved_live_status):
                     update_live_status(username=user, status=new_live_status)
                     live_link = f"https://www.twitch.tv/{user}"
                     custom_message = get_custom_message(user)
-                    details = get_stream_details(user)
+                    details = await get_stream_details(user)
                     if details is not None:
                         title, game_name, thumbnail = details
                     else:
@@ -43,7 +43,7 @@ class TwitchLiveLoop:
                         description=f"[{title}]({live_link})",
                     )
                     thumbnail = thumbnail.replace(r"{width}", "1280").replace(r"{height}", "720")
-                    profile_url = get_profile_picture(username=user)
+                    profile_url = await get_profile_picture(username=user)
                     embed_to_send.set_thumbnail(url=profile_url)
                     embed_to_send.add_field(name="Game", value=game_name)
                     embed_to_send.set_image(url=thumbnail)

@@ -696,7 +696,7 @@ async def clips(interaction: discord.Interaction, days_ago: int, hours_ago: int,
     username = get_username(interaction.user.id)
     nick = get_nick(interaction.user.id)
 
-    clips = get_clips(username, days_ago, hours_ago, minutes_ago, user=nick)
+    clips = await get_clips(username, days_ago, hours_ago, minutes_ago, user=nick)
 
     print("Clips gotten")
 
