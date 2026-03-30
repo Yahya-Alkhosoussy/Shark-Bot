@@ -1,4 +1,3 @@
-import json
 from os import getenv
 
 from dotenv import load_dotenv
@@ -46,8 +45,8 @@ def get_video_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
         )
         .execute()
     )
-    with open("response.json", mode="w") as f:
-        json.dump(raw_response, f)
+    # with open("response.json", mode="w") as f:
+    #     json.dump(raw_response, f)
 
     items = [PlaylistItem(**item) for item in raw_response["items"]]
 
@@ -57,7 +56,7 @@ def get_video_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
 def get_channel_item(youtube_handle: str) -> Channel:
     channel = get_channel_id(youtube_handle)
     raw_response = youtube.channels().list(part="snippet", id=channel).execute()
-    with open("channel_response.json", mode="w") as f:
-        json.dump(raw_response, f, indent=2)
+    # with open("channel_response.json", mode="w") as f:
+    #     json.dump(raw_response, f, indent=2)
 
     return Channel(**raw_response["items"][0])
