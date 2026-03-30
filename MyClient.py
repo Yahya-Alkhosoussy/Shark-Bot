@@ -682,9 +682,9 @@ async def add_channel_to_clips(interaction: discord.Interaction, twitch_username
     username = twitch_username
     user = interaction.user
     if to_dms.lower() == "yes":
-        add_user(discord_id=user.id, user=user.name, username=username, dms=True)
+        await add_user(discord_id=user.id, user=user.name, username=username, dms=True)
     else:
-        add_user(discord_id=user.id, user=user.name, username=username, dms=False, channel_id=channel_id)
+        await add_user(discord_id=user.id, user=user.name, username=username, dms=False, channel_id=channel_id)
 
 
 @bot.tree.command(name="clips", description="Get twitch clips manually")

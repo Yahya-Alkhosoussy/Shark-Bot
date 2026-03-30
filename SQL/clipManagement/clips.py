@@ -13,7 +13,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS is_live
             (discord_id INTEGER PRIMARY KEY, username TEXT, user TEXT, is_live BOOLEAN)""")
 
 
-def add_user(discord_id: int, user: str, username: str, dms: bool, channel_id: int | None = None):
+async def add_user(discord_id: int, user: str, username: str, dms: bool, channel_id: int | None = None):
     if user.lower() == "spiderbyte2007":
         user = "spider"
     elif user.lower() == "sharkocalypse":
@@ -23,7 +23,7 @@ def add_user(discord_id: int, user: str, username: str, dms: bool, channel_id: i
         "INSERT OR IGNORE INTO clip_channels (discord_id, username, dms, channel_id) VALUES (?, ?, ?, ?)",
         (discord_id, username, dms, channel_id),
     )
-    live = is_live(user, username)
+    live = await is_live(user, username)
     cur.execute(
         "INSERT OR IGNORE INTO is_live (discord_id, username, user, is_live) VALUES (?, ?, ?, ?)",
         (discord_id, username, user, live),
