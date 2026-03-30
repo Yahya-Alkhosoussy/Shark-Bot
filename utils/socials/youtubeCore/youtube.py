@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
 if __name__ != "__main__":
-    from utils.socials.youtubeCore.core import PlaylistItem
+    from utils.socials.youtubeCore.core import Channel, PlaylistItem
 else:
-    from core import PlaylistItem
+    from core import Channel, PlaylistItem
 
 load_dotenv()
 
@@ -20,6 +20,11 @@ def get_channel(youtube_handle: str):
 
     channel_response = youtube.channels().list(part="contentDetails", forHandle=youtube_handle).execute()
     return channel_response
+
+
+def get_channel_id(youtube_handle: str):
+    channel_response = youtube.channels().list(part="id", forHandle=youtube_handle).execute()
+    return channel_response["items"][0]["id"]
 
 
 def get_uploads_id(youtube_handle: str) -> str:
@@ -47,3 +52,12 @@ def get_video_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
     items = [PlaylistItem(**item) for item in raw_response["items"]]
 
     return items
+
+
+def get_channel_item(youtube_handle: str) -> Channel:
+    channel = get_channel_id(youtube_handle)
+    raw_response = youtube.channels().list(part="snippet", id=channel).execute()
+    with open("channel_response.json", mode="w") as f:
+        json.dump(raw_response, f, indent=2)
+
+    return Channel(**raw_response["items"][0])
