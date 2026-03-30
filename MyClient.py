@@ -117,7 +117,6 @@ class MyBot(commands.Bot):
             if guild_name == "shark squad":
                 for member in guild.members:
                     try:
-                        await self.leveling_loop.check_role(user=member)
                         user_added = await self.leveling_loop.add_users(user=member)
                     except Exception as e:
                         logging.error(str(e))
