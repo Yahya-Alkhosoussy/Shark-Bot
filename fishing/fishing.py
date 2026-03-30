@@ -81,7 +81,7 @@ class Fishing:
 
         if follow.content.strip().lower()[1:] in owned_nets and follow.content.strip().lower()[1:] != "rope net":
             warning = remove_net_use(net=follow.content.strip().lower()[1:], user=user.name)
-            if warning:
+            if warning[0]:
                 await message.reply(warning[0])
 
             await message.reply("Net found, fishing now! 🎣")
