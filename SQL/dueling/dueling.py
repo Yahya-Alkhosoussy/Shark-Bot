@@ -204,5 +204,46 @@ def get_stance_info(stance_id: int, info: str) -> str:
         case _:
             raise ItemNotFound(f"Could not find {info} in the stances database", 1012)
 
+
 # stance match up:
-def add_stance_matchup(stand_id_1: int, stand_id_2: int, hit_chance: int, counter_chance: int, damage_modifer: int)
+def add_stance_matchup(stance_id_1: int, stance_id_2: int, hit_chance: int, counter_chance: int, damage_modifer: int):
+    cur.execute(
+        """INSERT OR IGNORE INTO stance_matchups
+                (attacker_stance_id, defender_stance_id, hit_chance, counter_chance, damage_modifier)
+                VALUES (?, ?, ?, ?, ?)
+        """,
+        (stance_id_1, stance_id_2, hit_chance, counter_chance, damage_modifer),
+    )
+    conn.commit()
+
+
+def update_hit_chance(stance_id_1: int, stance_id_2: int, hit_chance: int):
+    cur.execute(
+        "UPDATE stance_matchups SET hit_chance=? WHERE attacker_stance_id=? AND defender_stance_id=?",
+        (hit_chance, stance_id_1, stance_id_2),
+    )
+    conn.commit()
+
+
+def update_counter_chance(stance_id_1: int, stance_id_2: int, counter_chance: int):
+    cur.execute(
+        "UPDATE stance_matchups SET counter_chance=? WHERE attacker_stance_id=? AND defender_stance_id=?",
+        (counter_chance, stance_id_1, stance_id_2),
+    )
+    conn.commit()
+
+
+def update_damage_modifier(stance_id_1: int, stance_id_2: int, modifier: float):
+    cur.execute(
+        "UPDATE stance_matchups SET damage_modifier=? WHERE attacker_stance_id=? AND defender_stance_id=?",
+        (modifier, stance_id_1, stance_id_2),
+    )
+    conn.commit()
+
+
+def get_matchup_info(stance_id_1: int, stance_id_2: int):
+    cur.execute(
+        "SELECT hit_chance, counter_chance, damage_modifier FROM stance_matchups WHERE attacker_stance_id=? AND defender_stance_id=?",  # noqa: E501
+        (stance_id_1, stance_id_2),
+    )
+    return cur.fetchall()
