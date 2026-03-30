@@ -1,5 +1,6 @@
 import asyncio
 from os import getenv
+from typing import Any
 
 from dotenv import load_dotenv
 from TikTokApi import TikTokApi
@@ -7,7 +8,7 @@ from TikTokApi import TikTokApi
 load_dotenv()
 
 
-async def get_latest_videos() -> tuple[list[str], list[int]]:
+async def get_latest_videos() -> tuple[list[str], list[int], list, Any]:
     "grabs all of the links of the past 10 videos from a certain tiktok user"
     ms_token = getenv("msToken")
     async with TikTokApi() as api:
@@ -31,6 +32,13 @@ async def get_latest_videos() -> tuple[list[str], list[int]]:
             )
 
         user = api.user("sharkocalypse")
+        user_data = await user.info()  # You need to fetch the user info first
+
+        profile_picture = (
+            user_data.get("userInfo", {}).get("user", {}).get("avatarLarger")
+            or user_data.get("userInfo", {}).get("user", {}).get("avatarMedium")
+            or user_data.get("userInfo", {}).get("user", {}).get("avatarThumb")
+        )
         video_links: list[str] = []
         videos = []
         async for video in user.videos(count=20):
@@ -42,11 +50,19 @@ async def get_latest_videos() -> tuple[list[str], list[int]]:
         latest_5 = videos[:5]
         video_links: list[str] = []
         video_ids: list[int] = []
+        video_thumbnails = []
         for video in latest_5:
             video_ids.append(video.id)
             video_links.append(f"https://www.tiktok.com/@sharkocalypse/video/{video.id}")
+            video_data = video.as_dict
+            thumbnail = (
+                video_data.get("video", {}).get("cover")  # Standard cover
+                or video_data.get("video", {}).get("originCover")  # Original/higher res
+                or video_data.get("video", {}).get("dynamicCover")  # Animated cover (if exists)
+            )
+            video_thumbnails.append(thumbnail)
 
-        return video_links, video_ids
+        return video_links, video_ids, video_thumbnails, profile_picture
 
 
 # This file is to be ran to initialise the database
@@ -60,8 +76,10 @@ if __name__ == "__main__":
     from SQL.socialMedia.tiktok import add_link
 
     async def put_videos_in_SQL_initial():
-        links, ids = await get_latest_videos()
+        links, ids, thumbnails, profile_picture = await get_latest_videos()
         for link, id in zip(links, ids):
             add_link(link, id)
+        print(thumbnails)
+        print(profile_picture)
 
     asyncio.run(put_videos_in_SQL_initial())

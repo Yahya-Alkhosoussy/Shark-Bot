@@ -135,7 +135,6 @@ class MyBot(commands.Bot):
                 self.clipping_loop.start_for(guild.id)
                 self.twitch_loop.start_for(guild.id)
                 self.youtube_loop.start_for(guild.id)
-
                 shark_message_id = config.shark_message_id
                 shark_channel_id = config.get_channel_id(guild_name, channel="game")
                 shark_channel = self.get_channel(shark_channel_id)
@@ -802,6 +801,12 @@ async def restart_bot(ctx: commands.Context):
     while True:
         if not bot.shark_loops.is_idle:
             await ctx.send("Waiting for shark loop to finish iterating...")
+            await asyncio.sleep(10)
+        elif bot.loop_processing:
+            await ctx.send("Waiting for a loop to finish")
+            await asyncio.sleep(10)
+        elif bot.updating_store:
+            await ctx.send("The store is being updated")
             await asyncio.sleep(10)
         else:
             break

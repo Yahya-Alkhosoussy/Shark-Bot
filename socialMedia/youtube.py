@@ -6,7 +6,7 @@ from discord.ext import tasks
 from SQL.rolesSQL.roles import get_role_id
 from SQL.socialMedia.youtube import add_video, get_youtube_handles, is_video_existing
 from utils.core import AppConfig
-from utils.socials.youtubeCore.youtube import get_video_items
+from utils.socials.youtubeCore.youtube import get_channel_item, get_video_items
 
 
 class YoutubeLoop:
@@ -41,12 +41,21 @@ class YoutubeLoop:
                     title = item.snippet.title
                     id = item.snippet.resourceId.videoId
                     add_video(youtube_handle=handle, title=title, id=id, url=url)
+                    embed = discord.Embed(title=title, colour=discord.Color(0xF6A6BB))
+                    icon = get_channel_item(handle)
+                    icon_url = icon.snippet.profile_url
+                    embed.set_author(name="sharkocalypse", icon_url=icon_url)
+                    embed.set_image(url=item.snippet.thumbnail_url)
+                    view = discord.ui.View()
+                    view.add_item(discord.ui.Button(label="Watch Video", url=url))
                     if isinstance(channel, discord.TextChannel) and guild is not None:
                         role_id = get_role_id("shark updates")
                         role = guild.get_role(role_id)
                         if role is not None:
                             await channel.send(
-                                f"new post alert! Check out Shark's latest Youtube video here. {role.mention} \n{url}"
+                                f"new post alert! Check out Shark's latest Youtube video here. {role.mention}",
+                                embed=embed,
+                                view=view,
                             )
 
         loop = tasks.loop(hours=1, reconnect=True)(_tick)
