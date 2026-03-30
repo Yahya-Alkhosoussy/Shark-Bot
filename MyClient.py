@@ -1,5 +1,6 @@
 import asyncio
 import datetime as dt
+import io
 import logging
 import os
 import shutil
@@ -967,6 +968,19 @@ async def update_shop_prices(ctx: commands.Context):
         bot=bot,
         guild_id=ctx.guild.id,
     )
+
+
+@bot.command(name="log")
+@is_mod()
+async def get_last_x_chars_of_log(ctx: commands.Context, bytes: int):
+    with open("discord.log", mode="rb") as log:
+        try:
+            log.seek(-bytes, os.SEEK_END)
+        except OSError:
+            log.seek(0)
+        raw = log.read()
+
+    await ctx.send(file=discord.File(fp=io.BytesIO(raw), filename="log.txt"))
 
 
 # check for errors
