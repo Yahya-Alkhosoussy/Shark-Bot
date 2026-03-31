@@ -745,7 +745,7 @@ async def live_setup(interaction: discord.Interaction, twitch_username: str, cus
             return
 
     discord_id = interaction.user.id
-    add_twitch_live_user(twitch_username, discord_id, custom_message)
+    await add_twitch_live_user(twitch_username, discord_id, custom_message)
 
     if isinstance(channel, discord.TextChannel):
         await channel.send(f"{user.mention}, data validated. Thank you!")
@@ -768,29 +768,28 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
     if guild is None:
         await channel.send("Error, guild not found")
         return
-    user = guild.get_member(discord_id_int)
-    if user is None:
-        await channel.send("Error, member not found")
-        return
-    roles = user.roles
-    role_found = False
-    for role in roles:
-        if role.name == "Shark's VIPs" or "Admin":
-            role_found = True
-            break
+    # user = guild.get_member(discord_id_int)
+    # if user is None:
+    #     await channel.send("Error, member not found")
+    #     return
+    # roles = user.roles
+    # role_found = False
+    # for role in roles:
+    #     if role.name == "Shark's VIPs" or "Admin":
+    #         role_found = True
+    #         break
 
-    if not role_found:
-        await channel.send(f"{user.name} does not have the necessary role.")
-        return
-    if not user_exists(username=twitch_username):
-        await channel.send(
-            f"{user.mention}, I was unable to find your twitch, are you sure your username ({twitch_username}) is correct?"
-        )
+    # if not role_found:
+    #     await channel.send(f"{user.name} does not have the necessary role.")
+    #     return
+    twitch_user = await user_exists(username=twitch_username)
+    if not twitch_user:
+        await channel.send(f", I was unable to find your twitch, are you sure your username ({twitch_username}) is correct?")
         return
 
-    add_twitch_live_user(twitch_username, discord_id_int, custom_message)
+    await add_twitch_live_user(twitch_username, discord_id_int, custom_message)
 
-    await channel.send(f"{user} data validated. Thank you!")
+    await channel.send(" data validated. Thank you!")
     return
 
 

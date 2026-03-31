@@ -16,8 +16,8 @@ cur.execute("""CREATE TABLE IF NOT EXISTS twitch_users
             )""")
 
 
-def add_user(twitch_username: str, discord_id: int, custom_message: str):
-    live_status = is_live(username=twitch_username)
+async def add_user(twitch_username: str, discord_id: int, custom_message: str):
+    live_status = await is_live(username=twitch_username)
     cur.execute(
         "INSERT OR IGNORE INTO twitch_users (twitch_username, discord_id, live_status, custom_message) VALUES (?, ?, ?, ?)",
         (twitch_username, discord_id, live_status, custom_message),
