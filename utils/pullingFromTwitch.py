@@ -90,7 +90,7 @@ def parse_twitch_duration(duration: str) -> timedelta:
 
 
 async def internal_handle_stream_end(username: str, user: str):
-    broadcaster_id = get_user_id(username, user)
+    broadcaster_id = await get_user_id(username, user)
 
     # Small buffer for twitch
     time.sleep(30)
@@ -136,7 +136,7 @@ async def get_clips(
     seconds_ago: int = 0,
     user: str = "shark",
 ) -> list[str]:
-    broadcaster_id = get_user_id(username, user)
+    broadcaster_id = await get_user_id(username, user)
     # Get clips from the past 24 hours
     day_ago = (
         datetime.now(timezone.utc) - timedelta(days=days_ago, hours=hours_ago, minutes=minutes_ago, seconds=seconds_ago)
@@ -174,7 +174,7 @@ async def get_stream_details(username: str, user: str | None = None):
 
 async def get_profile_picture(username: str, user: str | None = None):
     "returns a profile picture of a twitch user"
-    broadcaster_id = get_user_id(username, user)
+    broadcaster_id = await get_user_id(username, user)
 
     user_r = await twitch_request("https://api.twitch.tv/helix/users", params={"id": broadcaster_id}, user=user)
 
@@ -196,7 +196,7 @@ async def get_bans(
     """
     r = await twitch_request(
         "https://api.twitch.tv/helix/moderation/banned",
-        params={"broadcaster_id": get_user_id(user=user, twitch_user=twitch_user)},
+        params={"broadcaster_id": await get_user_id(user=user, twitch_user=twitch_user)},
         user=user,
     )
     if r.get("status") == 401:

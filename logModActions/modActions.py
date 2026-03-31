@@ -56,7 +56,7 @@ class ModLoop:
                     nick = "shark"
                 else:
                     nick = "spider"
-                list_of_bans.append((streamer, (twitch_bans(user=nick, twitch_user=streamer))))
+                list_of_bans.append((streamer, (await twitch_bans(user=nick, twitch_user=streamer))))
             """
             dimensions:
                 list_of_bans[0] is for first streamer,
