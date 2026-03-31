@@ -982,6 +982,24 @@ async def get_last_x_chars_of_log(ctx: commands.Context, bytes: int):
     await ctx.send(file=discord.File(fp=io.BytesIO(raw), filename="log.txt"))
 
 
+@bot.group()
+async def remove(ctx):
+    pass
+
+
+@remove.command(name="net")
+@is_mod()
+async def remove_net(ctx: commands.Context, member: discord.Member, net: str):
+    await ctx.reply(f"Attempting to remove {net}")
+
+    try:
+        sg.remove_net(member.name, net)
+    except OperationalError as e:
+        await ctx.send(f"I encounered an error while trying to remove {net}. Error: {str(e)}")
+        return
+    await ctx.send("Net removed!")
+
+
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
