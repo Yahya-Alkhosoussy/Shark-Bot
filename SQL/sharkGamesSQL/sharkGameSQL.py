@@ -520,10 +520,12 @@ def remove_net_use(username: str, net: str, net_uses: int):
         cursor.execute(f"UPDATE '{username} dex' SET net_uses={net_uses} WHERE rowid = {rowid}")
         connection.commit()
 
+
 def remove_net(username: str, net: str):
     cursor.execute(f"UPDATE '{username} nets' SET '{net}'=0")
 
     connection.commit()
+
 
 def is_net_available(username: str, net: str):
     nets_available: dict = {}
