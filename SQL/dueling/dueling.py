@@ -193,6 +193,11 @@ def add_stance(name: str, description: str, style: str) -> None:
     conn.commit()
 
 
+def get_stance_id(name: str) -> int:
+    cur.execute("SELECT stance_id WHERE name=?", (name,))
+    return cur.fetchone()[0]
+
+
 def get_stance_info(stance_id: int, info: str) -> str:
     match info:
         case "description":
@@ -242,8 +247,74 @@ def update_damage_modifier(stance_id_1: int, stance_id_2: int, modifier: float):
 
 
 def get_matchup_info(stance_id_1: int, stance_id_2: int):
+    "Returns hit chance, counter chance and damage modifier for any stance matchup"
     cur.execute(
         "SELECT hit_chance, counter_chance, damage_modifier FROM stance_matchups WHERE attacker_stance_id=? AND defender_stance_id=?",  # noqa: E501
         (stance_id_1, stance_id_2),
     )
+    return cur.fetchall()
+
+
+# Player stances
+def add_player_stance(
+    player_id: int, stance_id: int, hit_chance_bonus: int | None = None, counter_chance_bonus: int | None = None
+):
+    if hit_chance_bonus and counter_chance_bonus:
+        cur.execute(
+            """INSERT OR IGNORE INTO player_stances (player_id, stance_id, hit_chance_bonus, counter_chance_bonus)
+                        VALUES (?, ?, ?, ?)""",
+            (player_id, stance_id, hit_chance_bonus, counter_chance_bonus),
+        )
+    elif hit_chance_bonus:
+        cur.execute(
+            "INSERT OR IGNORE INTO player_stances (player_id, stance_id, hit_chance_bonus) VALUES (?, ?, ?)",
+            (player_id, stance_id, hit_chance_bonus),
+        )
+    elif counter_chance_bonus:
+        cur.execute(
+            "INSERT OR IGNORE INTO player_stances (player_id, stance_id, counter_chance_bonus) VALUES (?, ?, ?)",
+            (player_id, stance_id, counter_chance_bonus),
+        )
+    else:
+        cur.execute(
+            "INSERT OR IGNORE INTO player_stances (player_id, stance_id) VALUES (?, ?)",
+            (player_id, stance_id),
+        )
+    conn.commit()
+
+
+def update_hit_chance_bonus(player_id: int, stance_id: int, hit_chance_bonus: int):
+    cur.execute(
+        "UPDATE player_stances SET hit_chance_bonus=? WHERE player_id=? AND stance_id=?",
+        (hit_chance_bonus, player_id, stance_id),
+    )
+    conn.commit()
+
+
+def update_counter_chance_bonus(player_id: int, stance_id: int, counter_chance_bonus: int):
+    cur.execute(
+        "UPDATE player_stances SET counter_chance_bonus=? WHERE player_id=? AND stance_id=?",
+        (counter_chance_bonus, player_id, stance_id),
+    )
+    conn.commit()
+
+
+def get_stance_level(player_id: int, stance_id: int):
+    "Returns the XP and Level associated with a stance"
+    cur.execute("SELECT level, xp FROM player_stances WHERE player_id=? AND stance_id=?", (player_id, stance_id))
+    return cur.fetchall()
+
+
+def get_stance_bonuses(player_id: int, stance_id: int):
+    "Returns both hit chance bonus and counter chance bonus"
+    cur.execute(
+        "SELECT hit_chance_bonus, counter_chance_bonus FROM player_stances WHERE player_id=? AND stance_id=?",
+        (player_id, stance_id),
+    )
+    return cur.fetchall()
+
+
+def get_wins_and_uses(player_id: int, stance_id: int):
+    "Returns wins and times used for a stance"
+    cur.execute("SELECT times_won, times_used FROM player_stances WHERE player_id=? AND stance_id=?", (player_id, stance_id))
     return cur.fetchall()
