@@ -32,7 +32,7 @@ from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
-from SQL.rolesSQL.roles import fill_emoji_map
+from SQL.rolesSQL.roles import fill_emoji_map, update_role_message
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig, get_full_path
@@ -935,6 +935,12 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
 
     await ctx.send("Updated environmental variable!")
 
+@update.command(name="role")
+@is_mod()
+async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: str):
+    await ctx.send("updating role set")
+    update_role_message(role.id, roleSet)
+    await ctz.send("role updated")
 
 @update.group()
 async def shop(ctx: commands.Context):
