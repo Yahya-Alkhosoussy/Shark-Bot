@@ -1051,7 +1051,7 @@ async def on_command_error(ctx: commands.Context, error):
             elif isinstance(error, commands.MissingPermissions):
                 await bot_channel.send(f"{user} tried using command {ctx.command} but does not have the permissions needed")
             else:
-                await bot_channel.send(f"{user} tried using command {ctx.command} but is missing something")
+                await bot_channel.send(f"{user} tried using command {ctx.command} but is missing something. Error: {str(error)}")
             return
 
 
