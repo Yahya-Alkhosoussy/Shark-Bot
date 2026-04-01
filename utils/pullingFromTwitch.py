@@ -66,7 +66,7 @@ async def twitch_request(url: str, params: dict, user: str | None):
             headers = {"Client-ID": getenv("twitch_client_id"), "Authorization": f"Bearer {access_token}"}
             r = await sesh.get(url, params=params, headers=headers)
             if r.status == 401 and user is not None:
-                new_token = refresh_token(user)
+                new_token = await refresh_token(user)
                 headers["Authorization"] = f"Bearer {new_token}"
                 r = await sesh.get(url, params=params, headers=headers)
             return await r.json()
