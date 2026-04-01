@@ -1000,6 +1000,13 @@ async def remove_net(ctx: commands.Context, member: discord.Member, net: str):
     await ctx.send("Net removed!")
 
 
+@bot.command(name="mapping")
+@is_mod()
+async def get_emoji_mapping(ctx: commands.Context):
+    await ctx.reply("getting the emoji mapping")
+    mapping = fill_emoji_map()
+    await ctx.send(mapping)
+
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
