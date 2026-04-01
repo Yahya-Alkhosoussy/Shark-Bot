@@ -999,13 +999,54 @@ async def remove_net(ctx: commands.Context, member: discord.Member, net: str):
         return
     await ctx.send("Net removed!")
 
+# helper function
+def split_emoji_map_messages(emojiMap: dict, max_chars: int = 4000) -> list[str]:
+    messages = []
+    current_lines = []
+    current_len = 0
+
+    for guild_id, role_sets in emojiMap.items():
+        guild_header = f"**Guild: {guild_id}**\n"
+
+        for role_set_name, emoji_roles in role_sets.items():
+            role_set_header = f"  **{role_set_name}**\n"
+            role_set_lines = []
+
+            for emoji, role_id in emoji_roles.items():
+                line = f"    {emoji} → `{role_id}`\n"
+                role_set_lines.append(line)
+
+            # Calculate total size of this role set block
+            block = guild_header + role_set_header + "".join(role_set_lines)
+
+            # If adding this block exceeds limit, flush and start new message
+            if current_len + len(block) > max_chars and current_lines:
+                messages.append("".join(current_lines))
+                current_lines = []
+                current_len = 0
+
+            # Add block line by line so we can split mid-block if needed
+            for i, line in enumerate([guild_header, role_set_header] + role_set_lines):
+                if current_len + len(line) > max_chars:
+                    messages.append("".join(current_lines))
+                    current_lines = []
+                    current_len = 0
+                current_lines.append(line)
+                current_len += len(line)
+
+    if current_lines:
+        messages.append("".join(current_lines))
+
+    return messages
 
 @bot.command(name="mapping")
 @is_mod()
 async def get_emoji_mapping(ctx: commands.Context):
     await ctx.reply("getting the emoji mapping")
     mapping = fill_emoji_map()
-    await ctx.send(mapping)
+    messages = split_emoji_map_messages(mapping)
+    for message in messages:
+        await ctx.send(message)
 
 # check for errors
 @bot.event
