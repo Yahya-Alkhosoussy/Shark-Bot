@@ -175,3 +175,8 @@ def add_role(
 def get_role_id(role_name: str) -> int:
     cur.execute("SELECT role_id FROM roles WHERE name=?", (role_name,))
     return cur.fetchone()[0]
+
+def update_role_message(roleSet: str, role_id: int):
+    roleSet_id = put_role_set_in_table(roleSet)
+    cur.execute("UPDATE roles SET roleSet_ID=? WHERE role_id=?", (roleSet_id, role_id))
+    conn.commit()
