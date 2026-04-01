@@ -1000,7 +1000,7 @@ async def remove_net(ctx: commands.Context, member: discord.Member, net: str):
     await ctx.send("Net removed!")
 
 # helper function
-def split_emoji_map_messages(emojiMap: dict, max_chars: int = 4000) -> list[str]:
+def split_emoji_map_messages(emojiMap: dict, max_chars: int = 2000) -> list[str]:
     messages = []
     current_lines = []
     current_len = 0
