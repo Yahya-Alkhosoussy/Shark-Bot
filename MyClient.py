@@ -940,7 +940,7 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
 async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: str):
     await ctx.send("updating role set")
     update_role_message(role.id, roleSet)
-    await ctz.send("role updated")
+    await ctx.send("role updated")
 
 @update.group()
 async def shop(ctx: commands.Context):
