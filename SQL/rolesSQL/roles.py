@@ -180,3 +180,4 @@ def update_role_message(roleSet: str, role_id: int):
     roleSet_id = put_role_set_in_table(roleSet)
     cur.execute("UPDATE roles SET roleSet_ID=? WHERE role_id=?", (roleSet_id, role_id))
     conn.commit()
+    return roleSet_id
