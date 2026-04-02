@@ -11,3 +11,6 @@ requests
 TikTokAPI
 tzdata
 google-api-python-client
+pytest 
+pytest-asyncio 
+unittest.mock
