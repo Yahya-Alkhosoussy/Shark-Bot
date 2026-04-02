@@ -768,20 +768,20 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
     if guild is None:
         await channel.send("Error, guild not found")
         return
-    # user = guild.get_member(discord_id_int)
-    # if user is None:
-    #     await channel.send("Error, member not found")
-    #     return
-    # roles = user.roles
-    # role_found = False
-    # for role in roles:
-    #     if role.name == "Shark's VIPs" or "Admin":
-    #         role_found = True
-    #         break
+    user = guild.get_member(discord_id_int)
+    if user is None:
+        await channel.send("Error, member not found")
+        return
+    roles = user.roles
+    role_found = False
+    for role in roles:
+        if role.name == "Shark's VIPs" or "Admin":
+            role_found = True
+            break
 
-    # if not role_found:
-    #     await channel.send(f"{user.name} does not have the necessary role.")
-    #     return
+    if not role_found:
+        await channel.send(f"{user.name} does not have the necessary role.")
+        return
     twitch_user = await user_exists(username=twitch_username)
     if not twitch_user:
         await channel.send(f", I was unable to find your twitch, are you sure your username ({twitch_username}) is correct?")
