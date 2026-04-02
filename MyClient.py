@@ -1056,6 +1056,20 @@ async def get_emoji_mapping(ctx: commands.Context):
     for message in messages:
         await ctx.send(message)
 
+@bot.group()
+async def get(ctx: commands.Context):
+    pass
+
+@get.group()
+async def shark(ctx: commands.Context):
+    pass
+
+@shark.command(name="message")
+@commands.is_owner()
+async def get_shark_message(ctx: commands.Context):
+    message_id = config.shark_message_id
+    await ctx.reply(message_id)
+
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
