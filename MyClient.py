@@ -797,7 +797,7 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
 
 @bot.command(name="restart", hidden=True)
 @commands.is_owner()
-async def restart_bot(ctx: commands.Context):
+async def restart_bot(ctx: commands.Context, stash: bool):
 
     while True:
         if not bot.shark_loops.is_idle:
@@ -821,6 +821,10 @@ async def restart_bot(ctx: commands.Context):
 
     try:
         assert git_path
+        if stash:
+            res_0 = subprocess.run([git_path, "stash"], capture_output=True, check=True, text=True, shell=True)
+            await ctx.send("Stashed successfully")
+            await ctx.send(res_0.stdout)
         res = subprocess.run([git_path, "pull"], capture_output=True, check=True, text=True, shell=True)
         await ctx.send("Pulled successfully")
         await ctx.send(res.stdout)
@@ -1055,6 +1059,20 @@ async def get_emoji_mapping(ctx: commands.Context):
     messages = split_emoji_map_messages(mapping)
     for message in messages:
         await ctx.send(message)
+
+@bot.group()
+async def get(ctx: commands.Context):
+    pass
+
+@get.group()
+async def shark(ctx: commands.Context):
+    pass
+
+@shark.command(name="message")
+@commands.is_owner()
+async def get_shark_message(ctx: commands.Context):
+    message_id = config.shark_message_id
+    await ctx.reply(message_id)
 
 # check for errors
 @bot.event
