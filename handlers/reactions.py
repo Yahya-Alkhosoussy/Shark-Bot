@@ -75,8 +75,9 @@ class reaction_handler:
 
                 existing = {str(r.emoji) for r in message.reactions} if message else {}
                 for emoji in role_mapping.keys():
-                    if existing and message and emoji not in existing:
+                    if existing and message and str(emoji) not in existing:
                         try:
+                            emoji = discord.PartialEmoji.from_str(emoji)
                             await message.add_reaction(emoji)
                         except discord.HTTPException as e:
                             logging.error(f"[RR] could not add reaction {emoji} in {guild_name}. Full Error: {str(e)}")
