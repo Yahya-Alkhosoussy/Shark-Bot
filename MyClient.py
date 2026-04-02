@@ -1072,7 +1072,7 @@ async def shark(ctx: commands.Context):
 @commands.is_owner()
 async def get_shark_message(ctx: commands.Context):
     message_id = config.shark_message_id
-    await ctx.reply(message_id)
+    await ctx.reply(str(message_id))
 
 # check for errors
 @bot.event
