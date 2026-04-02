@@ -41,7 +41,7 @@ class reaction_handler:
             raise KeyError(f"Guild {guild.name} does not have a react roles message ID Key")
 
         for _, rr_message in react_role_messages:
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(5)
             # print(react_role_messages[rr_message])
 
             channel_id = int(self.config.get_channel_id(guild_name=guild_name, channel="roles"))
