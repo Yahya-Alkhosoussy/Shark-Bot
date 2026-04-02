@@ -162,6 +162,8 @@ class MyBot(commands.Bot):
                 return
             await self.mod_application.setup_hook(guild_name=guild_name, channel=channel)
 
+            await self.ensure_react_roles_message(guild)
+
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
                     if not value:
@@ -246,7 +248,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
     async def ensure_react_roles_message(self, guild: discord.Guild):
         try:
-            await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
+            await self.reaction_handler.ensure_react_roles_message_internal(guild=guild, roles_per_guild=fill_emoji_map())
         except (KeyError, ValueError, LookupError) as e:
             logging.error(f"Failed to ensure react roles message(s) exist. Inner error:\n{str(e)}")
         except Exception as e:
