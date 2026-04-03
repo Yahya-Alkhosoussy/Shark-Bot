@@ -38,6 +38,8 @@ from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig, get_full_path
 from utils.pullingFromTwitch import get_clips, user_exists
 from utils.ticketing import TicketingConfig
+from utils.checks import is_mod
+from moderation.tools import Moderation
 
 # ======= Logging/Env =======
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -94,6 +96,9 @@ class MyBot(commands.Bot):
         self.youtube_loop = YoutubeLoop(bot=self, config=config)
         self.updating_store = False
         self.loop_processing = False
+    
+    async def load_cogs(self):
+        await self.add_cog(Moderation(self, config))
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -102,6 +107,8 @@ class MyBot(commands.Bot):
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
+
+        await self.load_cogs()
 
         # Set up app commands
         async def setup_guild(guild):
@@ -288,9 +295,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
                 to_send = """Thank you for asking for help!
 The following are mod exclusive actions:
-1. `?timeout [@user] [duration in seconds]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
-2. `?kick [@user]` - This command is to kick any user from the server.
-3. `?ban [@user]` - This command is to ban any user from the server.
+1. `?timeout [@user] [duration in seconds] [reason (optional)]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
+2. `?kick [@user] [reason (optional)]` - This command is to kick any user from the server.
+3. `?ban [@user] [reason (optional)]` - This command is to ban any user from the server.
 4. `?add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
 5. `?update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
 6. `?update shop prices` - same as above but for prices."""  # noqa: E501
@@ -623,16 +630,6 @@ bot = MyBot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=T
 bot.owner_id = 604366329302220820  # replace with own ID if replicating
 
 
-def is_mod():
-    async def check(ctx: commands.Context):
-        assert isinstance(ctx.author, discord.Member)
-        if not config.check_for_mod_role(ctx.author.roles):
-            raise ex.InvalidRole("Invalid role, this is only for mods")
-        return True
-
-    return commands.check(check)
-
-
 @bot.tree.command(name="add-birthday", description="Adds your birthday to wish you a happy birthday on that day")
 @discord.app_commands.describe(
     birth_month="This is your birth month (i.e 2 for february, 6 for june etc.)", birthday="Your birth day"
@@ -837,41 +834,7 @@ async def restart_bot(ctx: commands.Context):
     await bot.close()  # closes the bot normally
 
 
-@bot.command(name="timeout")
-@is_mod()
-async def timeout(ctx: commands.Context, member: discord.Member, duration: int):
-    assert ctx.guild
-    until = dt.timedelta(seconds=duration)
-    await member.timeout(until)
-    await config.send_discord_mod_log(
-        log_message=f"{ctx.author.name} has timed out user ({member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''}for {duration} seconds",  # noqa: E501
-        bot=bot,
-        guild_id=ctx.guild.id,
-    )
 
-
-@bot.command(name="kick")
-@is_mod()
-async def kick(ctx: commands.Context, member: discord.Member):
-    assert ctx.guild
-    await member.kick()
-    await config.send_discord_mod_log(
-        log_message=f"{ctx.author.name} has kicked user {member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''}from the server.",  # noqa: E501
-        bot=bot,
-        guild_id=ctx.guild.id,
-    )
-
-
-@bot.command(name="ban")
-@is_mod()
-async def ban(ctx: commands.Context, member: discord.Member):
-    assert ctx.guild
-    await member.ban()
-    await config.send_discord_mod_log(
-        log_message=f"{ctx.author.name} has banned user {member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''}from the server.",  # noqa: E501
-        bot=bot,
-        guild_id=ctx.guild.id,
-    )
 
 
 @bot.group()
@@ -939,7 +902,7 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
 @is_mod()
 async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: str):
     await ctx.send(f"updating role set for {role.mention} ")
-    roleSet_id = update_role_message(role.id, roleSet)
+    roleSet_id = update_role_message(roleSet, role.id)
     await ctx.send(f"role updated. new id: {roleSet_id}")
 
 @update.group()
