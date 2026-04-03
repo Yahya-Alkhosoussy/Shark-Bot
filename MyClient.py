@@ -50,6 +50,7 @@ assert token, "No token found in envvars. Impossible to continue."
 # ======= CONFIG =======
 CONFIG_PATH = Path(r"config.YAML")
 TICKET_CONFIG_PATH = Path(r"ticketingSystem\ticketing.yaml")
+NON_MOD_LOG_CHANNEL_ID = 1430445244733722694
 
 prefix: str = "?"
 
@@ -794,6 +795,21 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
     await channel.send(" data validated. Thank you!")
     return
 
+@bot.tree.command(name="anonymous-vent")
+@discord.app_commands.describe()
+async def anon_venting(interaction: discord.Interaction, vent_message: str):
+    channel = bot.get_channel(NON_MOD_LOG_CHANNEL_ID)
+    user = interaction.user
+    vent_channel = interaction.channel
+    await interaction.response.send_message("Sending message", ephemeral=True)
+    message = None
+    if isinstance(vent_channel, discord.TextChannel):
+        await vent_channel.send("Anonymous vent:")
+        message = await vent_channel.send(vent_message)
+
+    if isinstance(channel, discord.TextChannel) and isinstance(user, discord.Member) and message:
+        await channel.send(f"User ({user.nick if user.nick else user.name}) Sent an anonymous vent with the message ID of {message.id}")
+
 
 @bot.command(name="restart", hidden=True)
 @commands.is_owner()
@@ -1117,7 +1133,7 @@ async def on_command_error(ctx: commands.Context, error):
         elif isinstance(error, ex.FormatError):
             await ctx.reply(f"The format is incorrect, format error: {error.message}")
 
-        bot_channel = bot.get_channel(1430445244733722694)
+        bot_channel = bot.get_channel(NON_MOD_LOG_CHANNEL_ID)
         if isinstance(bot_channel, discord.TextChannel):
             author = ctx.author
             if not author or isinstance(author, discord.User):
