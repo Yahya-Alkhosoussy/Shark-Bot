@@ -32,7 +32,7 @@ from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
-from SQL.rolesSQL.roles import fill_emoji_map, update_role_message
+from SQL.rolesSQL.roles import fill_emoji_map, update_role_message, update_role_emoji_ASCII
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.core import AppConfig, get_full_path
@@ -947,6 +947,15 @@ async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: st
     await ctx.send(f"updating role set for {role.mention} ")
     roleSet_id = update_role_message(roleSet, role.id)
     await ctx.send(f"role updated. new id: {roleSet_id}")
+
+@update.command(name="emoji")
+@is_mod()
+async def update_role_emoji(ctx: commands.Context, role: discord.Role, emoji: str):
+    emoji = emoji.replace("\uFE0F", "").replace("\uFE0E", "")
+    update_role_emoji_ASCII(emoji, role.id)
+    assert ctx.guild
+    await bot.ensure_react_roles_message(ctx.guild)
+
 
 @update.group()
 async def shop(ctx: commands.Context):

@@ -57,7 +57,7 @@ def put_emoji_in_table(animated: bool, emoji_name: str, discord_id: int | None) 
     Puts emoji in the SQL table and returns the emoji ID
     """
     cur.execute(
-        "INSERT OR IGNORE INTO emojis (animated, name, discord_id) VALUES (?, ?, ?)", (animated, emoji_name, discord_id)
+        "INSERT OR IGNORE INTO emojis (animated, name, discord_id) VALUES (?, ?, ?)", (animated, emoji_name.replace("\uFE0F", "").replace("\uFE0E", ""), discord_id)
     )
     conn.commit()
 
@@ -181,3 +181,8 @@ def update_role_message(roleSet: str, role_id: int):
     cur.execute("UPDATE roles SET roleSet_ID=? WHERE role_id=?", (roleSet_id, role_id))
     conn.commit()
     return roleSet_id
+
+def update_role_emoji_ASCII(emoji_name: str, role_id: int):
+    emoji_id = cur.execute("SELECT emoji_id FROM roles WHERE role_id=?", (role_id,)).fetchone()[0]
+    cur.execute("UPDATE emojis SET name=?, animated=0, discord_id=NULL WHERE id=?", (emoji_name, emoji_id))
+    conn.commit()
