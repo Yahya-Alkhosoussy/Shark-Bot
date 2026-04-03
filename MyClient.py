@@ -951,6 +951,7 @@ async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: st
 @update.command(name="emoji")
 @is_mod()
 async def update_role_emoji(ctx: commands.Context, role: discord.Role, emoji: str):
+    await ctx.send("Updating role's emoji")
     emoji = emoji.replace("\uFE0F", "").replace("\uFE0E", "")
     update_role_emoji_ASCII(emoji, role.id)
     assert ctx.guild
