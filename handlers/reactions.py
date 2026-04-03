@@ -78,7 +78,8 @@ class reaction_handler:
                 for emoji in role_mapping.keys():
                     if existing and message and str(emoji) not in existing:
                         try:
-                            logging.info(f"Emoji: {emoji}. As str: {str(emoji)} back to partialEMoji {discord.PartialEmoji.from_str(str(emoji))}")
+                            logging.info(emoji.name, emoji.id, emoji.animated)
+                            logging.info([hex(ord(c)) for c in emoji.name])
                             emoji = discord.PartialEmoji.from_str(str(emoji))
                             await message.add_reaction(emoji)
                         except discord.HTTPException as e:
