@@ -1,6 +1,13 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 import discord
+from utils.leveling import LevelRole, LevelRoleSet, LevelingConfig
+from pathlib import Path
+
+CONFIG_PATH = Path(r"loops\levellingloop\levelingConfig.yaml")
+config = LevelingConfig(CONFIG_PATH)
+
+roles: LevelRoleSet = config.level_roles['shark squad']
 
 @pytest.fixture
 def mock_bot(mock_channel):
@@ -11,19 +18,19 @@ def mock_bot(mock_channel):
     return bot
 
 @pytest.fixture
-def mock_ctx():
+def mock_ctx(mock_guild):
     ctx = MagicMock()
     ctx.send = AsyncMock() # since ctx.send is an Async function
     ctx.author = MagicMock()
     ctx.author.id = 987654321
     ctx.author.name = "TestUser"
-    ctx.guild = MagicMock()
-    ctx.guild.id = 1234567
+    ctx.guild = mock_guild
+    ctx.guild.id = mock_guild.id
     return ctx
 
 @pytest.fixture
-def mock_member():
-    member = MagicMock()
+def mock_member(mock_guild, mock_role):
+    member = MagicMock(spec=discord.Member)
     member.ban = AsyncMock()
     member.kick = AsyncMock()
     member.timeout = AsyncMock()
@@ -31,7 +38,18 @@ def mock_member():
     member.nick = None
     member.mention = "<@987654321>"
     member.id = 987654321
+    member.guild = mock_guild
+    member.guild.id = mock_guild.id
+    member.add_roles.return_value = True
+    member.remove_roles.return_value = True
+    member.roles = list(mock_role)
     return member
+
+@pytest.fixture
+def mock_role():
+    role = MagicMock()
+    role.id = roles["4"]
+    return role
 
 @pytest.fixture
 def mock_config():
@@ -116,3 +134,48 @@ def mock_clip_handler(mock_member):
             "update_live": mock_update_live,
             "internal_handle_stream_end": mock_internal_handle_stream_end,
         }
+
+@pytest.fixture
+def mock_level_config():
+    config = MagicMock()
+    config.level_roles = {
+        "shark squad": LevelRoleSet([
+            LevelRole(level=1, id=roles["1"]),
+            LevelRole(level=2, id=1462838512993697975),
+            LevelRole(level=3, id=1462838533940056236),
+            LevelRole(level=4, id=1462838552634200229),
+            LevelRole(level=5, id=1462832730176880771)
+        ])}
+    config.reload.return_value = None
+    config.__getitem__ = MagicMock(side_effect={
+        "boost": False,
+        "boost amount": 2,
+    }.__getitem__)
+    return config
+
+@pytest.fixture
+def mock_level_sql():
+    ls = MagicMock()
+    ls.add_user.return_value = True
+    ls.get_info.return_value = (4, 0, 0, 2)
+    ls.add_to_level.return_value = None
+    ls.check_level.return_value = True
+    return ls
+
+@pytest.fixture
+def mock_message(mock_member, mock_channel):
+    message = MagicMock(spec=discord.Message)
+    message.content = "This is a test message"
+    message.author = mock_member
+    message.author.id = mock_member.id
+    message.author.name = mock_member.name
+    message.author.nick = mock_member.nick
+    message.channel = mock_channel
+    return message
+
+@pytest.fixture
+def mock_guild():
+    guild = MagicMock()
+    guild.id = 1234567
+    guild.get_role.return_value = True
+    return guild
