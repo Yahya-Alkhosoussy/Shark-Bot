@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.clipping.clips import ClipLoop
+from loops.levellingloop.levellingLoop import levelingLoop
 from freezegun import freeze_time
 
 
@@ -58,3 +59,24 @@ async def test_clip_loop_sends(clip_cog, mock_clip_handler, mock_channel):
         loop = clip_cog._loops[guild_id]
         await loop.coro()
     mock_channel.send.assert_called()
+
+@pytest.fixture
+def leveling_cog(mock_bot):
+    return levelingLoop(mock_bot)
+
+@pytest.mark.asyncio
+async def test_leveling_loop_message_handle(leveling_cog, mock_channel, mock_message, mock_level_sql):
+
+
+    with patch("loops.levellingloop.levellingLoop.ls", mock_level_sql):
+        await leveling_cog.message_handle(mock_message)
+    
+    mock_channel.send.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_leveling_loop_add_and_remove_role(leveling_cog, mock_member, mock_level_config, mock_level_sql):
+    with patch("loops.levellingloop.levellingLoop.ls", mock_level_sql):
+        await leveling_cog.add_role(mock_member)
+    
+    mock_member.add_roles.assert_called_once()
+    mock_member.remove_roles.assert_called_once()
