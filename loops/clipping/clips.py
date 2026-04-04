@@ -54,6 +54,7 @@ class ClipLoop:
                                 else:
                                     to_send += clip + "\n"
 
+                            messages.append(to_send)
                             for message in messages:
                                 await channel.send(message)
                     else:
@@ -67,6 +68,7 @@ class ClipLoop:
                                 to_send = clip + "\n"
                             else:
                                 to_send += clip + "\n"
+                        messages.append(to_send)
                         for message in messages:
                             await discord_user.send(message)
 
