@@ -1,12 +1,13 @@
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 import discord
 
 @pytest.fixture
-def mock_bot():
+def mock_bot(mock_channel):
     bot = MagicMock()
     bot.user = MagicMock()
     bot.user.id = 123456789
+    bot.get_channel = MagicMock(return_value=mock_channel)
     return bot
 
 @pytest.fixture
@@ -87,3 +88,31 @@ def mock_cog(mock_client, mock_config):
     cog.client = mock_client
     cog.config = mock_config
     return cog
+
+@pytest.fixture
+def mock_clip_handler(mock_member):
+    partial_path = "loops.clipping.clips"
+    with patch(partial_path + ".check_live") as mock_check_live, \
+         patch(partial_path + ".get_channel") as mock_get_channel, \
+         patch(partial_path + ".get_discord_id") as mock_get_discord_id, \
+         patch(partial_path + ".get_nick") as mock_get_nick, \
+         patch(partial_path + ".get_users") as mock_get_users, \
+         patch(partial_path + ".update_live") as mock_update_live, \
+         patch(partial_path + ".internal_handle_stream_end") as mock_internal_handle_stream_end:
+        
+        mock_check_live.return_value = True
+        mock_get_channel.return_value = 123456789
+        mock_get_discord_id.return_value = mock_member.id
+        mock_get_nick.return_value = mock_member.name
+        mock_get_users.return_value = ([mock_member.name], [mock_member.id])
+        mock_update_live.return_value = True
+        mock_internal_handle_stream_end.return_value = ["Clip 1", "Clip 2", "Clip 3"]
+        yield {
+            "check_live": mock_check_live,
+            "get_channel": mock_get_channel,
+            "get_discord_id": mock_get_discord_id,
+            "get_nick": mock_get_nick,
+            "get_users": mock_get_users,
+            "update_live": mock_update_live,
+            "internal_handle_stream_end": mock_internal_handle_stream_end,
+        }
