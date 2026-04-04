@@ -3,6 +3,7 @@ from io import BytesIO
 from pathlib import Path
 
 import discord
+from discord.ext import commands
 import requests
 from PIL import Image, ImageDraw, ImageFont
 
@@ -129,7 +130,7 @@ def get_level(user: discord.Member):
 
 # ============== LOOP LOGIC ===================
 class levelingLoop:
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     async def add_users(self, user: discord.Member):
