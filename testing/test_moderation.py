@@ -37,7 +37,7 @@ async def test_timeout_sends_confirmation(cog, mock_ctx, mock_member):
     duration = 120
     await cog.timeout.callback(cog, ctx=mock_ctx, member=mock_member, reason="Spamming", duration=duration)
 
-    mock_member.timeout.assert_called_once_with(until=timedelta(seconds=duration), reason="Spamming")
+    mock_member.timeout.assert_called_once_with(timedelta(seconds=duration), reason="Spamming")
     mock_ctx.send.assert_called_once_with("BadUser has been timedout.")
 
 @pytest.mark.asyncio
@@ -46,4 +46,4 @@ async def test_timeout_uses_default_reason(cog, mock_ctx, mock_member):
 
     await cog.timeout.callback(cog, ctx=mock_ctx, member=mock_member, duration=duration)
     
-    mock_member.timeout.assert_called_once_with(until=timedelta(seconds=duration), reason="No Reason Provided")
+    mock_member.timeout.assert_called_once_with(timedelta(seconds=duration), reason="No Reason Provided")
