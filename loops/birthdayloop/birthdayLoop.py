@@ -41,7 +41,7 @@ class BirthdayLoop:
 
         async def _tick():
             # The Loop Body
-            current_date = dt.datetime.now().date()
+            current_date = dt.datetime.now(central).date()
             birthday_messages = self.config.birthday_message
             month = current_date.strftime("%B")
             guild_name: str = self.config.guilds[guild_id]
