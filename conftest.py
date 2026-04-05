@@ -50,6 +50,7 @@ def mock_member(mock_guild, mock_role):
 def mock_role():
     role = MagicMock()
     role.id = roles["4"]
+    role.mention = "mentionable string"
     return role
 
 @pytest.fixture
@@ -186,10 +187,10 @@ def mock_message(mock_member, mock_channel):
     return message
 
 @pytest.fixture
-def mock_guild(mock_channel):
+def mock_guild(mock_channel, mock_role):
     guild = MagicMock()
     guild.id = 1234567
-    guild.get_role.return_value = True
+    guild.get_role.return_value = mock_role
     guild.get_channel.return_value = mock_channel
     return guild
 
@@ -253,3 +254,25 @@ def mock_twitch_api():
             "get_stream_details": mock_get_stream_details,
             "is_live": mock_is_live
         }
+
+@pytest.fixture
+def mock_tiktok_sql(mock_role):
+    partial_path = "socialMedia.tiktok"
+    with patch(partial_path + ".add_link") as mock_add_link, \
+         patch(partial_path + ".check_if_link_exists") as mock_check_if_link_exists, \
+         patch(partial_path + ".get_role_id") as mock_get_role_id:
+        
+        mock_add_link.return_value = None
+        mock_check_if_link_exists.return_value = False
+        mock_get_role_id.return_value = mock_role.id
+        yield {
+            "add_link": mock_add_link,
+            "check_if_link_exists": mock_check_if_link_exists,
+            "get_role_id": mock_get_role_id
+        }
+
+@pytest.fixture
+def mock_tiktok_api():
+    with patch("socialMedia.tiktok.get_latest_videos") as mock_get_latest_videos:
+        mock_get_latest_videos.return_value = (["https://link-to.video.com"], [123456], ["https://link-to.thumbnail.com"], ["https://link-to.profile-picture.com"])
+        yield {"get_latest_videos": mock_get_latest_videos}
