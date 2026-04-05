@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import discord
 from utils.leveling import LevelRole, LevelRoleSet, LevelingConfig
 from pathlib import Path
+import asyncio
 
 CONFIG_PATH = Path(r"loops\levellingloop\levelingConfig.yaml")
 config = LevelingConfig(CONFIG_PATH)
@@ -73,6 +74,9 @@ def mock_config():
     config.guilds = {123456: "TestGuild"}
     config.get_channel_id = MagicMock(return_value=11112223333444)
     config.mark_reminder_as_done = MagicMock(return_value=True)
+    config.reload.return_value = None
+    config.time_per_loop = 5
+    config.window_time = 0.4
     return config
 
 @pytest.fixture
@@ -82,10 +86,20 @@ def mock_channel():
     return channel
 
 @pytest.fixture
-def mock_client(mock_member, mock_channel):
+def mock_client(mock_member, mock_channel, mock_message):
     client = MagicMock()
     client.get_channel = MagicMock(return_value=mock_channel)
     client.fetch_user = AsyncMock(return_value=mock_member)
+    
+    client.wait_for = AsyncMock(side_effect=asyncio.TimeoutError)
+    return client
+
+@pytest.fixture
+def mock_client_winner(mock_member, mock_channel, mock_message):
+    client = MagicMock()
+    client.get_channel = MagicMock(return_value=mock_channel)
+    client.fetch_user = AsyncMock(return_value=mock_member)
+    client.wait_for = AsyncMock(side_effect=[mock_message, asyncio.TimeoutError])
     return client
 
 @pytest.fixture
@@ -165,12 +179,10 @@ def mock_level_sql():
 @pytest.fixture
 def mock_message(mock_member, mock_channel):
     message = MagicMock(spec=discord.Message)
-    message.content = "This is a test message"
+    message.content = "?catch"
     message.author = mock_member
-    message.author.id = mock_member.id
-    message.author.name = mock_member.name
-    message.author.nick = mock_member.nick
     message.channel = mock_channel
+    message.author.bot = False
     return message
 
 @pytest.fixture
@@ -179,3 +191,29 @@ def mock_guild():
     guild.id = 1234567
     guild.get_role.return_value = True
     return guild
+
+@pytest.fixture
+def mock_fishing_config():
+    config = MagicMock()
+    config.boost = False
+    config.boost_amount = 2
+    return config
+
+@pytest.fixture
+def mock_shark_sql():
+    sg = MagicMock()
+    sg.get_names_of_sharks.return_value = ["Reef Shark"]
+    sg.get_shark_names.return_value = ["Reef Shark"]
+    sg.is_net_available.return_value = False
+    sg.fishing_odds_shark.return_value = 100
+    sg.create_dex.return_value = None
+    sg.reward_coins.return_value = 20
+    sg.remove_net_use.return_value = None
+    sg.remove_net.return_value = None
+    return sg
+
+@pytest.fixture
+def mock_remove_net_use():
+    remove_net_use = MagicMock()
+    remove_net_use.return_value = (None, -1)
+    return remove_net_use

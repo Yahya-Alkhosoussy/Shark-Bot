@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
+from loops.sharkGameLoop.sharkGameLoop import SharkLoops
 from freezegun import freeze_time
 
 
@@ -67,6 +68,7 @@ def leveling_cog(mock_bot):
 @pytest.mark.asyncio
 async def test_leveling_loop_message_handle(leveling_cog, mock_channel, mock_message, mock_level_sql):
 
+    mock_message.content = "This is a test message"
 
     with patch("loops.levellingloop.levellingLoop.ls", mock_level_sql):
         await leveling_cog.message_handle(mock_message)
@@ -80,3 +82,65 @@ async def test_leveling_loop_add_and_remove_role(leveling_cog, mock_member, mock
     
     mock_member.add_roles.assert_called_once()
     mock_member.remove_roles.assert_called_once()
+
+@pytest.fixture
+def shark_cog(mock_client, mock_config):
+    return SharkLoops(mock_client, mock_config)
+
+@pytest.mark.parametrize("random_number_2, expected_message", [
+        (1, "A legendary Reef Shark has escaped, no one caught it. 😞"),
+        (4, "A shiny Reef Shark has escaped, no one caught it. 😞"),
+        (10,"A normal Reef Shark has escaped, no one caught it. 😞"),
+    ])
+@pytest.mark.asyncio
+async def test_shark_loop_no_winner(shark_cog, mock_channel, mock_fishing_config, mock_shark_sql, mock_remove_net_use, random_number_2, expected_message):
+    guild_id = 123456
+    partial_path = "loops.sharkGameLoop.sharkGameLoop"
+    with patch("discord.ext.tasks.Loop.start"), \
+         patch(partial_path + ".sg", mock_shark_sql),\
+         patch(partial_path + ".FishingConfig", mock_fishing_config), \
+         patch(partial_path + ".get_warning", mock_remove_net_use), \
+         patch(partial_path + ".time.monotonic") as mock_time, \
+         patch(partial_path + ".random.randint", side_effect=[5, 0, random_number_2, 0]):
+        mock_time.return_value = 0.0
+        shark_cog.check_interval = 5
+        shark_cog.start_for(guild_id)
+
+        loop = shark_cog._loops[guild_id]
+        await loop.coro()
+    mock_channel.send.assert_any_call("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
+    mock_channel.send.assert_any_call(expected_message)
+
+
+@pytest.fixture
+def shark_cog_winner(mock_client_winner, mock_config):
+    return SharkLoops(mock_client_winner, mock_config)
+
+
+@pytest.mark.parametrize("random_number_2, expected_message", [
+    (1, "Congratulations to BadUser who caught a legendary Reef Shark 👏. You have been granted 20"),
+    (4, "Congratulations to BadUser who caught a shiny Reef Shark 👏. You have been granted 20"),
+    (10,"Congratulations to BadUser who caught a normal Reef Shark 👏. You have been granted 20"),
+])
+@pytest.mark.asyncio
+async def test_shark_loop_one_winner_no_net(shark_cog_winner, mock_channel, mock_fishing_config, mock_shark_sql, mock_remove_net_use, random_number_2, expected_message):
+    guild_id = 123456
+    partial_path = "loops.sharkGameLoop.sharkGameLoop"
+    with patch("discord.ext.tasks.Loop.start"), \
+         patch(partial_path + ".sg", mock_shark_sql),\
+         patch(partial_path + ".FishingConfig", mock_fishing_config), \
+         patch(partial_path + ".get_warning", mock_remove_net_use), \
+         patch(partial_path + ".time.monotonic") as mock_time, \
+         patch(partial_path + ".random.randint", side_effect=[5, 0, random_number_2, 100]):
+        mock_time.side_effect = [
+            220,
+            219.4,
+            219.6
+        ]
+        shark_cog_winner.check_interval = 5
+        shark_cog_winner.start_for(guild_id)
+
+        loop = shark_cog_winner._loops[guild_id]
+        await loop.coro()
+    mock_channel.send.assert_any_call("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
+    mock_channel.send.assert_any_call(expected_message)
