@@ -4,6 +4,7 @@ from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops
+from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from freezegun import freeze_time
 
 
@@ -144,3 +145,17 @@ async def test_shark_loop_one_winner_no_net(shark_cog_winner, mock_channel, mock
         await loop.coro()
     mock_channel.send.assert_any_call("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
     mock_channel.send.assert_any_call(expected_message)
+
+@pytest.fixture
+def twitch_live_cog(mock_client, mock_config):
+    return TwitchLiveLoop(mock_client, mock_config)
+
+@pytest.mark.asyncio
+async def test_twitch_live_loop(twitch_live_cog, mock_channel, mock_twitch_sql, mock_twitch_api):
+    guild_id = 123456
+    with patch("discord.ext.tasks.Loop.start"):
+        twitch_live_cog.start_for(guild_id)
+
+        loop = twitch_live_cog._loops[guild_id]
+        await loop.coro()
+    mock_channel.send.assert_called_once()

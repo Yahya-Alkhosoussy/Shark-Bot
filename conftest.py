@@ -86,11 +86,11 @@ def mock_channel():
     return channel
 
 @pytest.fixture
-def mock_client(mock_member, mock_channel, mock_message):
+def mock_client(mock_member, mock_channel, mock_guild):
     client = MagicMock()
     client.get_channel = MagicMock(return_value=mock_channel)
     client.fetch_user = AsyncMock(return_value=mock_member)
-    
+    client.get_guild = MagicMock(return_value=mock_guild)
     client.wait_for = AsyncMock(side_effect=asyncio.TimeoutError)
     return client
 
@@ -186,10 +186,11 @@ def mock_message(mock_member, mock_channel):
     return message
 
 @pytest.fixture
-def mock_guild():
+def mock_guild(mock_channel):
     guild = MagicMock()
     guild.id = 1234567
     guild.get_role.return_value = True
+    guild.get_channel.return_value = mock_channel
     return guild
 
 @pytest.fixture
@@ -217,3 +218,38 @@ def mock_remove_net_use():
     remove_net_use = MagicMock()
     remove_net_use.return_value = (None, -1)
     return remove_net_use
+
+@pytest.fixture
+def mock_twitch_sql():
+    partial_path = "loops.twitchliveloop.TwitchLiveLoop"
+    with patch(partial_path + ".get_custom_message") as mock_get_custom_message, \
+         patch(partial_path + ".get_live_status") as mock_get_live_status, \
+         patch(partial_path + ".get_users") as mock_get_users, \
+         patch(partial_path + ".update_live_status") as mock_update_live_status:
+        
+        mock_get_custom_message.return_value = "BadUser is live!"
+        mock_get_live_status.return_value = False
+        mock_get_users.return_value = ["BadUser"]
+        mock_update_live_status.return_value = None
+        yield {
+            "get_custom_message": mock_get_custom_message,
+            "get_live_status": mock_get_live_status,
+            "get_users": mock_get_users,
+            "update_live_status": mock_update_live_status,
+        }
+
+@pytest.fixture
+def mock_twitch_api():
+    partial_path = "loops.twitchliveloop.TwitchLiveLoop"
+    with patch(partial_path + ".get_profile_picture") as mock_get_profile_picture, \
+         patch(partial_path + ".get_stream_details") as mock_get_stream_details, \
+         patch(partial_path + ".is_live") as mock_is_live:
+        
+        mock_get_profile_picture.return_value = "https://link-to.profile-picture.com"
+        mock_get_stream_details.return_value = ("Playing some game", "Some Game", "https://link-to.thumbnail.com")
+        mock_is_live.return_value = True
+        yield {
+            "get_profile_picture": mock_get_profile_picture,
+            "get_stream_details": mock_get_stream_details,
+            "is_live": mock_is_live
+        }
