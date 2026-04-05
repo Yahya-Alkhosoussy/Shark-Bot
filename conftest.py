@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 import discord
 from utils.leveling import LevelRole, LevelRoleSet, LevelingConfig
+from utils.socials.youtubeCore import core
 from pathlib import Path
 import asyncio
 
@@ -276,3 +277,52 @@ def mock_tiktok_api():
     with patch("socialMedia.tiktok.get_latest_videos") as mock_get_latest_videos:
         mock_get_latest_videos.return_value = (["https://link-to.video.com"], [123456], ["https://link-to.thumbnail.com"], ["https://link-to.profile-picture.com"])
         yield {"get_latest_videos": mock_get_latest_videos}
+
+@pytest.fixture
+def mock_youtube_sql(mock_role):
+    partial_path = "socialMedia.youtube"
+    with patch(partial_path + ".get_role_id") as mock_get_role_id, \
+         patch(partial_path + ".add_video") as mock_add_video, \
+         patch(partial_path + ".get_youtube_handles") as mock_get_youtube_handles, \
+         patch(partial_path + ".is_video_existing") as mock_is_video_existing:
+        
+        mock_get_role_id.return_value = mock_role.id
+        mock_add_video.return_value = None
+        mock_get_youtube_handles.return_value = set(["BadUser"])
+        mock_is_video_existing.return_value = False
+        yield {
+            "get_role_id": mock_get_role_id,
+            "add_video": mock_add_video,
+            "get_youtube_handles": mock_get_youtube_handles,
+            "is_video_existing": mock_is_video_existing,
+        }
+
+@pytest.fixture
+def mock_youtube_api():
+    partial_path = "socialMedia.youtube"
+    with patch(partial_path + ".get_channel_item") as mock_get_channel_item, \
+         patch(partial_path + ".get_video_items") as mock_get_video_items:
+        mock_get_channel_item.return_value = core.Channel(
+            id="verification 1", 
+            snippet=core.ChannelSnippet(
+                title="Video title",
+                description="Video Description",
+                publishedAt="PublishedAt",
+                thumbnails= core.Thumbnails(default=core.ThumbnailInfo(url="https://url-to.thumbnail.com"))
+            ))
+        mock_get_video_items.return_value = [
+            core.PlaylistItem(
+                snippet=core.PlaylistItemSnippet(
+                    title="Video title",
+                    description="Video description",
+                    publishedAt="Published at",
+                    resourceId=core.ResourceId(kind="Video", videoId="video ID"),
+                    thumbnails=core.Thumbnails(default=core.ThumbnailInfo(url="https://url-to.thumbnail.com"))
+                )
+            )
+        ]
+
+        yield {
+            "get_channel_item": mock_get_channel_item,
+            "get_video_items": mock_get_video_items,
+        }

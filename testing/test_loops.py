@@ -6,6 +6,7 @@ from loops.levellingloop.levellingLoop import levelingLoop
 from loops.sharkGameLoop.sharkGameLoop import SharkLoops
 from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from socialMedia.tiktok import TikTokLoop
+from socialMedia.youtube import YoutubeLoop
 from freezegun import freeze_time
 
 
@@ -172,5 +173,19 @@ async def test_tiktok_loop(tiktok_cog, mock_channel, mock_tiktok_sql, mock_tikto
         tiktok_cog.start_for(guild_id)
 
         loop = tiktok_cog._loops[guild_id]
+        await loop.coro()
+    mock_channel.send.assert_called_once()
+
+@pytest.fixture
+def youtube_cog(mock_client, mock_config):
+    return YoutubeLoop(mock_client, mock_config)
+
+@pytest.mark.asyncio
+async def test_youtube_loop(youtube_cog, mock_youtube_api, mock_youtube_sql, mock_channel):
+    guild_id = 123456
+    with patch("discord.ext.tasks.Loop.start"):
+        youtube_cog.start_for(guild_id)
+
+        loop = youtube_cog._loops[guild_id]
         await loop.coro()
     mock_channel.send.assert_called_once()
