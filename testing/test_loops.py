@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
+from logModActions.modActions import ModLoop
 from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
@@ -189,3 +190,18 @@ async def test_youtube_loop(youtube_cog, mock_youtube_api, mock_youtube_sql, moc
         loop = youtube_cog._loops[guild_id]
         await loop.coro()
     mock_channel.send.assert_called_once()
+
+@pytest.fixture
+def mod_loop_cog(mock_client, mock_config):
+    return ModLoop(mock_client, mock_config)
+
+@pytest.mark.asyncio
+async def test_mod_loop(mod_loop_cog, mock_modActions, mock_twitch_bans):
+    guild_id = 123456
+    with patch("discord.ext.tasks.Loop.start"):
+        mod_loop_cog.start_for(guild_id)
+
+        loop = mod_loop_cog._loops[guild_id]
+        await loop.coro()
+    mock_modActions["add_ban"].assert_called()
+    mock_modActions["add_timeout"].assert_called()

@@ -4,6 +4,7 @@ import discord
 from utils.leveling import LevelRole, LevelRoleSet, LevelingConfig
 from utils.socials.youtubeCore import core
 from pathlib import Path
+from datetime import timedelta
 import asyncio
 
 CONFIG_PATH = Path(r"loops\levellingloop\levelingConfig.yaml")
@@ -325,4 +326,40 @@ def mock_youtube_api():
         yield {
             "get_channel_item": mock_get_channel_item,
             "get_video_items": mock_get_video_items,
+        }
+
+@pytest.fixture
+def mock_modActions():
+    partial_path = "logModActions.modActions"
+    with patch(partial_path + ".add_ban") as mock_add_ban, \
+         patch(partial_path + ".add_timeout") as mock_add_timeout, \
+         patch(partial_path + ".check_if_timeout_exists") as mock_check_if_timeout_exists, \
+         patch(partial_path + ".get_streamers") as mock_get_streamers, \
+         patch(partial_path + ".get_timeouts") as mock_get_timeouts, \
+         patch(partial_path + ".saved_bans") as mock_saved_bans:
+        
+        mock_add_ban.return_value = None
+        mock_add_timeout.return_value = None
+        mock_check_if_timeout_exists.return_value = False
+        mock_get_streamers.return_value = set(["BadUser"])
+        mock_get_timeouts.return_value = [(0, "A", "A", "A", "A", 0, "A")]
+        mock_saved_bans.return_value = [(0, "A", "A", "A", "A", "A")]
+
+        yield {
+            "add_ban": mock_add_ban,
+            "add_timeout": mock_add_timeout,
+            "check_if_timeout_exists": mock_check_if_timeout_exists,
+            "get_streamers": mock_get_streamers,
+            "get_timeouts": mock_get_timeouts,
+            "saved_bans": mock_saved_bans
+        }
+
+@pytest.fixture
+def mock_twitch_bans():
+    partial_path = "logModActions.modActions"
+    with patch(partial_path + ".twitch_bans") as mock_twitch_bans:
+        mock_twitch_bans.return_value = (["BannedUser", "TimeoutUser"], ["No Reason", "No Reason"], ["ModUser", "ModUser"], [None, timedelta(seconds=30)], ["2025-07-20", "2025-07-20"])
+    
+        yield {
+            "twitch_bans": mock_twitch_bans
         }
