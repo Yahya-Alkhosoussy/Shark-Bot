@@ -49,7 +49,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS weapons
                 crit_chance REAL,  -- chance to land a critical hit
                 crit_damage_multi REAL, -- critical damage multiplier
                 defective_chance REAL, -- chance for a hit to be defective
-                defective_damag_multi REAL, -- defective hit multiplier
+                defective_damage_multi REAL, -- defective hit multiplier
                 PRIMARY KEY(name, weapon_id)
             )""")
 
@@ -58,11 +58,11 @@ cur.execute("""CREATE TABLE IF NOT EXISTS player_weapons
                 player_id INTEGER REFERENCES players(player_id),
                 weapons_id INTEGER REFERENCES weapons(weapon_id),
                 current_durability INTEGER,
-                times_used INTEGER,
+                times_used INTEGER DEFAULT 0,
                 xp INTEGER DEFAULT 0,
                 level INTEGER DEFAULT 1,
                 max_level INTEGER,
-                damage_bonus INTEGER DEFAULT 0, -- earned through use and level ups
+                damage_bonus REAL DEFAULT 0, -- earned through use and level ups
                 PRIMARY KEY(player_id, weapons_id)
             )""")
 
@@ -127,7 +127,7 @@ def add_loss(discord_id: int):
         raise e
 
 
-def add_xp(discord_id: int, xp_added: int):
+def add_player_xp(discord_id: int, xp_added: int):
     try:
         cur.execute("UPDATE players SET xp = xp + ? WHERE player_id=?", (xp_added, discord_id))
         conn.commit()
@@ -135,7 +135,7 @@ def add_xp(discord_id: int, xp_added: int):
         raise e
 
 
-def add_level(discord_id: int):
+def add_player_level(discord_id: int):
     cur.execute(
         "UPDATE players SET level = level + 1, xp = 0, xp_to_next_level = xp_to_next_level + 40 WHERE player_id=?",
         (discord_id,),
@@ -318,3 +318,127 @@ def get_wins_and_uses(player_id: int, stance_id: int):
     "Returns wins and times used for a stance"
     cur.execute("SELECT times_won, times_used FROM player_stances WHERE player_id=? AND stance_id=?", (player_id, stance_id))
     return cur.fetchall()
+
+def level_up_stance(player_id: int, stance_id: int):
+    cur.execute("UPDATE player_stances SET xp = 0, level = level + 1 WHERE player_id=? AND stance_id=?", (player_id, stance_id))
+    conn.commit()
+
+def get_stance_xp(player_id: int, stance_id: int) -> int:
+    cur.execute("SELECT xp FROM player_stances WHERE player_id=? AND stance_id=?", (player_id, stance_id))
+    return cur.fetchone()[0]
+
+def get_stance_wins(player_id: int, stance_id: int) -> int:
+    cur.execute("SELECT times_won FROM player_stances WHERE player_id=? AND stance_id=?", (player_id, stance_id))
+    return cur.fetchone()[0]
+
+def get_stance_uses(player_id: int, stance_id: int) -> int:
+    cur.execute("SELECT times_used FROM player_stances WHERE player_id=? AND stance_id=?", (player_id, stance_id))
+    return cur.fetchone()[0]
+
+def get_player_stances(player_id: int):
+    cur.execute("SELECT stance_id FROM player_stances WHERE player_id=?", (player_id,))
+    stance_ids: list[int] = cur.fetchall()
+    stance_names: list[str] = []
+    for stance_id in stance_ids:
+        cur.execute("SELECT name FROM stances WHERE stance_id=?", (stance_id,))
+        stance_names.append(cur.fetchone()[0])
+    return stance_names
+
+# Weapons table
+def add_weapon(name: str, damage: int, durability: int, crit_chance: float, crit_damage: float, defective_chance: float, defective_damage: float, weapon_type: str | None = None):
+    cur.execute(
+        "INSERT OR IGNORE INTO weapons (name, damage, weapon_type, durability, crit_chance, crit_damage_multi, defective_chance, defective_damage_multi) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (name, damage, weapon_type, durability, crit_chance, crit_damage, defective_chance, defective_damage)
+    )
+    conn.commit()
+
+def get_weapon_name(weapon_id: int) -> str:
+    cur.execute("SELECT name FROM weapons WHERE weapon_id=?", (weapon_id,))
+    return cur.fetchone()[0]
+
+def get_weapon_damage(weapon_id: int) -> int:
+    cur.execute("SELECT damage FROM weapons WHERE weapon_id=?", (weapon_id,))
+    return cur.fetchone()[0]
+
+def get_weapon_id(weapon_name: str) -> int:
+    cur.execute("SELECT weapon_id FROM weapons WHERE name=?", (weapon_name,))
+    return cur.fetchone()[0]
+
+def get_weapon_type(weapon_id: int) -> int:
+    cur.execute("SELECT weapon_type FROM weapons WHERE weapon_id=?", (weapon_id,))
+    return cur.fetchone()[0]
+
+def get_weapon_durability(weapon_id: int) -> int:
+    cur.execute("SELECT durability FROM weapons WHERE weapon_id=?", (weapon_id,))
+    return cur.fetchone()[0]
+
+def get_weapon_crit_chance(weapon_id: int) -> float:
+    cur.execute("SELECT crit_chance FROM weapons WHERE weapon_id=?", (weapon_id,))
+    return cur.fetchone()[0]
+
+def get_weapon_crit_damage(weapon_id: int) -> float:
+    cur.execute("SELECT crit_damage_multi FROM weapons WHERE weapon_id=?", (weapon_id,))
+    return cur.fetchone()[0]
+
+def get_weapon_defective_chance(weapon_id: int) -> float:
+    cur.execute("SELECT defective_chance FROM weapons WHERE weapon_id=?", (weapon_id,))
+    return cur.fetchone()[0]
+
+def get_weapon_defective_damage(weapon_id: int) -> float:
+    cur.execute("SELECT defective_damage_multi FROM weapons WHERE weapon_id=?", (weapon_id,))
+    return cur.fetchone()[0]
+
+# Player weapons table:
+def add_player_weapon(player_id: int, weapon_id: int, durability: int, max_level: int):
+    cur.execute("INSERT OR IGNORE INTO player_weapons (player_id, weapons_id, current_durability, max_level) VALUES (?, ?, ?, ?)", (player_id, weapon_id, durability, max_level))
+    conn.commit()
+
+def get_player_weapon_ids(player_id: int):
+    cur.execute("SELECT weapons_id FROM player_weapons WHERE player_id=?", (player_id,))
+    weapon_ids: list[int] = cur.fetchall()
+    weapon_names: list[str] = []
+    for id in weapon_ids:
+        cur.execute("SELECT name FROM weapons WHERE weapon_id=?", (id,))
+        weapon_names.append(cur.fetchone()[0])
+    return weapon_names
+
+def get_player_current_weapon_durability(player_id: int, weapon_id: int) -> int:
+    cur.execute("SELECT current_durability FROM player_weapons WHERE player_id=? AND weapon_id=?", (player_id, weapon_id))
+    return cur.fetchone()[0]
+
+def get_player_weapon_times_used(player_id: int, weapon_id: int) -> int:
+    cur.execute("SELECT times_used FROM player_weapons WHERE player_id=? AND weapon_id=?", (player_id, weapon_id))
+    return cur.fetchone()[0]
+
+def get_player_weapon_xp(player_id: int, weapon_id: int) -> int:
+    cur.execute("SELECT xp FROM player_weapons WHERE player_id=? AND weapon_id=?", (player_id, weapon_id))
+    return cur.fetchone()[0]
+
+def get_player_weapon_level(player_id: int, weapon_id: int) -> int:
+    cur.execute("SELECT level FROM player_weapons WHERE player_id AND weapon_id=?", (player_id, weapon_id))
+    return cur.fetchone()[0]
+
+def get_player_weapon_max_level(player_id: int, weapon_id: int) -> int:
+    cur.execute("SELECT max_level FROM player_weapons WHERE player_id=? AND weapon_id=?", (player_id, weapon_id))
+    return cur.fetchone()[0]
+
+def get_player_weapon_damage_bonus(player_id: int, weapon_id: int) -> float:
+    cur.execute("SELECT damage_bonus FROM player_weapons WHERE player_id=? AND weapon_id=?", (player_id, weapon_id))
+    return cur.fetchone()[0]
+
+def add_to_player_weapon_xp(player_id: int, weapon_id: int, xp_to_add: int):
+    cur.execute("UPDATE player_weapons SET xp = xp + ? WHERE player_id=? AND weapon_id=?", (xp_to_add, player_id, weapon_id))
+    conn.commit()
+
+def add_to_player_weapon_level(player_id: int, weapon_id: int):
+    cur.execute("UPDATE player_weapons SET level = level + 1, xp = 0 WHERE player_id=? AND weapon_id=?", (player_id, weapon_id))
+    conn.commit()
+
+def update_damage_bonus(player_id: int, weapon_id: int, damage_bonus: float):
+    cur.execute("UPDATE player_weapons SET damage_bonus=? WHERE player_id=? AND stance_id=?", (damage_bonus, player_id, weapon_id))
+    conn.commit()
+
+# Stance School Table
+def add_stance_to_school(stance_id: int, enroll_cost: int, prereq_stance_id: int):
+    cur.execute("INSERT OR IGNORE INTO stance_school (stance_id, enroll_cost, prereq_stance_id)", (stance_id, enroll_cost, prereq_stance_id))
+    conn.commit()
