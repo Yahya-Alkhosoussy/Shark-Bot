@@ -6,6 +6,7 @@ from utils.socials.youtubeCore import core
 from pathlib import Path
 from datetime import timedelta
 import asyncio
+from utils.core import RoleMessageSet, RoleMessage
 
 CONFIG_PATH = Path(r"loops\levellingloop\levelingConfig.yaml")
 config = LevelingConfig(CONFIG_PATH)
@@ -32,7 +33,7 @@ def mock_ctx(mock_guild):
     return ctx
 
 @pytest.fixture
-def mock_member(mock_guild, mock_role):
+def mock_member(mock_role):
     member = MagicMock(spec=discord.Member)
     member.ban = AsyncMock()
     member.kick = AsyncMock()
@@ -41,8 +42,8 @@ def mock_member(mock_guild, mock_role):
     member.nick = None
     member.mention = "<@987654321>"
     member.id = 987654321
-    member.guild = mock_guild
-    member.guild.id = mock_guild.id
+    member.guild = MagicMock(spec=discord.Guild)  # inline, not the fixture
+    member.guild.id = 123456
     member.add_roles.return_value = True
     member.remove_roles.return_value = True
     member.roles = list(mock_role)
@@ -80,12 +81,16 @@ def mock_config():
     config.reload.return_value = None
     config.time_per_loop = 5
     config.window_time = 0.4
+    config.guild_role_messages = {None: RoleMessageSet([RoleMessage("Role Set", 0)])}
+    config.is_rr_message_id_in_config = MagicMock(return_value=True)
+    config.is_guild_in_config = MagicMock(return_value=True)
     return config
 
 @pytest.fixture
-def mock_channel():
+def mock_channel(mock_message):
     channel = MagicMock(spec=discord.TextChannel) # important because of isinstance
-    channel.send = AsyncMock()
+    channel.send = AsyncMock(return_value=mock_message)
+    channel.fetch_message = AsyncMock(spec=discord.Message)
     return channel
 
 @pytest.fixture
@@ -180,18 +185,20 @@ def mock_level_sql():
     return ls
 
 @pytest.fixture
-def mock_message(mock_member, mock_channel):
+def mock_message(mock_member):
     message = MagicMock(spec=discord.Message)
     message.content = "?catch"
     message.author = mock_member
-    message.channel = mock_channel
+    message.channel = MagicMock(spec=discord.TextChannel)
     message.author.bot = False
+    message.id = 112223333444
     return message
 
 @pytest.fixture
 def mock_guild(mock_channel, mock_role):
     guild = MagicMock()
-    guild.id = 1234567
+    guild.id = 123456
+    guild.name = "Test Guild"
     guild.get_role.return_value = mock_role
     guild.get_channel.return_value = mock_channel
     return guild
@@ -362,4 +369,26 @@ def mock_twitch_bans():
     
         yield {
             "twitch_bans": mock_twitch_bans
+        }
+
+@pytest.fixture
+def mock_roles_per_guild(mock_guild, mock_role):
+    map = {}
+    map[mock_guild.id] = {}
+    map[mock_guild.id]["Role Set"] = {}
+    map[mock_guild.id]["Role Set"][discord.PartialEmoji.from_str("🩵")] = mock_role.id
+    return map
+
+@pytest.fixture
+def mock_roles_sql(mock_roles_per_guild):
+    partial_path = "handlers.reactions"
+    with patch(partial_path + ".add_role") as mock_add_role, \
+         patch(partial_path + ".fill_emoji_map") as mock_fill_emoji_map:
+        
+        mock_add_role.return_value = None
+        mock_fill_emoji_map.return_value = mock_roles_per_guild
+
+        yield {
+            "add_role": mock_add_role,
+            "fill_emoji_map": mock_fill_emoji_map
         }

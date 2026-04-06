@@ -73,6 +73,7 @@ def leveling_cog(mock_bot):
 async def test_leveling_loop_message_handle(leveling_cog, mock_channel, mock_message, mock_level_sql):
 
     mock_message.content = "This is a test message"
+    mock_message.channel = mock_channel
 
     with patch("loops.levellingloop.levellingLoop.ls", mock_level_sql):
         await leveling_cog.message_handle(mock_message)
