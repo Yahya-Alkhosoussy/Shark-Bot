@@ -38,7 +38,7 @@ class ClipLoop:
                     discord_id = get_discord_id(user)
                     nick = get_nick(discord_id)
 
-                    clips = internal_handle_stream_end(username=user, user=nick)
+                    clips = await internal_handle_stream_end(username=user, user=nick)
                     if channels[user] != 1:
                         channel = self.bot.get_channel(channels[user])
                         if isinstance(channel, discord.TextChannel):
@@ -54,6 +54,7 @@ class ClipLoop:
                                 else:
                                     to_send += clip + "\n"
 
+                            messages.append(to_send)
                             for message in messages:
                                 await channel.send(message)
                     else:
@@ -67,6 +68,7 @@ class ClipLoop:
                                 to_send = clip + "\n"
                             else:
                                 to_send += clip + "\n"
+                        messages.append(to_send)
                         for message in messages:
                             await discord_user.send(message)
 

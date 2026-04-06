@@ -12,4 +12,5 @@ TikTokAPI
 tzdata
 google-api-python-client
 pytest 
-pytest-asyncio 
+pytest-asyncio
+freezegun
