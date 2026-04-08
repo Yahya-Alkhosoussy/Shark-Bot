@@ -5,8 +5,8 @@ from sqlite3 import OperationalError
 import discord
 
 from exceptions.exceptions import RoleNotAdded
-from SQL.rolesSQL.roles import add_role, fill_emoji_map
-from utils.core import AppConfig, RoleMessageSet
+from SQL.rolesSQL.roles import add_role, fill_emoji_map, get_role_messages
+from utils.core import AppConfig, RoleMessage, RoleMessageSet
 
 
 class reaction_handler:
@@ -30,26 +30,24 @@ class reaction_handler:
             raise ValueError(f"Guild {guild.name} is not in the config. Skipping")
 
         guild_name: str = self.config.guilds[guild.id]
-        # print(guild_name)
 
-        react_role_messages: RoleMessageSet = self.config.guild_role_messages.setdefault(
-            self.config.guilds.get(guild_name), RoleMessageSet([])
+        # get_role_messages(guild_name, guild.id)
+        role_names, role_ids = get_role_messages("shark squad", 1273776575266951268)
+        react_role_messages = RoleMessageSet(
+            [RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)]
         )
-        # print(react_role_messages)
 
         if not self.config.is_rr_message_id_in_config(guild_name=guild_name):
             raise KeyError(f"Guild {guild.name} does not have a react roles message ID Key")
 
         for _, rr_message in react_role_messages:
-            # print(react_role_messages[rr_message])
 
             channel_id = int(self.config.get_channel_id(guild_name=guild_name, channel="roles"))
             channel = guild.get_channel(channel_id) if channel_id else None
 
             guild_roles = self.ROLES_PER_GUILD[guild.id]
             role_mapping = guild_roles[rr_message.name] if guild_roles else None
-            # print("current mapping: ",role_mapping)
-            # print(f"emoji: ",role_mapping)
+
 
             if react_role_messages[rr_message.name] != 0:
                 logging.info(f"There is already a react roles message of {rr_message} for {guild_name}")
