@@ -198,6 +198,8 @@ def add_message_id_to_table(role_set_name: str, message_id: int):
 def add_message_ids_to_role_sets_table():
 
     cur.executescript("""
+    DROP TABLE roleSets_new;
+
     CREATE TABLE roleSets_new (
         id INTEGER PRIMARY KEY,
         name TEXT,
