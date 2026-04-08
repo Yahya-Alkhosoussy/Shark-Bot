@@ -1,12 +1,14 @@
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-import discord
-from utils.leveling import LevelRole, LevelRoleSet, LevelingConfig
-from utils.socials.youtubeCore import core
-from pathlib import Path
-from datetime import timedelta
 import asyncio
-from utils.core import RoleMessageSet, RoleMessage
+from datetime import timedelta
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import discord
+import pytest
+
+from utils.core import RoleMessage, RoleMessageSet
+from utils.leveling import LevelingConfig, LevelRole, LevelRoleSet
+from utils.socials.youtubeCore import core
 
 CONFIG_PATH = Path(r"loops\levellingloop\levelingConfig.yaml")
 config = LevelingConfig(CONFIG_PATH)
@@ -139,7 +141,7 @@ def mock_clip_handler(mock_member):
          patch(partial_path + ".get_users") as mock_get_users, \
          patch(partial_path + ".update_live") as mock_update_live, \
          patch(partial_path + ".internal_handle_stream_end") as mock_internal_handle_stream_end:
-        
+
         mock_check_live.return_value = True
         mock_get_channel.return_value = 123456789
         mock_get_discord_id.return_value = mock_member.id
@@ -236,7 +238,7 @@ def mock_twitch_sql():
          patch(partial_path + ".get_live_status") as mock_get_live_status, \
          patch(partial_path + ".get_users") as mock_get_users, \
          patch(partial_path + ".update_live_status") as mock_update_live_status:
-        
+
         mock_get_custom_message.return_value = "BadUser is live!"
         mock_get_live_status.return_value = False
         mock_get_users.return_value = ["BadUser"]
@@ -254,7 +256,7 @@ def mock_twitch_api():
     with patch(partial_path + ".get_profile_picture") as mock_get_profile_picture, \
          patch(partial_path + ".get_stream_details") as mock_get_stream_details, \
          patch(partial_path + ".is_live") as mock_is_live:
-        
+
         mock_get_profile_picture.return_value = "https://link-to.profile-picture.com"
         mock_get_stream_details.return_value = ("Playing some game", "Some Game", "https://link-to.thumbnail.com")
         mock_is_live.return_value = True
@@ -270,7 +272,7 @@ def mock_tiktok_sql(mock_role):
     with patch(partial_path + ".add_link") as mock_add_link, \
          patch(partial_path + ".check_if_link_exists") as mock_check_if_link_exists, \
          patch(partial_path + ".get_role_id") as mock_get_role_id:
-        
+
         mock_add_link.return_value = None
         mock_check_if_link_exists.return_value = False
         mock_get_role_id.return_value = mock_role.id
@@ -293,7 +295,7 @@ def mock_youtube_sql(mock_role):
          patch(partial_path + ".add_video") as mock_add_video, \
          patch(partial_path + ".get_youtube_handles") as mock_get_youtube_handles, \
          patch(partial_path + ".is_video_existing") as mock_is_video_existing:
-        
+
         mock_get_role_id.return_value = mock_role.id
         mock_add_video.return_value = None
         mock_get_youtube_handles.return_value = set(["BadUser"])
@@ -311,7 +313,7 @@ def mock_youtube_api():
     with patch(partial_path + ".get_channel_item") as mock_get_channel_item, \
          patch(partial_path + ".get_video_items") as mock_get_video_items:
         mock_get_channel_item.return_value = core.Channel(
-            id="verification 1", 
+            id="verification 1",
             snippet=core.ChannelSnippet(
                 title="Video title",
                 description="Video Description",
@@ -344,7 +346,7 @@ def mock_modActions():
          patch(partial_path + ".get_streamers") as mock_get_streamers, \
          patch(partial_path + ".get_timeouts") as mock_get_timeouts, \
          patch(partial_path + ".saved_bans") as mock_saved_bans:
-        
+
         mock_add_ban.return_value = None
         mock_add_timeout.return_value = None
         mock_check_if_timeout_exists.return_value = False
@@ -366,7 +368,7 @@ def mock_twitch_bans():
     partial_path = "logModActions.modActions"
     with patch(partial_path + ".twitch_bans") as mock_twitch_bans:
         mock_twitch_bans.return_value = (["BannedUser", "TimeoutUser"], ["No Reason", "No Reason"], ["ModUser", "ModUser"], [None, timedelta(seconds=30)], ["2025-07-20", "2025-07-20"])
-    
+
         yield {
             "twitch_bans": mock_twitch_bans
         }
@@ -383,12 +385,16 @@ def mock_roles_per_guild(mock_guild, mock_role):
 def mock_roles_sql(mock_roles_per_guild):
     partial_path = "handlers.reactions"
     with patch(partial_path + ".add_role") as mock_add_role, \
-         patch(partial_path + ".fill_emoji_map") as mock_fill_emoji_map:
-        
+         patch(partial_path + ".fill_emoji_map") as mock_fill_emoji_map, \
+         patch(partial_path + ".add_message_id_to_table") as mock_add_message_id_to_table, \
+         patch(partial_path + ".get_role_messages") as mock_get_role_messages:
+
         mock_add_role.return_value = None
         mock_fill_emoji_map.return_value = mock_roles_per_guild
+        mock_get_role_messages.return_value = (["Role Set"], [0])
 
         yield {
             "add_role": mock_add_role,
-            "fill_emoji_map": mock_fill_emoji_map
+            "fill_emoji_map": mock_fill_emoji_map,
+            "get_role_messages": mock_get_role_messages
         }
