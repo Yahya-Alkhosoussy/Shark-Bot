@@ -142,12 +142,13 @@ class reaction_handler:
             return
 
         guild_name = self.config.guilds[int(gid)]
-        rr_message_ids: RoleMessageSet = self.config.guild_role_messages.setdefault(
-            self.config.guilds.get(guild_name), RoleMessageSet([])
+        role_names, role_ids = get_role_messages(guild_name, gid)
+        react_role_messages = RoleMessageSet(
+            [RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)]
         )
         message_id: int | None = None
 
-        for id in rr_message_ids.todict().values():
+        for id in react_role_messages.todict().values():
             if payload.message_id == id:
                 message_id = id
                 logging.info(f"found message! Reaction to message id: {id}")
@@ -155,7 +156,7 @@ class reaction_handler:
             logging.info("Message isn't in my list")
             return
 
-        id_to_name_rr = {v.id: k for k, v in rr_message_ids.items()}
+        id_to_name_rr = {v.id: k for k, v in react_role_messages.items()}
         rr_message = id_to_name_rr[message_id]
         mapping = self.ROLES_PER_GUILD[gid][rr_message]
         key = payload.emoji
@@ -203,9 +204,12 @@ class reaction_handler:
 
         guild_name = self.config.guilds[int(gid)]
 
-        rr_message_ids: RoleMessageSet = self.config.guild_role_messages[self.config.guilds.get(guild_name)]
+        role_names, role_ids = get_role_messages(guild_name, gid)
+        react_role_messages = RoleMessageSet(
+            [RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)]
+        )
         message_id: int | None = None
-        for id in rr_message_ids.todict().values():
+        for id in react_role_messages.todict().values():
             if payload.message_id == id:
                 message_id = id
                 logging.info(f"found message! Reaction to message id: {id}")
@@ -213,9 +217,6 @@ class reaction_handler:
             logging.info("Message isn't in my list")
             return
 
-        react_role_messages: RoleMessageSet = self.config.guild_role_messages.setdefault(
-            self.config.guilds.get(guild_name), RoleMessageSet([])
-        )
         id_to_name_rr = {v.id: k for k, v in react_role_messages.items()}
         rr_message = id_to_name_rr[message_id]
         mapping = self.ROLES_PER_GUILD[gid][rr_message]
