@@ -26,19 +26,19 @@ from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from modApplication.ApplicationSystem import ApplicationSystem
 from modApplication.ModQuestions import ModQuestions
+from moderation.tools import Moderation
 from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
-from SQL.rolesSQL.roles import fill_emoji_map, update_role_message, update_role_emoji_ASCII
+from SQL.rolesSQL.roles import fill_emoji_map, update_role_emoji_ASCII, update_role_message
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
+from utils.checks import is_mod
 from utils.core import AppConfig, get_full_path
 from utils.pullingFromTwitch import get_clips, user_exists
 from utils.ticketing import TicketingConfig
-from utils.checks import is_mod
-from moderation.tools import Moderation
 
 # ======= Logging/Env =======
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -96,7 +96,7 @@ class MyBot(commands.Bot):
         self.youtube_loop = YoutubeLoop(bot=self, config=config)
         self.updating_store = False
         self.loop_processing = False
-    
+
     async def load_cogs(self):
         await self.add_cog(Moderation(self, config))
 
@@ -922,8 +922,9 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
 @update.command(name="role")
 @is_mod()
 async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: str):
-    await ctx.send(f"updating role set for {role.mention} ")
-    roleSet_id = update_role_message(roleSet, role.id)
+    await ctx.send(f"updating role set for {role.mention}")
+    assert ctx.guild
+    roleSet_id = update_role_message(roleSet, role.id, config.guilds[ctx.guild.id])
     await ctx.send(f"role updated. new id: {roleSet_id}")
 
 @update.command(name="emoji")
