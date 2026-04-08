@@ -32,7 +32,7 @@ from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import get_baits
-from SQL.rolesSQL.roles import fill_emoji_map, update_role_emoji_ASCII, update_role_message
+from SQL.rolesSQL.roles import add_message_ids_to_role_sets_table, fill_emoji_map, update_role_emoji_ASCII, update_role_message
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.checks import is_mod
@@ -1062,6 +1062,12 @@ async def shark(ctx: commands.Context):
 async def get_shark_message(ctx: commands.Context):
     message_id = config.shark_message_id
     await ctx.reply(str(message_id))
+
+@update.command("rr")
+@commands.is_owner()
+async def update_react_roles(ctx: commands.Context):
+    add_message_ids_to_role_sets_table()
+    await ctx.send("Done")
 
 # check for errors
 @bot.event
