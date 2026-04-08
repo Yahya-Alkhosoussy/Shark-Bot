@@ -24,18 +24,6 @@ channels:
   mod app:
     shark squad: 1485705079930753255
     test server: 1446051942202609785
-guild role messages:
-  test server:
-    colour: 1474800508370686095
-    general: 1475302912207880194
-    test: 1475304226501431297
-  shark squad:
-    general: 1432537821352296580
-    birthdays: 1432539470334394408
-    backpack: 1471587842152071432
-    sherpa: 1432541922387562529
-    friend: 1459553811604705432
-    Pronouns: 0
 birthday message:
   January: false
   February: true
@@ -54,4 +42,4 @@ window time: 120
 set up done:
   test server: true
   shark squad: true
-shark message id: 1489268669547544698
+shark message id: 1491556623632830716
