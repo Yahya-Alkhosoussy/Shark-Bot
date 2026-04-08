@@ -63,14 +63,14 @@ class YoutubeLoop:
         @loop.before_loop
         async def _before():
             await self.bot.wait_until_ready()
-            logging.info(f"[{guild_name}] TikTok loop has been initialised and is running")
+            logging.info(f"[{guild_name}] Youtube loop has been initialised and is running")
 
         @loop.after_loop
         async def _after():
             if loop.is_being_cancelled():
-                logging.info(f"[{guild_name}] TikTok loop has been cancelled (shutdown)")
+                logging.info(f"[{guild_name}] Youtube loop has been cancelled (shutdown)")
             else:
-                logging.info(f"[{guild_name}] TikTok loop has ended normally.")
+                logging.info(f"[{guild_name}] Youtube loop has ended normally.")
 
         @loop.error
         async def _error(self, error: BaseException):
