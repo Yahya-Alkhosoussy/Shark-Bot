@@ -206,7 +206,7 @@ def add_message_ids_to_role_sets_table():
         UNIQUE (name, guild_table_id)
     );
 
-    INSERT INTO roleSets_new SELECT * FROM roleSets;
+    INSERT INTO roleSets_new (id, name) SELECT id, name FROM roleSets;
 
     DROP TABLE roleSets;
 
