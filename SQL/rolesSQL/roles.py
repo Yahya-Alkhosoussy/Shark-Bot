@@ -17,7 +17,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS emojis
 cur.execute("""CREATE TABLE IF NOT EXISTS guilds
                         (id INTEGER PRIMARY KEY, name TEXT UNIQUE, guild_id INTEGER)""")
 cur.execute("""CREATE TABLE IF NOT EXISTS roleSets
-                        (id INTEGER PRIMARY KEY, name TEXT UNIQUE)""")
+                        (id INTEGER PRIMARY KEY, name TEXT, message_id BIGINT, guild_table_id BIGINT, UNIQUE(name, guild_table_id))""") # noqa: E501
 cur.execute("""CREATE TABLE IF NOT EXISTS roles
                         (id INTEGER PRIMARY KEY, name TEXT UNIQUE, role_id INTEGER, emoji_id INTEGER, guild_id INTEGER, roleSet_ID INTEGER)""")  # noqa: E501
 
@@ -74,11 +74,14 @@ def put_guild_in_table(guild_name: str, guild_id: int | None = None) -> int:
     return cur.execute("SELECT id FROM guilds WHERE name = ?", (guild_name,)).fetchone()[0]
 
 
-def put_role_set_in_table(role_set_name: str) -> int:
+def put_role_set_in_table(role_set_name: str, guild_table_id: int) -> int:
     """
     Puts role set in the SQL table and returns the role set ID
     """
-    cur.execute("INSERT OR IGNORE INTO roleSets (name) VALUES (?)", (role_set_name,))
+    cur.execute(
+        "INSERT OR IGNORE INTO roleSets (name, guild_table_id, message_id) VALUES (?, ?, ?)",
+        (role_set_name, guild_table_id, 0)
+    )
     conn.commit()
     return cur.execute("SELECT id FROM roleSets WHERE name = ?", (role_set_name,)).fetchone()[0]
 
@@ -164,8 +167,8 @@ def add_role(
 ) -> bool:
     try:
         emoji_id = put_emoji_in_table(animated=is_emoji_animated, emoji_name=role_emoji_name, discord_id=role_emoji_id)
-        roleSet_id = put_role_set_in_table(role_set_name)
         guild_table_id = put_guild_in_table(guild_name=guild_name)
+        roleSet_id = put_role_set_in_table(role_set_name, guild_table_id)
         put_role_in_table(role_name, role_id, emoji_id, guild_table_id, roleSet_id)
     except sqlite3.OperationalError as e:
         raise e
@@ -176,8 +179,9 @@ def get_role_id(role_name: str) -> int:
     cur.execute("SELECT role_id FROM roles WHERE name=?", (role_name,))
     return cur.fetchone()[0]
 
-def update_role_message(roleSet: str, role_id: int):
-    roleSet_id = put_role_set_in_table(roleSet)
+def update_role_message(roleSet: str, role_id: int, guild_name: str):
+    guild_table_id = put_guild_in_table(guild_name=guild_name)
+    roleSet_id = put_role_set_in_table(roleSet, guild_table_id)
     cur.execute("UPDATE roles SET roleSet_ID=? WHERE role_id=?", (roleSet_id, role_id))
     conn.commit()
     return roleSet_id
@@ -186,3 +190,67 @@ def update_role_emoji_ASCII(emoji_name: str, role_id: int):
     emoji_id = cur.execute("SELECT emoji_id FROM roles WHERE role_id=?", (role_id,)).fetchone()[0]
     cur.execute("UPDATE emojis SET name=?, animated=0, discord_id=NULL WHERE id=?", (emoji_name, emoji_id))
     conn.commit()
+
+def add_message_id_to_table(role_set_name: str, message_id: int):
+    cur.execute("UPDATE roleSets SET message_id=? WHERE name=?", (message_id, role_set_name))
+    conn.commit()
+
+def add_message_ids_to_role_sets_table():
+
+    cur.executescript("""
+    CREATE TABLE roleSets_new (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        message_id BIGINT,
+        guild_table_id BIGINT,
+        UNIQUE (name, guild_table_id)
+    );
+
+    INSERT INTO roleSets_new SELECT * FROM roleSets;
+
+    DROP TABLE roleSets;
+
+    ALTER TABLE roleSets_new RENAME TO roleSets;
+""")
+    # Test Server
+    role_set_names = ["colour", "general", "test"]
+    message_ids_test_server = [1474800508370686095, 1475302912207880194, 1475304226501431297]
+
+    for role_set, message_id in zip(role_set_names, message_ids_test_server):
+        cur.execute("UPDATE roleSets SET message_id=?, guild_table_id=? WHERE name=?", (message_id, 1, role_set))
+        conn.commit()
+
+    # Shark Squad
+    role_set_names = ["general", "birthdays", "friend", "backpack", "sherpa", "Pronouns"]
+    message_ids = [1432537821352296580, 1432539470334394408, 1459553811604705432, 1471587842152071432, 1432541922387562529, 1489269683784909052]
+
+    for role_set, message_id in zip(role_set_names, message_ids):
+        if role_set == "general" or role_set == "Pronouns":
+            cur.execute("INSERT OR IGNORE INTO roleSets (name, message_id, guild_table_id) VALUES (?, ?, ?)", (role_set, message_id, 2))
+            conn.commit()
+            continue
+        cur.execute("UPDATE roleSets SET message_id=?, guild_table_id=? WHERE name=?", (message_id, 2, role_set))
+        conn.commit()
+
+def get_role_messages(guild_name: str, guild_id: int) -> tuple[list[str], list[int]]:
+    guild_table_id = put_guild_in_table(guild_name=guild_name, guild_id=guild_id)
+    cur.execute("SELECT name, message_id FROM roleSets WHERE guild_table_id=?", (guild_table_id,))
+    results = cur.fetchall()
+    names: list[str] = []
+    msg_ids: list[int] = []
+    for result in results:
+        names.append(result[0])
+        msg_ids.append(result[1])
+
+    return names, msg_ids
+
+def is_role_message_in_table(role_message_name: str, guild_id: int) -> bool:
+    cur.execute("SELECT id FROM guilds WHERE guild_id=?", (guild_id,))
+    guild_table_id = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM roleSets WHERE name=? AND guild_table_id=?", (role_message_name, guild_table_id))
+    if cur.fetchone()[0] != 0:
+        return True
+    return False
+# add_message_ids_to_role_sets_table()
+# print(get_role_messages("shark squad", 1273776575266951268))
+
