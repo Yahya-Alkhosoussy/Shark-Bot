@@ -5,7 +5,7 @@ from sqlite3 import OperationalError
 import discord
 
 from exceptions.exceptions import RoleNotAdded
-from SQL.rolesSQL.roles import add_role, fill_emoji_map, get_role_messages
+from SQL.rolesSQL.roles import add_message_id_to_table, add_role, fill_emoji_map, get_role_messages, is_role_message_in_table
 from utils.core import AppConfig, RoleMessage, RoleMessageSet
 
 
@@ -32,13 +32,10 @@ class reaction_handler:
         guild_name: str = self.config.guilds[guild.id]
 
         # get_role_messages(guild_name, guild.id)
-        role_names, role_ids = get_role_messages("shark squad", 1273776575266951268)
+        role_names, role_ids = get_role_messages(guild_name, guild.id)
         react_role_messages = RoleMessageSet(
             [RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)]
         )
-
-        if not self.config.is_rr_message_id_in_config(guild_name=guild_name):
-            raise KeyError(f"Guild {guild.name} does not have a react roles message ID Key")
 
         for _, rr_message in react_role_messages:
 
@@ -109,30 +106,27 @@ class reaction_handler:
             if channel is None or not isinstance(channel, discord.TextChannel):
                 raise LookupError(f"[RR] No valid channel configured for {guild_name}")
 
-            if isinstance(channel, discord.TextChannel):
-                message = await channel.send(
-                    "React to get your roles: \n"
-                    + "\n".join(
-                        (f"{emoji} -> <@&{role_id}>" for emoji, role_id in role_mapping.items()) if role_mapping else ""
-                    )
+
+            message = await channel.send(
+                "React to get your roles: \n"
+                + "\n".join(
+                    (f"{emoji} -> <@&{role_id}>" for emoji, role_id in role_mapping.items()) if role_mapping else ""
                 )
+            )
 
-                if message:
-                    # Add the reactions we'll listen for
-                    if role_mapping:
-                        for emoji in role_mapping.keys():
-                            try:
-                                await message.add_reaction(emoji)
-                            except discord.HTTPException:
-                                logging.error(f"[RR] could not add reaction {emoji} in {guild_name}")
+            if message:
+                # Add the reactions we'll listen for
+                if role_mapping:
+                    for emoji in role_mapping.keys():
+                        try:
+                            await message.add_reaction(emoji)
+                        except discord.HTTPException:
+                            logging.error(f"[RR] could not add reaction {emoji} in {guild_name}")
 
-                    self.config.guild_role_messages[self.config.guilds.get(guild_name)][rr_message.name] = message.id
-                    self.config.saveConfig()
-                else:
-                    logging.error(f"[RR] could not add reactions in {guild_name}. Channel returned message as None")
-                    return
+                    add_message_id_to_table(rr_message.name, message.id)
+
             else:
-                logging.critical("[RR] Bad channel type, not a TextChannel")
+                logging.error(f"[RR] could not add reactions in {guild_name}. Channel returned message as None")
                 return
 
     # ======= REACTION ROLES ADD ROLE =======
@@ -359,7 +353,7 @@ class reaction_handler:
             await message.reply("Timed out, try again with `?add role`")
             return
 
-        if confirm_emoji_msg.content == "deny":
+        if confirm_emoji_msg.content.lower() == "deny":
             await confirm_name_msg.reply("okay, cancelling operation, try again with `?add role`")
             return
 
@@ -372,9 +366,13 @@ class reaction_handler:
             return
 
         role_set = role_set_msg.content
+        assert role_set_msg.guild
+        is_in_table = is_role_message_in_table(role_message_name=role_set, guild_id=role_set_msg.guild.id)
 
         await role_set_msg.reply(
-            f"To confirm, the role will be added to the `{role_set}` react roles message? Send confirm to confirm or deny to deny"  # noqa: E501
+            f"""To confirm, the role will be added to the `{role_set}` react roles message?
+{f'Role set {role_set} does not exist, so it will be created.' if is_in_table else f'Role set {role_set} does exist, this role will be added to it.'}
+Send confirm to confirm or deny to deny"""  # noqa: E501
         )
 
         try:
