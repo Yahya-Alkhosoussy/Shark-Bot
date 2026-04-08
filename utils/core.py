@@ -381,7 +381,6 @@ class BaseConfig(ABC, BaseModel):
 class AppConfig(BaseConfig):
     guilds: GuildSet = Field(default_factory=lambda: GuildSet([]), serialization_alias="guilds")
     channels: dict[str, ChannelSet] = Field(default_factory=dict, serialization_alias="channels")
-    guild_role_messages: dict[Guild, RoleMessageSet] = Field(default_factory=dict, serialization_alias="guild role messages")
     birthday_message: dict[str, bool] = Field(default_factory=dict, serialization_alias="birthday message")
     time_per_loop: int = Field(default=0, serialization_alias="time per loop")
     window_time: int = Field(default=0, serialization_alias="window time")
@@ -397,7 +396,6 @@ class AppConfig(BaseConfig):
     def _validate_config(self):
         self._assert_populated(self.guilds)
         self._assert_populated(self.channels)
-        self._assert_populated(self.guild_role_messages)
         self._assert_populated(self.birthday_message)
         self._assert_populated(self.set_up_done)
         assert self.time_per_loop > 0
@@ -418,20 +416,6 @@ class AppConfig(BaseConfig):
                             )
                             for key, value in confvalue.items()
                         }
-                case "guild role messages":
-                    if confvalue and isinstance(confvalue, dict):
-                        new_guild_role_messages = {}
-                        if self.guilds:
-                            for key, value in confvalue.items():
-                                if key in self.guilds._byName:
-                                    guild = self.guilds.get(key)
-                                    new_guild_role_messages[guild] = RoleMessageSet(
-                                        [
-                                            RoleMessage(roleMessageName=subkey, roleMessageId=subvalue)
-                                            for subkey, subvalue in value.items()
-                                        ]
-                                    )
-                        self.guild_role_messages = new_guild_role_messages
                 case "birthday message":
                     if confvalue and isinstance(confvalue, dict):
                         self.birthday_message = {
@@ -464,14 +448,6 @@ class AppConfig(BaseConfig):
         guild_ids = self.guilds._byId.keys() if self.guilds else []
 
         if guild_id in guild_ids:
-            return True
-        else:
-            return False
-
-    def is_rr_message_id_in_config(self, guild_name: str) -> bool:
-        guild_role_message_names: list[str] = [guild.name for guild in self.guild_role_messages.keys()]
-
-        if guild_name in guild_role_message_names:
             return True
         else:
             return False
