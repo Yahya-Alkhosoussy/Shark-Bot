@@ -188,7 +188,7 @@ class BirthdayLoop:
                 await channel.send(message)
                 await channel.send(gif)
 
-        loop = tasks.loop(hours=13, reconnect=True)(_tick)
+        loop = tasks.loop(hours=24, reconnect=True)(_tick)
 
         @loop.before_loop
         async def _before():
