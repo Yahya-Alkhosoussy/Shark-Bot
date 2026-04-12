@@ -29,7 +29,7 @@ class Fishing:
         super().__init__()
 
     async def fish(self, message: discord.Message, bait: str | None = None):
-        config = FishingConfig(Path(r"fishing\fishing.yaml"))
+        config = FishingConfig(Path(r"fishing/fishing.yaml"))
         user = message.author
 
         owned_nets, about_to_break, broken, net_uses = sg.get_net_availability(str(user))
@@ -111,7 +111,7 @@ class Fishing:
                     rand_idx = random.randint(0, len(names) - 1)
                     current_time = dt.datetime.now()
                     time_caught: str = f"{current_time.date()} {current_time.hour}"
-                    sg.create_dex(str(user), names[rand_idx], time_caught, net, "normal", net_uses)
+                    sg.create_dex(user.id, str(user), names[rand_idx], time_caught, net, "normal", net_uses)
                     coin = sg.reward_coins(str(user), shark=True, rare="normal", shark_name=names[rand_idx])
                     await channel.send(
                         f"Oh lord, you have caught a shark that has randomly stumbled it's way here! 🦈 Congratulations on the {names[rand_idx]}. You have been given {coin} coins."  # noqa: E501
@@ -281,7 +281,7 @@ class Fishing:
                     rand_idx = random.randint(0, len(names) - 1)
                     current_time = dt.datetime.now()
                     time_caught: str = f"{current_time.date()} {current_time.hour}"
-                    sg.create_dex(str(user), names[rand_idx], time_caught, net, "normal", net_uses)
+                    sg.create_dex(user.id, str(user), names[rand_idx], time_caught, net, "normal", net_uses)
                     coin = sg.reward_coins(str(user), shark=True, rare="normal", shark_name=names[rand_idx])
                     await channel.send(
                         f"Oh lord, you have caught a shark that has randomly stumbled it's way here! 🦈 Congratulations on the {names[rand_idx]}. You have been given {coin} coins."  # noqa: E501
