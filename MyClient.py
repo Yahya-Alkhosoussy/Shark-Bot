@@ -1069,6 +1069,11 @@ async def update_react_roles(ctx: commands.Context):
     add_message_ids_to_role_sets_table()
     await ctx.send("Done")
 
+@bot.command(name="pleasebuymecallofduty")
+async def random_question(ctx: commands.Context):
+    await ctx.reply("I don't got $5 for call of duty.")
+    await ctx.reply("I will proceed to not just ban you, but kick you.")
+
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
