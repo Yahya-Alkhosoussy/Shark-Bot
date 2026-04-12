@@ -14,7 +14,7 @@ from utils.core import AppConfig
 from utils.fishing import FishingConfig
 from utils.fishing import remove_net_use as get_warning
 
-fishing_config = FishingConfig(Path(r"fishing\fishing.yaml"))
+fishing_config = FishingConfig(Path(r"fishing/fishing.yaml"))
 
 
 class SharkLoops:
@@ -144,7 +144,7 @@ class SharkLoops:
             coins: int = 0
 
             odds = sg.fishing_odds_shark
-            for user in caught_users:  # looks through all the keys
+            for user, m in caught_users.items():  # looks through all the keys
                 num = random.randint(0, 100)
                 net = lists_of_after[user] if lists_of_after[user] else "rope net"
                 net_uses = 0
@@ -159,6 +159,7 @@ class SharkLoops:
                     time_caught: str = f"{current_time.date()} {current_time.hour}"
                     success.append(user)
                     sg.create_dex(
+                        user_id=m.author.id,
                         username=user,
                         shark_name=name_to_drop,
                         when_caught=time_caught,
@@ -186,7 +187,7 @@ class SharkLoops:
                 await channel.send(f"A {rarity} {name_to_drop} has escaped, no one caught it. 😞")
             elif len(success) == 1:
                 await channel.send(
-                    f"Congratulations to {success[0]} who caught a {rarity} {name_to_drop} 👏. You have been granted {coins}"
+                    f"Congratulations to {success[0]} who caught a {rarity} {name_to_drop} 👏. You have been granted {coins} coins"
                 )
             else:
                 people = ""
