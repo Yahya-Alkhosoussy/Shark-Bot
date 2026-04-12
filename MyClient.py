@@ -50,7 +50,7 @@ token = os.getenv("token")
 assert token, "No token found in envvars. Impossible to continue."
 # ======= CONFIG =======
 CONFIG_PATH = Path(r"config.YAML")
-TICKET_CONFIG_PATH = Path(r"ticketingSystem\ticketing.yaml")
+TICKET_CONFIG_PATH = Path(r"ticketingSystem/ticketing.yaml")
 NON_MOD_LOG_CHANNEL_ID = 1430445244733722694
 
 prefix: str = "?"
@@ -67,13 +67,13 @@ GIDS: dict[str, int] = {k: v.id for k, v in config.guilds}
 
 # ======= ENUM CLASS =======
 class sharks_index(Enum):
-    SHARK_NAME = 0
-    TIME_CAUGHT = 1
-    SHARK_FACT = 2
-    SHARK_WEIGHT = 3
-    NET_TYPE = 4
-    COINS = 5
-    RARITY = 6
+    SHARK_NAME = 3
+    TIME_CAUGHT = 4
+    SHARK_FACT = 5
+    SHARK_WEIGHT = 6
+    NET_TYPE = 7
+    COINS = 8
+    RARITY = 9
 
 
 # ======= BOT =======
@@ -552,7 +552,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                     await follow.reply("Cancelled.")
                     return
                 # print(nets)
-                success, net_name, reason = sg.buy_net(str(user), int(follow.content.strip().lower())) or (None, None, None)
+                success, net_name, reason = sg.buy_net(str(user), int(follow.content.strip().lower()), user.id) or (None, None, None)
                 if success:
                     logging.info(f"Found net: {net_name} for {user}")
                     await follow.reply(f"Successfully bought {net_name}")
@@ -560,6 +560,10 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                     logging.info(f"Could not buy {net_name} for {user}")
                     await follow.reply(f"Could not buy net because {reason}")
             handled = True
+
+        if message.content.startswith(prefix + "game on"):
+            self.shark_loops.start_for(message.guild.id)
+            handled=True
 
         if message.content.startswith(prefix + "shark facts"):
             await message.reply(
@@ -827,7 +831,7 @@ async def restart_bot(ctx: commands.Context, stash: bool):
     await ctx.send("Checking for updates...")
 
     # sync up python's PATH with window's PATH
-    os.environ["PATH"] = get_full_path()
+    # os.environ["PATH"] = get_full_path()
 
     git_path = shutil.which("git")
 
