@@ -13,7 +13,7 @@ from pydantic import ValidationError
 from utils.ticketing import TicketingConfig
 
 try:
-    config = TicketingConfig(Path(r"modApplication\config.yaml"))
+    config = TicketingConfig(Path(r"modApplication/config.yaml"))
 except ValidationError as e:
     logging.critical(f"[MOD APPLICATION] Unable to load config {e}")
     raise e

@@ -14,7 +14,7 @@ from utils.ticketing import TicketingConfig
 
 # ===== CONFIG =====
 try:
-    config = TicketingConfig(Path(r"ticketingSystem\ticketing.yaml"))
+    config = TicketingConfig(Path(r"ticketingSystem/ticketing.yaml"))
 except ValidationError as e:
     logging.critical("Unable to load config. Inner Exception:\n{e}")
     raise e
