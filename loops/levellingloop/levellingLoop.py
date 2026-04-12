@@ -16,7 +16,7 @@ root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
 root_logger.addHandler(handler)
 
-CONFIG_PATH = Path(r"loops\levellingloop\levelingConfig.yaml")
+CONFIG_PATH = Path(r"loops/levellingloop/levelingConfig.yaml")
 config = LevelingConfig(CONFIG_PATH)
 
 
