@@ -11,6 +11,7 @@ from pathlib import Path
 from sqlite3 import OperationalError
 
 import discord
+import fishing.build.fish_multiple as fm  # noqa
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
 from pydantic import ValidationError
