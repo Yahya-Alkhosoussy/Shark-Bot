@@ -852,7 +852,7 @@ async def restart_bot(ctx: commands.Context, stash: bool):
         await ctx.send("Pulled successfully")
         await ctx.send(res.stdout)
         res_2 = subprocess.run([sys.executable, "setup.py"], check=True, capture_output=True, text=True)
-        await ctx.send("Successfully installed all pip installs")
+        await ctx.send("Successfully installed all dependencies")
         await ctx.send(res_2.stdout[-len(" Setup complete!") :])
     except subprocess.CalledProcessError as e:
         await ctx.send(f"failed: error {e.stderr}")
