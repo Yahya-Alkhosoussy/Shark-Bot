@@ -60,3 +60,15 @@ pybind11_add_module(fish_multiple src/fish_multiple.cpp)
 
 # 5. Set C++ standard
 target_compile_features(fish_multiple PRIVATE cxx_std_17)
+
+# needed for importing.
+set(INIT_PY "${CMAKE_CURRENT_BINARY_DIR}/__init__.py")
+if (NOT EXISTS ${INIT_PY})
+  file(WRITE ${INIT_PY})
+endif()
+
+add_custom_command(TARGET fish_multiple POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE_DIR:fish_multiple>/$<TARGET_FILE_NAME:fish_multiple>
+        ${CMAKE_CURRENT_BINARY_DIR}/$<TARGET_FILE_NAME:fish_multiple>
+)
