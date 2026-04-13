@@ -169,7 +169,7 @@ class SharkLoops:
                     )
                     if fishing_config.boost is not None:
                         coins = sg.reward_coins(
-                            username=user,
+                            user_id=m.author.id,
                             rare=rarity,
                             shark=True,
                             shark_name=name_to_drop,
@@ -177,7 +177,7 @@ class SharkLoops:
                             boost_amount=fishing_config.boost_amount,
                         )
                     else:
-                        coins = sg.reward_coins(username=user, rare=rarity, shark=True, shark_name=name_to_drop)
+                        coins = sg.reward_coins(user_id=m.author.id, rare=rarity, shark=True, shark_name=name_to_drop)
 
                 if net != "rope net" and net is not None:
                     sg.remove_net_use(user, net, net_uses)
