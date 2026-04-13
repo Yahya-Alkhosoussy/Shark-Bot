@@ -2,7 +2,6 @@ import datetime as dt
 import json
 import logging
 import sqlite3
-import discord
 from enum import Enum
 
 with open("listofsharks.json", "r", encoding="utf-8") as file:
@@ -114,7 +113,7 @@ def create_dex(user_id: int, username: str, shark_name: str, when_caught: str, n
     fact = get_something(shark_name, "fact")
     weight = get_something(shark_name, "weight")
     net_type: str = net_used
-    coins = check_currency(username)
+    coins = check_currency(user_id)
     coins = 0 if coins is None else coins
     level = 0
     current_time = dt.datetime.now()
@@ -147,7 +146,6 @@ def migrate_old_dex_to_new_dex():
         "sharktrocity": 159041564205645824,
         "spiderbyte2007": 604366329302220820,
         "thegodofheresy": 538719441676926977,
-        "sinfulmistakegaming": 0
     }
 
     # 1) list all user tables:
@@ -162,14 +160,16 @@ def migrate_old_dex_to_new_dex():
     dex_tables = [t for t in table_names if t.endswith(" dex")]
     for table in dex_tables:
         username = table.removesuffix(" dex")
-        user_id =  USERNAME_TO_ID[username]
+        user_id =  USERNAME_TO_ID.get(username)
+        if not user_id:
+            user_id = 0
         rows = cursor.execute(f"SELECT * FROM '{table}'").fetchall()
         for row in rows:
-            cursor.execute("INSERT OR IGNORE INTO dex (username, user_id, shark, time, fact, weight, net, coins, rarity, level, net_uses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+            cursor.execute("INSERT OR IGNORE INTO dex (username, user_id, shark, time, fact, weight, net, coins, rarity, level, net_uses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                            (username, user_id, *row))
             connection.commit()
 
-migrate_old_dex_to_new_dex()
+# migrate_old_dex_to_new_dex()
 
 
 def fish_caught(username: str, rarity: str):
@@ -220,10 +220,10 @@ def fish_caught(username: str, rarity: str):
     connection.commit()
 
 
-def get_dex(username: str):
+def get_dex(user_id: int):
     full = []
     try:
-        for row in cursor.execute("SELECT * FROM dex WHERE username=?", (username,)):
+        for row in cursor.execute("SELECT * FROM dex WHERE user_id=?", (user_id,)):
             full.append(row)
     except sqlite3.OperationalError:
         full = None
@@ -473,7 +473,7 @@ def get_net_availability(username: str):
         all_nets.extend(available_nets)
 
     net_uses: int = 0
-
+    net_uses_list: list[int] = []
     about_to_break = []
     broken = []
     i = 0
@@ -485,101 +485,81 @@ def get_net_availability(username: str):
                 match i:
                     case NetTypes.LEATHER_NET.value:
                         for row in cursor.execute(
-                            "SELECT net_uses FROM dex WHERE net='leather net' AND username=? ORDER BY time DESC LIMIT 1",
+                            "SELECT net_uses FROM dex WHERE net='leather net' AND username=? ORDER BY id DESC LIMIT 1",
                             (username,)
                         ):
                             net_uses = row[0]
-                        if (
-                            (net_uses <= 25 and net_uses > 21)
-                            or (net_uses <= 19 and net_uses > 16)
-                            or (net_uses <= 14 and net_uses > 11)
-                            or (net_uses <= 9 and net_uses > 6)
-                            or (net_uses <= 4 and net_uses > 1)
-                        ):
+                        if net_uses % 5 != 1 or net_uses % 5 != 0:
                             available_nets.append("leather net")
-                        elif net_uses == 21 or net_uses == 16 or net_uses == 11 or net_uses == 6 or net_uses == 1:
+                        elif net_uses % 5 == 1:
                             available_nets.append("leather net")
                             about_to_break.append("leather net")
-                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5:
+                        elif net_uses % 5 == 0:
                             broken.append("leather net")
                             available_nets.append("leather net")
                         else:
                             broken.append("leather net")
+                        net_uses_list.append(net_uses)
 
                     case NetTypes.GOLD_NET.value:
                         for row in cursor.execute(
-                            "SELECT net_uses FROM dex WHERE net='gold net' AND username=? ORDER BY time DESC LIMIT 1",
+                            "SELECT net_uses FROM dex WHERE net='gold net' AND username=? ORDER BY id DESC LIMIT 1",
                             (username,)
                         ):
                             net_uses = row[0]
-                        if (
-                            (net_uses <= 25 and net_uses > 21)
-                            or (net_uses <= 19 and net_uses > 16)
-                            or (net_uses <= 14 and net_uses > 11)
-                            or (net_uses <= 9 and net_uses > 6)
-                            or (net_uses <= 4 and net_uses > 1)
-                        ):
+                        if net_uses % 5 != 1 or net_uses % 5 != 0:
                             available_nets.append("gold net")
-                        elif net_uses == 21 or net_uses == 16 or net_uses == 11 or net_uses == 6 or net_uses == 1:
+                        elif net_uses % 5 == 1:
                             available_nets.append("gold net")
                             about_to_break.append("gold net")
-                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5:
+                        elif net_uses % 5 != 0:
                             broken.append("gold net")
                             available_nets.append("gold net")
                         else:
                             broken.append("gold net")
+                        net_uses_list.append(net_uses)
 
                     case NetTypes.TITANIUM_NET.value:
                         for row in cursor.execute(
-                            "SELECT net_uses FROM dex WHERE net='titanium net' AND username=? ORDER BY time DESC LIMIT 1",
+                            "SELECT net_uses FROM dex WHERE net='titanium net' AND username=? ORDER BY id DESC LIMIT 1",
                             (username,)
                         ):
                             net_uses = row[0]
-                        if (
-                            (net_uses <= 25 and net_uses > 21)
-                            or (net_uses <= 19 and net_uses > 16)
-                            or (net_uses <= 14 and net_uses > 11)
-                            or (net_uses <= 9 and net_uses > 6)
-                            or (net_uses <= 4 and net_uses > 1)
-                        ):
+                        if net_uses % 5 != 1 or net_uses % 5 != 0:
                             available_nets.append("titanium net")
-                        elif net_uses == 21 or net_uses == 16 or net_uses == 11 or net_uses == 6 or net_uses == 1:
+                        elif net_uses % 5 == 1:
                             available_nets.append("titanium net")
                             about_to_break.append("titanium net")
-                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5:
+                        elif net_uses % 5 != 0:
                             broken.append("titanium net")
                             available_nets.append("titanium net")
                         else:
                             broken.append("titanium net")
+                        net_uses_list.append(net_uses)
 
                     case NetTypes.NET_OF_DOOM.value:
                         for row in cursor.execute(
-                            "SELECT net_uses FROM dex WHERE net='net of doom' AND username=? ORDER BY time DESC LIMIT 1",
+                            "SELECT net_uses FROM dex WHERE net='net of doom' AND username=? ORDER BY id DESC LIMIT 1",
                             (username,)
                         ):
                             net_uses = row[0]
-                        if (
-                            (net_uses <= 25 and net_uses > 21)
-                            or (net_uses <= 19 and net_uses > 16)
-                            or (net_uses <= 14 and net_uses > 11)
-                            or (net_uses <= 9 and net_uses > 6)
-                            or (net_uses <= 4 and net_uses > 1)
-                        ):
+                        if net_uses % 5 != 1 or net_uses % 5 != 0:
                             available_nets.append("net of doom")
-                        elif net_uses == 21 or net_uses == 16 or net_uses == 11 or net_uses == 6 or net_uses == 1:
+                        elif net_uses % 5 == 1:
                             available_nets.append("net of doom")
                             about_to_break.append("net of doom")
-                        elif net_uses == 20 or net_uses == 15 or net_uses == 10 or net_uses == 5:
+                        elif net_uses % 5 != 0:
                             broken.append("net of doom")
                             available_nets.append("net of doom")
                         else:
                             broken.append("net of doom")
+                        net_uses_list.append(net_uses)
 
                 i += 1
     except sqlite3.OperationalError:
         pass
 
-    return available_nets, about_to_break, broken, net_uses
+    return available_nets, about_to_break, broken, net_uses_list
 
 
 def remove_net_use(username: str, net: str, net_uses: int):
@@ -640,10 +620,10 @@ def is_net_available(username: str, net: str):
         return False
 
 
-def check_currency(username: str) -> int | None:
+def check_currency(user_id: int) -> int | None:
     rows = []
     try:
-        for row in cursor.execute("SELECT coins FROM dex WHERE username=? ORDER BY time DESC LIMIT 1", (username,)):
+        for row in cursor.execute("SELECT coins FROM dex WHERE user_id=? ORDER BY id DESC LIMIT 1", (user_id,)):
             rows.append(row[0])
     except sqlite3.OperationalError:
         rows = []
@@ -665,7 +645,7 @@ def buy_net(username: str, net: int, user_id: int):
         reason:     str | None  Returns the reason the transaction failed.
     """
 
-    coins = check_currency(username)
+    coins = check_currency(user_id)
 
     price: list = []
 
@@ -726,7 +706,7 @@ def buy_net(username: str, net: int, user_id: int):
                 row = cursor.fetchone()
                 if not row:
                     return fail, net_to_buy, "Something went wrong"
-                
+
                 id = row[0]
                 cursor.execute("UPDATE dex SET net_uses=5 WHERE id=?", (id,))
                 cursor.execute(
@@ -761,7 +741,7 @@ def buy_net(username: str, net: int, user_id: int):
 
                 if _row is None:
                     return fail, net_to_buy, "Something went wrong"
-                
+
                 id = _row[0]
 
                 cursor.execute(
@@ -786,18 +766,19 @@ def buy_net(username: str, net: int, user_id: int):
             if row is None:
                 return fail, net_to_buy, "Something went wrong"
             id = row[0]
-            
+
             cursor.execute("UPDATE dex SET net_uses = net_uses + 25 WHERE id=?", (id,))
+            connection.commit()
 
             cursor.execute("SELECT id FROM dex WHERE username=? ORDER BY id DESC LIMIT 1", (username,))
             row = cursor.fetchone()
 
             if row is None:
                 return fail, net_to_buy, "Something went wrong"
-            
+
             id = row[0]
             cursor.execute(
-                "UPDATE dex SET coins=? WHERE time=? AND username=?",
+                "UPDATE dex SET coins=? WHERE id=?",
                 (
                     coins - price[-1],
                     id,
@@ -805,7 +786,7 @@ def buy_net(username: str, net: int, user_id: int):
             )
 
             logging.info("[SHARK GAME SQL] Could not buy net, user already had it")
-            return fail, net_to_buy, reason
+            return success, net_to_buy, None
     else:
         reason = "You cannot afford the net"
         return fail, net_to_buy, reason
@@ -819,7 +800,7 @@ def get_shark_rarity(shark_name: str):
 
 
 def reward_coins(
-    username: str,
+    user_id: int,
     shark: bool,
     rare: str,
     shark_name: str | None = None,
@@ -834,53 +815,53 @@ def reward_coins(
             case "normal":
                 match rarity:
                     case 1:  # very common
-                        add_coins(username, 10 * boost_amount)
+                        add_coins(user_id, 10 * boost_amount)
                         retVal = 10 * boost_amount
                     case 2:  # common
-                        add_coins(username, 15 * boost_amount)
+                        add_coins(user_id, 15 * boost_amount)
                         retVal = 15 * boost_amount
                     case 3:  # uncommon
-                        add_coins(username, 20 * boost_amount)
+                        add_coins(user_id, 20 * boost_amount)
                         retVal = 20 * boost_amount
                     case 4:  # rare
-                        add_coins(username, 25 * boost_amount)
+                        add_coins(user_id, 25 * boost_amount)
                         retVal = 25 * boost_amount
                     case 5:  # ultra-rare
-                        add_coins(username, 30 * boost_amount)
+                        add_coins(user_id, 30 * boost_amount)
                         retVal = 30 * boost_amount
             case "shiny":
                 match rarity:
                     case 1:  # very common
-                        add_coins(username, 20 * boost_amount)
+                        add_coins(user_id, 20 * boost_amount)
                         retVal = 20 * boost_amount
                     case 2:  # common
-                        add_coins(username, 25 * boost_amount)
+                        add_coins(user_id, 25 * boost_amount)
                         retVal = 25 * boost_amount
                     case 3:  # uncommon
-                        add_coins(username, 30 * boost_amount)
+                        add_coins(user_id, 30 * boost_amount)
                         retVal = 30 * boost_amount
                     case 4:  # rare
-                        add_coins(username, 35 * boost_amount)
+                        add_coins(user_id, 35 * boost_amount)
                         retVal = 35 * boost_amount
                     case 5:  # ultra-rare
-                        add_coins(username, 40 * boost_amount)
+                        add_coins(user_id, 40 * boost_amount)
                         retVal = 40 * boost_amount
             case "legendary":
                 match rarity:
                     case 1:  # very common
-                        add_coins(username, 30 * boost_amount)
+                        add_coins(user_id, 30 * boost_amount)
                         retVal = 30 * boost_amount
                     case 2:  # common
-                        add_coins(username, 35 * boost_amount)
+                        add_coins(user_id, 35 * boost_amount)
                         retVal = 35 * boost_amount
                     case 3:  # uncommon
-                        add_coins(username, 40 * boost_amount)
+                        add_coins(user_id, 40 * boost_amount)
                         retVal = 40 * boost_amount
                     case 4:  # rare
-                        add_coins(username, 45 * boost_amount)
+                        add_coins(user_id, 45 * boost_amount)
                         retVal = 45 * boost_amount
                     case 5:  # ultra-rare
-                        add_coins(username, 50 * boost_amount)
+                        add_coins(user_id, 50 * boost_amount)
                         retVal = 50 * boost_amount
     elif shark and shark_name:
         rarity = get_shark_rarity(shark_name)
@@ -888,129 +869,129 @@ def reward_coins(
             case "normal":
                 match rarity:
                     case 1:  # very common
-                        add_coins(username, 10)
+                        add_coins(user_id, 10)
                         retVal = 10
                     case 2:  # common
-                        add_coins(username, 15)
+                        add_coins(user_id, 15)
                         retVal = 15
                     case 3:  # uncommon
-                        add_coins(username, 20)
+                        add_coins(user_id, 20)
                         retVal = 20
                     case 4:  # rare
-                        add_coins(username, 25)
+                        add_coins(user_id, 25)
                         retVal = 25
                     case 5:  # ultra-rare
-                        add_coins(username, 30)
+                        add_coins(user_id, 30)
                         retVal = 30
             case "shiny":
                 match rarity:
                     case 1:  # very common
-                        add_coins(username, 20)
+                        add_coins(user_id, 20)
                         retVal = 20
                     case 2:  # common
-                        add_coins(username, 25)
+                        add_coins(user_id, 25)
                         retVal = 25
                     case 3:  # uncommon
-                        add_coins(username, 30)
+                        add_coins(user_id, 30)
                         retVal = 30
                     case 4:  # rare
-                        add_coins(username, 35)
+                        add_coins(user_id, 35)
                         retVal = 35
                     case 5:  # ultra-rare
-                        add_coins(username, 40)
+                        add_coins(user_id, 40)
                         retVal = 40
             case "legendary":
                 match rarity:
                     case 1:  # very common
-                        add_coins(username, 30)
+                        add_coins(user_id, 30)
                         retVal = 30
                     case 2:  # common
-                        add_coins(username, 35)
+                        add_coins(user_id, 35)
                         retVal = 35
                     case 3:  # uncommon
-                        add_coins(username, 40)
+                        add_coins(user_id, 40)
                         retVal = 40
                     case 4:  # rare
-                        add_coins(username, 45)
+                        add_coins(user_id, 45)
                         retVal = 45
                     case 5:  # ultra-rare
-                        add_coins(username, 50)
+                        add_coins(user_id, 50)
                         retVal = 50
     elif not shark and boost:  # fish but with booster
         match rare:
             case "trash":
-                add_coins(username, 1 * boost_amount)
+                add_coins(user_id, 1 * boost_amount)
                 retVal = 1 * boost_amount
             case "normal":
                 match size:
                     case "large":
-                        add_coins(username, 6 * boost_amount)
+                        add_coins(user_id, 6 * boost_amount)
                         retVal = 6 * boost_amount
                     case "medium":
-                        add_coins(username, 4 * boost_amount)
+                        add_coins(user_id, 4 * boost_amount)
                         retVal = 4 * boost_amount
                     case "small":
-                        add_coins(username, 2 * boost_amount)
+                        add_coins(user_id, 2 * boost_amount)
                         retVal = 2 * boost_amount
             case "shiny":
                 match size:
                     case "large":
-                        add_coins(username, 9 * boost_amount)
+                        add_coins(user_id, 9 * boost_amount)
                         retVal = 9 * boost_amount
                     case "medium":
-                        add_coins(username, 7 * boost_amount)
+                        add_coins(user_id, 7 * boost_amount)
                         retVal = 7 * boost_amount
                     case "small":
-                        add_coins(username, 5 * boost_amount)
+                        add_coins(user_id, 5 * boost_amount)
                         retVal = 5 * boost_amount
             case "legendary":
                 match size:
                     case "large":
-                        add_coins(username, 14 * boost_amount)
+                        add_coins(user_id, 14 * boost_amount)
                         retVal = 14 * boost_amount
                     case "medium":
-                        add_coins(username, 12 * boost_amount)
+                        add_coins(user_id, 12 * boost_amount)
                         retVal = 12 * boost_amount
                     case "small":
-                        add_coins(username, 10 * boost_amount)
+                        add_coins(user_id, 10 * boost_amount)
                         retVal = 10 * boost_amount
     else:  # Fish
         match rare:
             case "trash":
-                add_coins(username, 1)
+                add_coins(user_id, 1)
                 retVal = 1
             case "normal":
                 match size:
                     case "large":
-                        add_coins(username, 6)
+                        add_coins(user_id, 6)
                         retVal = 6
                     case "medium":
-                        add_coins(username, 4)
+                        add_coins(user_id, 4)
                         retVal = 4
                     case "small":
-                        add_coins(username, 2)
+                        add_coins(user_id, 2)
                         retVal = 2
             case "shiny":
                 match size:
                     case "large":
-                        add_coins(username, 9)
+                        add_coins(user_id, 9)
                         retVal = 9
                     case "medium":
-                        add_coins(username, 7)
+                        add_coins(user_id, 7)
                         retVal = 7
                     case "small":
-                        add_coins(username, 5)
+                        add_coins(user_id, 5)
                         retVal = 5
             case "legendary":
                 match size:
                     case "large":
-                        add_coins(username, 14)
+                        add_coins(user_id, 14)
                         retVal = 14
                     case "medium":
-                        add_coins(username, 12)
+                        add_coins(user_id, 12)
                         retVal = 12
                     case "small":
-                        add_coins(username, 10)
+                        add_coins(user_id, 10)
                         retVal = 10
     return retVal
 
@@ -1058,18 +1039,19 @@ def fishing_odds_fish(username: str, net_used: str = "rope net"):
             return 60
 
 
-def get_basic_dex(username: str):
+def get_basic_dex(user_id: int):
     try:
-        dex: list = get_dex(username) or []
+        dex: list = get_dex(user_id) or []
     except sqlite3.OperationalError:
         return None
     sharks_caught = []
     i = 0
     coins: int = 0
     for item in dex:
-        sharks_caught.append(item[0])
+        if item[3]:
+            sharks_caught.append(item[3])
         if i == len(dex) - 1:
-            coins = int(item[5])
+            coins = int(item[6])
         i += 1
 
     sharks_caught.sort()
@@ -1085,13 +1067,13 @@ def get_basic_dex(username: str):
 # get_basic_dex("spiderbyte2007")
 
 
-def add_coins(username: str, coins_to_add: int):
-    coins = check_currency(username)
+def add_coins(user_id: int, coins_to_add: int):
+    coins = check_currency(user_id)
     coins = coins if coins else 0
 
     coins += coins_to_add
 
-    cursor.execute("SELECT id FROM dex WHERE username=? ORDER BY id DESC LIMIT 1", (username,))
+    cursor.execute("SELECT id FROM dex WHERE user_id=? ORDER BY id DESC LIMIT 1", (user_id,))
     id = cursor.fetchone()
 
     if id is None:
@@ -1101,19 +1083,14 @@ def add_coins(username: str, coins_to_add: int):
     connection.commit()
 
 
-def remove_coins(username: str, coins_to_remove: int):
-    coins = check_currency(username)
+def remove_coins(user_id: int, coins_to_remove: int):
+    coins = check_currency(user_id)
     coins = coins if coins else 0
 
     coins -= coins_to_remove
 
-    catches = []
-    latest_catch: str
-    for catch in cursor.execute("SELECT time FROM dex WHERE username=? ORDER BY time DESC", (username,)):
-        catches.extend(catch)
-    latest_catch = catches[0]
-
-    cursor.execute("UPDATE dex SET coins=? WHERE time=? AND username=?", (coins, latest_catch, username))
+    id = cursor.execute("SELECT id FROM dex WHERE user_id=? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()[0]
+    cursor.execute("UPDATE dex SET coins=? WHERE id=?", (coins, id))
     connection.commit()
 
 
