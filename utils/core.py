@@ -1,5 +1,5 @@
 import os
-import winreg
+import sys
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from datetime import datetime
@@ -490,17 +490,39 @@ class AppConfig(BaseConfig):
 
 
 def get_full_path():
-    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment") as key:
-        system_path, _ = winreg.QueryValueEx(key, "Path")
+    if sys.platform == "win32":
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment") as key:
+            system_path, _ = winreg.QueryValueEx(key, "Path")
 
-    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Environment") as key:
-        try:
-            user_path, _ = winreg.QueryValueEx(key, "Path")
-        except FileNotFoundError:
-            user_path = ""
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Environment") as key:
+            try:
+                user_path, _ = winreg.QueryValueEx(key, "Path")
+            except FileNotFoundError:
+                user_path = ""
 
-    # Combine registry paths with the bot's existing PATH, deduplicating
-    all_paths = os.environ["PATH"].split(";") + system_path.split(";") + user_path.split(";")
+        separator = ";"
+
+        # Combine registry paths with the bot's existing PATH, deduplicating
+        all_paths = os.environ["PATH"].split(";") + system_path.split(";") + user_path.split(";")
+    else:
+        # On Unix/Mac the PATH is already full, no registry needed.
+        separator = ":"
+        all_paths = os.environ["PATH"].split(separator)
+
+        # Add common locations that might be missing
+        extra_paths = [
+            "/usr/local/bin",
+            "/usr/bin",
+            "/bin",
+            "/usr/local/sbin",
+            "/usr/sbin",
+            "/sbin",
+            os.path.expanduser("~/.local/bin"), # Pip installs live here usually on linux
+            os.path.expanduser("~/Library/Python/bin"), # Pip installs usually live here on MacOS
+        ]
+        all_paths += extra_paths
+
     seen = set()
     deduped = []
     for p in all_paths:
@@ -508,4 +530,4 @@ def get_full_path():
             seen.add(p)
             deduped.append(p)
 
-    return ";".join(deduped)
+    return separator.join(deduped)
