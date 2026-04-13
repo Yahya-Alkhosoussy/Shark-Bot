@@ -10,7 +10,7 @@ from utils.core import AppConfig, RoleMessage, RoleMessageSet
 
 
 class reaction_handler:
-    ROLES_PER_GUILD: dict
+    ROLES_PER_GUILD: dict[int, dict[str, dict[discord.PartialEmoji, int]]]
 
     def __init__(
         self, config: AppConfig, roles_per_guild: dict[int, dict[str, dict[discord.PartialEmoji, int]]], bot: discord.Client
@@ -161,7 +161,7 @@ class reaction_handler:
         mapping = self.ROLES_PER_GUILD[gid][rr_message]
         key = payload.emoji
         try:
-            role_id = mapping.get(str(key))
+            role_id = mapping.get(key)
             if role_id is None:
                 role_id = mapping[key]
             print(f"found role ID: {role_id}")
@@ -222,7 +222,7 @@ class reaction_handler:
         mapping = self.ROLES_PER_GUILD[gid][rr_message]
         key = payload.emoji
         try:
-            role_id = mapping.get(str(key))
+            role_id = mapping.get(key)
             if role_id is None:
                 role_id = mapping[key]
             print(f"found role ID: {role_id}")
