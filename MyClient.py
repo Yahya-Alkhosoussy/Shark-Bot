@@ -418,7 +418,7 @@ Shark Catch Game:
             handled = True
 
         if message.content.startswith(prefix + "get dex"):
-            basic_dex = sg.get_basic_dex(str(user.name))
+            basic_dex = sg.get_basic_dex(user.id)
             (dex, coins) = basic_dex if basic_dex else (None, None)
 
             if dex is None:
@@ -456,7 +456,8 @@ Shark Catch Game:
             handled = True
 
         if message.content.startswith(prefix + "detailed dex"):
-            dex = sg.get_dex(str(user))
+            await message.reply("Generating your dex, check your DMs!")
+            dex = sg.get_dex(user.id)
 
             if dex:
                 all_messages: list[str] = []
@@ -465,6 +466,8 @@ Shark Catch Game:
                 index = 1
 
                 for item in dex:
+                    if not item[sharks_index.SHARK_NAME.value]:
+                        continue
                     string = f"""shark {index}:
 name: {item[sharks_index.SHARK_NAME.value]} 🦈
 rarity: {item[sharks_index.RARITY.value]}
@@ -490,11 +493,13 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             handled = True
 
         if message.content.startswith(prefix + "my nets"):
-            nets, about_to_break, _, _ = sg.get_net_availability(str(user))
+            nets, about_to_break, _, net_uses = sg.get_net_availability(str(user))
+            total_net_uses = [0]
+            total_net_uses.extend(net_uses)
             send = "Here's your available nets: \n"
             i = 1
-            for net in nets:
-                send += f"{i}. {net} \n"
+            for net, net_use in zip(nets, total_net_uses):
+                send += f"{i}. {net}{f": {net_use} uses left." if net != "rope net" else ""} \n"
                 i += 1
             i = 1
             if about_to_break:
@@ -506,7 +511,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             handled = True
 
         if message.content.startswith(prefix + "coins"):
-            coins = 0 if sg.check_currency(str(user)) is None else sg.check_currency(str(user))
+            coins = 0 if sg.check_currency(user.id) is None else sg.check_currency(user.id)
 
             await message.reply(f"You have {coins} coins!")
             handled = True
@@ -552,7 +557,8 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                     await follow.reply("Cancelled.")
                     return
                 # print(nets)
-                success, net_name, reason = sg.buy_net(str(user), int(follow.content.strip().lower()), user.id) or (None, None, None)
+                success, net_name, reason = sg.buy_net(user.name, int(follow.content.strip().lower()), user.id) \
+                    or (None, None, None)
                 if success:
                     logging.info(f"Found net: {net_name} for {user}")
                     await follow.reply(f"Successfully bought {net_name}")
@@ -831,7 +837,7 @@ async def restart_bot(ctx: commands.Context, stash: bool):
     await ctx.send("Checking for updates...")
 
     # sync up python's PATH with window's PATH
-    # os.environ["PATH"] = get_full_path()
+    os.environ["PATH"] = get_full_path()
 
     git_path = shutil.which("git")
 
@@ -885,7 +891,7 @@ async def add_role(ctx: commands.Context):
 @add.command(name="coins")
 @commands.is_owner()
 async def add_coins(ctx: commands.Context, member: discord.Member, coins: int):
-    sg.add_coins(member.name, coins)
+    sg.add_coins(member.id, coins)
     await ctx.reply(f"{coins} added to {member.name}'s account")
 
 
