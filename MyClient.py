@@ -11,12 +11,12 @@ from pathlib import Path
 from sqlite3 import OperationalError
 
 import discord
-import fishing.build.fish_multiple as fm  # noqa
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
 from pydantic import ValidationError
 
 from exceptions import exceptions as ex
+from fishing.build.fish_multiple import fish_multiple_times  # noqa
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from logModActions.modActions import ModLoop
