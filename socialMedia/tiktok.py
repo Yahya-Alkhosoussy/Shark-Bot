@@ -43,7 +43,7 @@ class TikTokLoop:
                 view.add_item(discord.ui.Button(label="Watch Video", url=link))
 
                 if isinstance(channel, discord.TextChannel) and guild is not None:
-                    role_id = get_role_id("shark updates")
+                    role_id = get_role_id("shark social")
                     role = guild.get_role(role_id)
                     if role is not None:
                         await channel.send(
