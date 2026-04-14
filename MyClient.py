@@ -526,7 +526,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
 
             i = 1
             for net in nets:
-                send += f"{i}. the {net} costs {prices[i - 1]} \n"
+                send += f"{i}. the {net} costs {prices[i - 1]} per net \n"
                 i += 1
 
             await message.reply(send)
@@ -559,9 +559,20 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                 if follow.content.strip().lower() == "cancel":
                     await follow.reply("Cancelled.")
                     return
-                # print(nets)
-                success, net_name, reason = sg.buy_net(user.name, int(follow.content.strip().lower()), user.id) \
-                    or (None, None, None)
+
+                await follow.reply("How many of that net do you want to buy? (Please only enter the number)")
+                try:
+                    follow_2 = await self.wait_for("message", check=check, timeout=30)
+                except asyncio.TimeoutError:
+                    await message.reply("Timed out, try again with `?buy net`")
+                    return
+
+                success, net_name, reason = sg.buy_net(
+                    user.name,
+                    int(follow.content.strip().lower()),
+                    user.id,
+                    int(follow_2.content.strip().lower())
+                ) or (None, None, None)
                 if success:
                     logging.info(f"Found net: {net_name} for {user}")
                     await follow.reply(f"Successfully bought {net_name}")
@@ -969,6 +980,8 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
                 sg.create_dex(user.id, user.name, shark, current_time, net, result.sharks_caught[0][0], net_uses=net_uses)
 
     await channel.send("Done fishing! Grabbing details now.")
+
+    sg.remove_net_use(user.name, net, net_uses=net_uses - amount)
 
     sg.add_coins(user.id, coins)
 
