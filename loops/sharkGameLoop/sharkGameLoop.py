@@ -149,7 +149,7 @@ class SharkLoops:
                 net = lists_of_after[user] if lists_of_after[user] else "rope net"
                 net_uses = 0
                 if net != "rope net":
-                    warning, net_uses = get_warning(net=net, user=user)
+                    warning, net_uses = get_warning(net=net, user=user, user_id=m.author.id)
                     net_uses -= 1
                     if warning:
                         await channel.send(warning)
