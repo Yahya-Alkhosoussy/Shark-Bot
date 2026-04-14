@@ -31,7 +31,7 @@ class FishingConfig(BaseConfig):
                         self.boost_amount = confvalue
 
 
-def remove_net_use(net: str, user: str) -> tuple[str | None, int]:
+def remove_net_use(net: str, user: str, user_id: int) -> tuple[str | None, int]:
     """
     Removed a net use as well as sends the user a warning.
 
@@ -43,8 +43,10 @@ def remove_net_use(net: str, user: str) -> tuple[str | None, int]:
     :return str | None: A warning message if the net is about to break or has broken, otherwise returns None
     """
 
-    available_nets, about_to_break, broken_nets, net_uses = sg.get_net_availability(user)
+    available_nets, about_to_break, broken_nets, _ = sg.get_net_availability(user)
+    net_uses = 0
     if net in available_nets:
+        net_uses = sg.get_net_uses(user_id, net)
         if net in about_to_break and net_uses == 21:
             return (
                 f"WARNING {user}: Net is about to break, 1 more use left. Do not worry through because you have 4 more of the same net left",  # noqa: E501
