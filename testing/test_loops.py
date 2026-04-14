@@ -1,5 +1,8 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+from freezegun import freeze_time
+
 from logModActions.modActions import ModLoop
 from loops.birthdayloop.birthdayLoop import BirthdayLoop
 from loops.clipping.clips import ClipLoop
@@ -8,7 +11,6 @@ from loops.sharkGameLoop.sharkGameLoop import SharkLoops
 from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
-from freezegun import freeze_time
 
 
 @pytest.fixture
@@ -18,14 +20,14 @@ def birthday_cog(mock_client, mock_config):
 
 @pytest.mark.asyncio
 async def test_tick_sends_birthday_message_for_one_user(birthday_cog, mock_channel, mock_birthday_handler, mock_member):
-    
+
     guild_id = 123456
     # control today's date
     mock_birthday_handler.get_birthdays = MagicMock(return_value=([mock_member.id], ["04-04"]))
 
     with patch("loops.birthdayloop.birthdayLoop.b", mock_birthday_handler), patch("discord.ext.tasks.Loop.start"):
         birthday_cog.start_for(guild_id)
-        
+
         loop = birthday_cog._loops[guild_id]
         await loop.coro()
 
@@ -77,14 +79,14 @@ async def test_leveling_loop_message_handle(leveling_cog, mock_channel, mock_mes
 
     with patch("loops.levellingloop.levellingLoop.ls", mock_level_sql):
         await leveling_cog.message_handle(mock_message)
-    
+
     mock_channel.send.assert_called_once()
 
 @pytest.mark.asyncio
 async def test_leveling_loop_add_and_remove_role(leveling_cog, mock_member, mock_level_config, mock_level_sql):
     with patch("loops.levellingloop.levellingLoop.ls", mock_level_sql):
         await leveling_cog.add_role(mock_member)
-    
+
     mock_member.add_roles.assert_called_once()
     mock_member.remove_roles.assert_called_once()
 
