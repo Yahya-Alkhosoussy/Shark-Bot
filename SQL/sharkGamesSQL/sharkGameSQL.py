@@ -77,10 +77,6 @@ class NetTypes(Enum):
     GOLD_NET = 2
     TITANIUM_NET = 3
     NET_OF_DOOM = 4
-    LEATHER_NET_5 = 5
-    GOLD_NET_5 = 6
-    TITANIUM_NET_5 = 7
-    NET_OF_DOOM_5 = 8
 
 
 def get_names_of_sharks():
@@ -415,6 +411,7 @@ current_time = dt.datetime.now()
 
 
 def setup_net_shop():
+    cursor.execute("DROP TABLE IF EXISTS 'nets shop'")
     cursor.execute("""CREATE TABLE IF NOT EXISTS 'nets shop'
                             (net text PRIMARY KEY, price real, odds real)""")
     nets = [
@@ -422,13 +419,9 @@ def setup_net_shop():
         "gold net",
         "titanium net",
         "net of doom",
-        "leather net x 5",
-        "gold net x 5",
-        "titanium net x 5",
-        "net of doom x 5",
     ]
-    prices = [60, 140, 250, 500, 300.0, 700.0, 1250.0, 2500.0]
-    odds = [25, 30, 50, 90, 25, 30, 50, 90]  # in percentage
+    prices = [60, 140, 250, 500]
+    odds = [25, 30, 50, 90]  # in percentage
     full = []
     for i in range(len(nets)):
         temp = (nets[i], prices[i], odds[i])
@@ -561,18 +554,21 @@ def get_net_availability(username: str):
 
     return available_nets, about_to_break, broken, net_uses_list
 
+def get_net_uses(user_id: int, net: str) -> int:
+    cursor.execute("SELECT net_uses FROM dex WHERE user_id=? AND net=? ORDER BY id DESC limit 1;", (user_id, net))
+    return cursor.fetchone()[0]
 
 def remove_net_use(username: str, net: str, net_uses: int):
     try:
-        cursor.execute(f"""SELECT rowid FROM dex WHERE net='{net}' AND username=? ORDER BY time DESC LIMIT 1;""", (username,))
+        cursor.execute(f"""SELECT id FROM dex WHERE net='{net}' AND username=? ORDER BY id DESC LIMIT 1;""", (username,))
     except sqlite3.OperationalError:
         return
 
     row = cursor.fetchone()
 
     if row is not None:
-        rowid = row[0]
-        cursor.execute(f"UPDATE dex SET net_uses={net_uses} AND username=? WHERE rowid = {rowid}", (username,))
+        id = row[0]
+        cursor.execute(f"UPDATE dex SET net_uses={net_uses} WHERE id=?", (id,))
         connection.commit()
 
 
@@ -631,7 +627,7 @@ def check_currency(user_id: int) -> int | None:
     return None if not rows else rows[len(rows) - 1]
 
 
-def buy_net(username: str, net: int, user_id: int):
+def buy_net(username: str, net: int, user_id: int, amount: int):
     """
     Allows users to buy a net from a certain selection of nets
 
@@ -659,24 +655,12 @@ def buy_net(username: str, net: int, user_id: int):
     match net:
         case NetTypes.LEATHER_NET.value:
             net_to_buy = "leather net"
-        case NetTypes.LEATHER_NET_5.value:
-            net_to_buy = "leather net"
-            bundle = True
         case NetTypes.GOLD_NET.value:
             net_to_buy = "gold net"
-        case NetTypes.GOLD_NET_5.value:
-            net_to_buy = "gold net"
-            bundle = True
         case NetTypes.TITANIUM_NET.value:
             net_to_buy = "titanium net"
-        case NetTypes.TITANIUM_NET_5.value:
-            net_to_buy = "titanium net"
-            bundle = True
         case NetTypes.NET_OF_DOOM.value:
             net_to_buy = "net of doom"
-        case NetTypes.NET_OF_DOOM_5.value:
-            net_to_buy = "net of doom"
-            bundle = True
         case _:
             logging.info(f"[SHARK GAME SQL] {net} not found when prompted by {username}")
             reason = "I could not find the net you requested"
@@ -691,10 +675,7 @@ def buy_net(username: str, net: int, user_id: int):
         reason = "I could not find your coins"
         return fail, None, reason
 
-    catches = []
-    latest_catch = ""
-
-    if coins >= price[-1]:
+    if coins >= price[-1] * amount:
         current_time = dt.datetime.now()
         time_now: str = f"{current_time.date()} {current_time.hour}"
         if not is_net_available(username, net_to_buy) and not bundle:
@@ -708,13 +689,14 @@ def buy_net(username: str, net: int, user_id: int):
                     return fail, net_to_buy, "Something went wrong"
 
                 id = row[0]
-                cursor.execute("UPDATE dex SET net_uses=5 WHERE id=?", (id,))
+                cursor.execute("UPDATE dex SET net_uses=? WHERE id=?", (amount, id))
+                cursor.execute("SELECT id FROM dex WHERE user_id=? ORDER BY id DESC LIMIT 1", (user_id,))
+                id = cursor.fetchone()[0]
                 cursor.execute(
-                    "UPDATE dex SET coins=? WHERE time=? AND username=?",
+                    "UPDATE dex SET coins=? WHERE id=?",
                     (
-                        coins - price[-1],
-                        latest_catch,
-                        username
+                        coins - price[-1] * amount,
+                        id,
                     ),
                 )
             else:
@@ -723,43 +705,8 @@ def buy_net(username: str, net: int, user_id: int):
             connection.commit()
             logging.info("[SHARK GAME SQL] Net bought successfully!")
             return success, net_to_buy, None  # reason
-        elif not is_net_available(username, net_to_buy) and bundle:
-            cursor.execute(f"UPDATE '{username} nets' SET '{net_to_buy}'=1, time='{time_now}'")
 
-            existing = cursor.execute(f"SELECT COUNT(*) FROM dex WHERE net='{net_to_buy}' AND username=?", (username,)).fetchone()[0]
-
-            if existing > 0:
-                cursor.execute("SELECT id FROM dex WHERE net=? AND username=? ORDER BY id DESC LIMIT 1", (net_to_buy, username))
-                row = cursor.fetchone()
-
-                if row is None:
-                    return fail, net_to_buy, "Something went wrong"
-                id = row[0]
-                cursor.execute("UPDATE dex SET net_uses=25 WHERE id=?", (id,))
-                cursor.execute("SELECT id FROM dex WHERE username=? ORDER BY id DESC LIMIT 1", (username,))
-                _row = cursor.fetchone()
-
-                if _row is None:
-                    return fail, net_to_buy, "Something went wrong"
-
-                id = _row[0]
-
-                cursor.execute(
-                    "UPDATE dex SET coins=? WHERE id=?",
-                    (
-                        coins - price[-1],
-                        id
-                    ),
-                )
-            else:
-                row: tuple = (username, user_id, None, time_now, None, None, net_to_buy, coins - price[-1], None, None, 25)
-                cursor.execute("INSERT INTO dex VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
-            connection.commit()
-            logging.info(
-                f"[SHARK GAME SQL] Net bought successfully by {username} and the net uses for {net_to_buy} has been set to 25 at {latest_catch}"
-            )
-            return success, net_to_buy, None  # reason
-        elif is_net_available(username, net_to_buy) and bundle:
+        elif is_net_available(username, net_to_buy):
             cursor.execute("SELECT id FROM dex WHERE net=? AND username=? ORDER BY id DESC LIMIT 1", (net_to_buy, username))
             row = cursor.fetchone()
 
@@ -767,7 +714,7 @@ def buy_net(username: str, net: int, user_id: int):
                 return fail, net_to_buy, "Something went wrong"
             id = row[0]
 
-            cursor.execute("UPDATE dex SET net_uses = net_uses + 25 WHERE id=?", (id,))
+            cursor.execute("UPDATE dex SET net_uses = net_uses + ? WHERE id=?", (amount, id))
             connection.commit()
 
             cursor.execute("SELECT id FROM dex WHERE username=? ORDER BY id DESC LIMIT 1", (username,))
@@ -780,7 +727,7 @@ def buy_net(username: str, net: int, user_id: int):
             cursor.execute(
                 "UPDATE dex SET coins=? WHERE id=?",
                 (
-                    coins - price[-1],
+                    coins - price[-1] * amount,
                     id,
                 )
             )
