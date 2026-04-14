@@ -43,7 +43,7 @@ def generate_sub():
     print(f"pyd_dir: {pyd_dir}")  # verify the path
     print(f"pyd files: {pyd_files}")  # verify it found the right file
     # Generate the stub
-    subprocess.check_call([sys.executable, "-m", "pybind11_stubgen", "fish_multiple", "-o", str(fishing_dir)],
+    subprocess.check_call([sys.executable, "-m", "pybind11_stubgen", "fish_multiple", "-o", str(pyd_dir)],
         env={**os.environ, "PYTHONPATH": pyd_dir})
 
 
@@ -67,9 +67,10 @@ def install():
         cwd=Path(__file__).parent / "fishing",
         env=env
     )
-    subprocess.check_call(
+    subprocess.run(
         ["cmake", "--build", "build"],
-        cwd=fishing_dir
+        cwd=fishing_dir,
+        env=os.environ.copy()
     )
 
     # Install pybind11-stubgen if not already installed
