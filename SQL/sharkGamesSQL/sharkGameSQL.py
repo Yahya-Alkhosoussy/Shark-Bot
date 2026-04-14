@@ -1053,8 +1053,6 @@ def setup_bait_shop():
 
 # create_dex("harunkal", "Bull Shark", "2025-10-21", "rope net", "normal")
 
-setup_net_shop()
-
 # add_coins("sharktrocity", 40)
 
 # add_coins("spiderbyte2007", 250)
