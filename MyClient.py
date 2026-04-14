@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
@@ -16,7 +17,7 @@ from dotenv import load_dotenv, set_key
 from pydantic import ValidationError
 
 from exceptions import exceptions as ex
-from fishing.build.fish_multiple import fish_multiple_times  # noqa
+from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from logModActions.modActions import ModLoop
@@ -32,12 +33,13 @@ from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
-from SQL.fishingSQL.baits import get_baits
+from SQL.fishingSQL.baits import add_fish_caught, get_baits
 from SQL.rolesSQL.roles import add_message_ids_to_role_sets_table, fill_emoji_map, update_role_emoji_ASCII, update_role_message
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.checks import is_mod
 from utils.core import AppConfig, get_full_path
+from utils.fishing import FishingConfig
 from utils.pullingFromTwitch import get_clips, user_exists
 from utils.ticketing import TicketingConfig
 
@@ -816,6 +818,164 @@ async def anon_venting(interaction: discord.Interaction, vent_message: str):
 
     if isinstance(channel, discord.TextChannel) and isinstance(user, discord.Member) and message:
         await channel.send(f"User ({user.nick if user.nick else user.name}) Sent an anonymous vent with the message ID of {message.id}")
+
+# Helper function
+def get_fish_result(username: str, user_id: int, size: str, fish_list: list[tuple[str, int]]) -> tuple[int, int, int]:
+    normal_fish = 0
+    shiny_fish = 0
+    legendary_fish = 0
+    for fish in fish_list:
+        if fish[0] == 'normal':
+            normal_fish += fish[1]
+            add_fish_caught(username, user_id, size, "normal")
+        elif fish[0] == 'shiny':
+            shiny_fish += fish[1]
+            add_fish_caught(username, user_id, size, "shiny")
+        else:
+            legendary_fish += fish[1]
+            add_fish_caught(username, user_id, size, "legendary")
+
+    return normal_fish, shiny_fish, legendary_fish
+
+
+@bot.tree.command(name="fish-multiple-times")
+@discord.app_commands.describe(
+    net="What net do you want to use?",
+    bait="Put the bait you want to use here! Type 'None' if you don't want to use a bait",
+    amount="How many times do you want to fish?"
+)
+async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, amount: int):
+    await interaction.response.send_message(f"Attempting to fish {amount} times...")
+    available_nets, _, _, _ = sg.get_net_availability(interaction.user.name)
+    user = interaction.user
+    channel = interaction.channel
+    assert isinstance(channel, discord.TextChannel)
+    if net not in available_nets:
+        await channel.send(f"{user.mention}, You do not own that net! Try again with a net you own.")
+        return
+
+    if net == "rope net":
+        await channel.send("You cannot use the rope net for this!")
+        return
+
+    net_uses = sg.get_net_uses(user.id, net)
+    if net_uses < amount:
+        await channel.send(f"{user.mention}, you do not own enough of that net to do this. Either buy more or fish less!")
+        return
+
+    available_baits, uses = get_baits(user.name)
+    if bait not in available_baits and bait != "None":
+        await channel.send(f"{user.mention}, You do not own that bait! Try again with a bait you own.")
+        return
+
+    if bait != "None":
+        for _bait, use in zip(available_baits, uses):
+            if _bait == bait and use < amount:
+                await channel.send(f"{user.mention}, you do not own enough of that bait. please buy more or fish less.")
+                return
+    config = FishingConfig(Path(r"fishing/fishing.yaml"))
+
+    boost = config.boost
+    boost_amount = config.boost_amount
+
+    is_bait_used = False if bait == "None" else True
+    if is_bait_used:
+        match bait:
+            case "chum":
+                rarity = sg.SharkRarity.VERY_COMMON
+            case "bait ball":
+                rarity = sg.SharkRarity.COMMON
+            case "mackerel":
+                rarity = sg.SharkRarity.UNCOMMON
+            case "stingray":
+                rarity = sg.SharkRarity.RARE
+            case "barracuda":
+                rarity = sg.SharkRarity.ULTRA_RARE
+            case _:
+                rarity = sg.SharkRarity.VERY_COMMON
+    else:
+        rarity = sg.SharkRarity.VERY_COMMON
+
+    fish_odds = sg.fishing_odds_fish(username=str(user), net_used=net)
+
+    result = fish_multiple_times(
+        times=amount,
+        net=net,
+        boost=boost,
+        boost_amount=boost_amount,
+        shark_names=sg.get_shark_names(rarity=rarity),
+        fish_odds=fish_odds,
+        bait=is_bait_used
+    )
+
+    result.large_fish_caught
+    medium_fish = result.medium_fish_caught
+    small_fish = result.small_fish_caught
+    coins = result.coins_gotten
+
+    large_fish = get_fish_result(user.name, user.id, "large", result.large_fish_caught)
+    medium_fish = get_fish_result(user.name, user.id, "medium", result.medium_fish_caught)
+    small_fish = get_fish_result(user.name, user.id, "small", result.small_fish_caught)
+
+    shark_names: list[str] = []
+
+    for _, shark_name in result.sharks_caught:
+        shark_names.append(shark_name)
+
+    shark_names_counter = Counter(shark_names)
+
+    shark_names_to_send = set(shark_names)
+
+
+    lines = [
+        "You have caught the following:",
+        f"{f'Large normal fish caught: {large_fish[0]} fish' if large_fish[0] > 0 else ''}",
+        f"{f'Large shiny fish caught: {large_fish[1]} fish' if large_fish[1] > 0 else ''}",
+        f"{f'Large legendary fish caught: {large_fish[2]} fish' if large_fish[2] > 0 else ''}",
+        "",
+        f"{f'medium normal fish caught: {medium_fish[0]} fish' if medium_fish[0] > 0 else ''}",
+        f"{f'medium shiny fish caught: {medium_fish[1]} fish' if medium_fish[1] > 0 else ''}",
+        f"{f'medium legendary fish caught: {medium_fish[2]} fish' if medium_fish[2] > 0 else ''}",
+        "",
+        f"{f'small normal fish caught: {small_fish[0]} fish' if small_fish[0] > 0 else ''}",
+        f"{f'small shiny fish caught: {small_fish[1]} fish' if small_fish[1] > 0 else ''}",
+        f"{f'small legendary fish caught: {small_fish[2]} fish' if small_fish[2] > 0 else ''}",
+        f"Coins gained: {coins} coins",
+        "",
+        f"{f'Sharks caught: {len(result.sharks_caught)}' if len(result.sharks_caught) > 0 else ''}"
+    ]
+
+    cleaned = [line for line in lines if line != ""]
+    to_send = "\n".join(cleaned)
+
+    shark_name_msg = []
+    i = 0
+    for shark in shark_names_to_send:
+        msg_to_add = f"{shark}: {shark_names_counter[shark]}"
+        if not shark_name_msg:
+            shark_name_msg.append(msg_to_add)
+
+        elif len(shark_name_msg[i]) + len(msg_to_add) >= 2000:
+            shark_name_msg.append(msg_to_add)
+            i += 1
+        else:
+            shark_name_msg[i] += msg_to_add
+
+    current_time = f"{datetime.now().date()} {datetime.now().hour}"
+    if shark_names_to_send:
+        for shark in shark_names_to_send:
+            count = shark_names_counter[shark]
+            for i in range(count):
+                sg.create_dex(user.id, user.name, shark, current_time, net, result.sharks_caught[0][0], net_uses=net_uses)
+
+    await channel.send("Done fishing! Grabbing details now.")
+
+    sg.add_coins(user.id, coins)
+
+    await channel.send(to_send)
+    if shark_name_msg:
+        for message in shark_name_msg:
+            await channel.send(message)
 
 
 @bot.command(name="restart", hidden=True)
