@@ -125,9 +125,9 @@ def shark_cog_winner(mock_client_winner, mock_config):
 
 
 @pytest.mark.parametrize("random_number_2, expected_message", [
-    (1, "Congratulations to BadUser who caught a legendary Reef Shark 👏. You have been granted 20"),
-    (4, "Congratulations to BadUser who caught a shiny Reef Shark 👏. You have been granted 20"),
-    (10,"Congratulations to BadUser who caught a normal Reef Shark 👏. You have been granted 20"),
+    (1, "Congratulations to BadUser who caught a legendary Reef Shark 👏. You have been granted 20 coins"),
+    (4, "Congratulations to BadUser who caught a shiny Reef Shark 👏. You have been granted 20 coins"),
+    (10,"Congratulations to BadUser who caught a normal Reef Shark 👏. You have been granted 20 coins"),
 ])
 @pytest.mark.asyncio
 async def test_shark_loop_one_winner_no_net(shark_cog_winner, mock_channel, mock_fishing_config, mock_shark_sql, mock_remove_net_use, random_number_2, expected_message):
