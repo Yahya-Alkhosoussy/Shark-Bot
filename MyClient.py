@@ -126,6 +126,7 @@ class MyBot(commands.Bot):
         for guild in self.guilds:
             guild_name: str = config.guilds[guild.id]
             if guild_name == "shark squad":
+                sg.setup_net_shop()
                 for member in guild.members:
                     try:
                         user_added = await self.leveling_loop.add_users(user=member)
