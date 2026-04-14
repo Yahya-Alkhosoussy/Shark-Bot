@@ -1,7 +1,6 @@
 import logging
 import sqlite3
 from enum import Enum
-from pathlib import Path
 
 import exceptions.exceptions as ex
 from SQL.sharkGamesSQL.sharkGameSQL import check_currency, remove_coins
@@ -58,6 +57,32 @@ def set_up_shop():
 
 
 set_up_shop()
+
+def add_column_to_baits_db(column_name: str, column_type, default_value):
+    # 1) List shark table
+    try:
+        cur.execute(f"""
+                   ALTER TABLE baits
+                   ADD COLUMN {column_name} {column_type} DEFAULT {default_value};
+                   """)
+    except sqlite3.OperationalError as e:
+        print(f"Warning, error {e}")
+
+    conn.commit()
+add_column_to_baits_db("user_id", "BIGINT", 0)
+
+def add_column_to_fish_db(column_name: str, column_type, default_value):
+    # 1) List shark table
+    try:
+        cur.execute(f"""
+                   ALTER TABLE fish
+                   ADD COLUMN {column_name} {column_type} DEFAULT {default_value};
+                   """)
+    except sqlite3.OperationalError as e:
+        print(f"Warning, error {e}")
+
+    conn.commit()
+add_column_to_fish_db("user_id", "BIGINT", 0)
 
 
 def add_to_shop(bait: str, price: int):
@@ -127,8 +152,8 @@ class baitTypes(Enum):
     BARRACUDA_5X = 10
 
 
-def add_fish_caught(username: str, size: str, rarity: str):
-    if isinstance(check_user_is_in_baits(username), bool):
+def add_fish_caught(username: str, user_id: int, size: str, rarity: str):
+    if isinstance(check_user_is_in_baits(username, user_id), bool):
         match size:
             case "large":
                 match rarity:
@@ -172,19 +197,19 @@ def get_fish_caught(username: str):
     return row
 
 
-def check_user_is_in_baits(username: str) -> bool | str:
-    cur.execute("SELECT EXISTS(SELECT 1 FROM baits WHERE username = ?)", (username,))
+def check_user_is_in_baits(username: str, user_id: int = 0) -> bool | str:
+    cur.execute("SELECT EXISTS(SELECT 1 FROM baits WHERE user_id = ?)", (user_id,))
     exists = cur.fetchone()[0]  # Returns 1 if exists, 0 if not
     if exists:
         return True
     else:
-        cur.execute("INSERT OR IGNORE INTO baits (username) VALUES (?)", (username,))
-        cur.execute("INSERT OR IGNORE INTO fish (username) VALUES (?)", (username,))
+        cur.execute("INSERT OR IGNORE INTO baits (username, user_id) VALUES (?, ?)", (username, user_id))
+        cur.execute("INSERT OR IGNORE INTO fish (username, user_id) VALUES (?, ?)", (username, user_id))
         conn.commit()
         return f"Added {username} to baits table"
 
 
-def buy_baits(username: str, bait: int):
+def buy_baits(username: str, bait: int, user_id: int):
     """
     Allows Users to buy baits from a selection of baits
 
@@ -194,7 +219,7 @@ def buy_baits(username: str, bait: int):
     :return: Tuple containing (success: bool, bait_bought: str | None, reason: str | None)
     :rtype: tuple
     """
-    coins = check_currency(username)
+    coins = check_currency(user_id)
     bait_bought: str = ""
     bundle: bool = False
     reason: str
@@ -238,7 +263,7 @@ def buy_baits(username: str, bait: int):
         reason = "Not enough coins!!"
         return fail, None, reason
 
-    remove_coins(username=username, coins_to_remove=price)
+    remove_coins(user_id=user_id, coins_to_remove=price)
 
     amount = 1 if not bundle else 5
     cur.execute(f"UPDATE baits SET {bait_bought} = {bait_bought} + ? WHERE username = ?", (amount, username))
