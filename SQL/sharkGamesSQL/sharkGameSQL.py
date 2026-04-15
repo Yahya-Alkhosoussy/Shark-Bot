@@ -1143,7 +1143,7 @@ def add_column_to_new_dex(column_name: str, column_type: str, default_value):
         print(f"Warning, error {e}")
     connection.commit()
 
-add_column_to_new_dex("sold", "BOOLEAN", 0)
+# add_column_to_new_dex("sold", "BOOLEAN", 0)
 
 def get_sellable_sharks(user_id: int) -> tuple[list[int], list[str], list[str]]:
     "Returns a tuple containing a list of shark names and a list of their rarities."
