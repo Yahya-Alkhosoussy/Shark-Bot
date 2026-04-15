@@ -1348,11 +1348,89 @@ async def migrate_and_make_new_tables(ctx: commands.Context):
     except OperationalError as e:
         await ctx.reply(f"Got an error {str(e)}")
     await ctx.reply("Migrated and did everything!!")
+
+@bot.command("tutorial")
+async def shark_game_tutorial(ctx: commands.Context):
+    # MOD_ROLE_IDS = [1434904030647288050, 1386628035591012393]
+    MOD_ROLE_IDS = [1066090372113125466]
+    mod_roles = []
+    assert ctx.guild
+    for role_id in MOD_ROLE_IDS:
+        mod_roles.append(ctx.guild.get_role(role_id))
+
+    category = bot.get_channel(1493934789714247730)
+
+    if not isinstance(category, discord.CategoryChannel):
+        raise TypeError("Category channel is the wrong type: ")
+
+    username = ctx.author.name
+
+    tutorial_channel = await ctx.guild.create_text_channel(
+        f"tutorial {username}", category=category
+    )
+
+    for role, role_id in zip(mod_roles, MOD_ROLE_IDS):
+        if role:
+            await tutorial_channel.set_permissions(
+                role,
+                send_messages=True,
+                read_messages=True,
+                add_reactions=True,  # set permissions for the staff team
+                embed_links=True,
+                attach_files=True,
+                read_message_history=True,
+                external_emojis=True,
+            )
+        else:
+            raise KeyError(
+                f"Could not get role from guild for roleId {MOD_ROLE_IDS}. Cannot set MODS staff role permissions!"
+            )
+    if isinstance(ctx.author, discord.Member):
+        await tutorial_channel.set_permissions(
+            ctx.author,
+            send_messages=True,
+            read_messages=True,
+            add_reactions=False,  # Set the permissions for the user
+            embed_links=True,
+            attach_files=True,
+            read_message_history=True,
+            external_emojis=True,
+        )
+    else:
+        raise TypeError("ctx.author is not Member type! Cannot set user permissions")
+
+    await tutorial_channel.set_permissions(
+        ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False
+    )
+
+    embed = discord.Embed(
+        description=f"📬 Tutorial setting was created! Look here --> {tutorial_channel.mention}",
+        color=discord.colour.Color.green(),
+    )
+    await ctx.send(embed=embed, ephemeral=True)
+
+    await bot.shark_loops.tutorial(ctx.guild.id, ctx.author.id, tutorial_channel)
+
+@bot.command("done")
+async def done_with_tutorial(ctx: commands.Context):
+
+    assert ctx.guild
+    username = ctx.author.name.replace(" ", "-")
+    if not isinstance(ctx.channel, discord.TextChannel) or ctx.channel.name != f"tutorial-{username}":
+        await ctx.reply("Command cannot be used outside of the tutorial channel!")
+        return
+
+    await ctx.reply("Thank you for completing the tutorial. Deleting channel in 3 seconds!")
+    await asyncio.sleep(3)
+    await ctx.channel.delete(reason="Tutorial Done")
+
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
 
     if not bot.shark_loops.is_idle:
+        return
+    elif not bot.shark_loops.tutorial_done:
         return
     elif bot.loop_processing:
         return

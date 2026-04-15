@@ -24,6 +24,7 @@ class SharkLoops:
         self._loops: dict[int, tasks.Loop] = {}  # guild id -> Loop.
         self.check_interval = self.load_interval()
         self.iteration_done = False
+        self.tutorial_done = True
 
     def is_running(self, guild_id: int) -> bool:
         loop = self._loops.get(guild_id)  # returns none if it doesn't exist
@@ -60,11 +61,6 @@ class SharkLoops:
                 if guild_id in self._loops:
                     self._loops[guild_id].change_interval(seconds=new_interval)
 
-            # The loop body
-            names: list[str] = sg.get_names_of_sharks()
-            if not names:
-                return  # nothing to drop
-
             rand_int = random.randint(1, 100)
 
             if rand_int <= 9:
@@ -78,8 +74,11 @@ class SharkLoops:
             else:
                 list_of_names = sg.get_shark_names(sg.SharkRarity.VERY_COMMON)
 
+            if not list_of_names:
+                return # nothing to drop
+
             name_index = random.randint(0, len(list_of_names) - 1)
-            name_to_drop: str = names[name_index]  # use name index and not rand_int next time idiot.
+            name_to_drop: str = list_of_names[name_index]  # use name index and not rand_int next time idiot.
             # print(name_to_drop)
             random_number_2 = random.randint(0, 100)
 
@@ -231,3 +230,124 @@ class SharkLoops:
             loop.stop()
             return True
         return False
+
+    async def tutorial(self, guild_id: int, user_id: int, channel: discord.TextChannel):
+        self.tutorial_done = False
+        rand_int = random.randint(1, 100)
+        if rand_int <= 9:
+            list_of_names = sg.get_shark_names(sg.SharkRarity.ULTRA_RARE)
+        elif rand_int <= 20:
+            list_of_names = sg.get_shark_names(sg.SharkRarity.RARE)
+        elif rand_int <= 35:
+            list_of_names = sg.get_shark_names(sg.SharkRarity.UNCOMMON)
+        elif rand_int <= 65:
+            list_of_names = sg.get_shark_names(sg.SharkRarity.COMMON)
+        else:
+            list_of_names = sg.get_shark_names(sg.SharkRarity.VERY_COMMON)
+
+        if not list_of_names:
+            return # nothing to drop
+
+        name_index = random.randint(0, len(list_of_names) - 1)
+        name_to_drop: str = list_of_names[name_index]
+
+        random_number_2 = random.randint(0, 100)
+
+        if random_number_2 <= 2:
+            rarity = "legendary"
+        elif random_number_2 > 2 and random_number_2 <= 5:
+            rarity = "shiny"
+        else:
+            rarity = "normal"
+
+        await channel.send("Welcome to the shark game and tutorial! First, the shark catching section!")
+        await channel.send("A shark will appear every 30 minutes and you will have 2 minutes to try and catch it. Try it, here:")
+        await channel.send("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
+        def check(m: discord.Message):
+            return m.channel.id == channel.id and m.author.id == user_id and m.content.lower().startswith("?catch")
+
+        try:
+            msg: discord.Message = await self.client.wait_for("message", check=check, timeout=self.config.window_time)
+        except asyncio.TimeoutError:
+            return
+
+        content = msg.content.strip()
+
+        after = content[len("?catch") :].strip() if content.lower().startswith("?catch") else ""
+
+        username = msg.author.name
+        time_caught: str = f"{dt.datetime.now().date()} {dt.datetime.now().hour}"
+        coins = 0
+        sg.create_dex(
+            msg.author.id,
+            username,
+            name_to_drop,
+            time_caught,
+            "rope net",
+            rarity,
+            net_uses=0
+        )
+        if fishing_config.boost is not None:
+            coins = sg.reward_coins(
+                user_id=msg.author.id,
+                rare=rarity,
+                shark=True,
+                shark_name=name_to_drop,
+                boost=fishing_config.boost,
+                boost_amount=fishing_config.boost_amount,
+            )
+        await channel.send(
+            f"Congratulations to {username} who caught a {rarity} {name_to_drop} 👏. You have been granted {coins} coins"
+        )
+        await channel.send("Congratulations! You caught your first shark!")
+        await channel.send("How about we try that again, but give you a net?")
+        await channel.send("Please send `?catch leather net`")
+
+        while True:
+
+            await channel.send("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
+
+            try:
+                msg: discord.Message = await self.client.wait_for("message", check=check, timeout=self.config.window_time)
+            except asyncio.TimeoutError:
+                return
+
+            content = msg.content.strip()
+
+            after = content[len("?catch") :].strip() if content.lower().startswith("?catch") else ""
+
+            username = msg.author.name
+            time_caught: str = f"{dt.datetime.now().date()} {dt.datetime.now().hour}"
+            coins = 0
+            if after == "leather net":
+                sg.create_dex(
+                    msg.author.id,
+                    username,
+                    name_to_drop,
+                    time_caught,
+                    after,
+                    rarity,
+                    net_uses=0
+                )
+                if fishing_config.boost is not None:
+                    coins = sg.reward_coins(
+                        user_id=msg.author.id,
+                        rare=rarity,
+                        shark=True,
+                        shark_name=name_to_drop,
+                        boost=fishing_config.boost,
+                        boost_amount=fishing_config.boost_amount,
+                    )
+                await channel.send(
+                    f"Congratulations to {username} who caught a {rarity} {name_to_drop} 👏. You have been granted {coins} coins"
+                )
+                break
+            else:
+                await channel.send(f"You didn't enter that correctly, after `?catch` you sent {after} instead of `leather net`")
+                await channel.send("Let's try that again. Please enter `?catch`")
+                continue
+
+        await channel.send("Nice going! Lets try fishing! do `?fish` and follow the instructions.")
+
+        await channel.send("Send `?done` when you're finished so we can finish the tutorial for you!")
+        self.tutorial_done = True
