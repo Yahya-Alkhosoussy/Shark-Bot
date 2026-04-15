@@ -13,6 +13,7 @@ cur = conn.cursor()
 cur.execute("""CREATE TABLE IF NOT EXISTS fish
             (
                 username TEXT PRIMARY KEY,
+                user_id INTEGER UNIQUE,
                 large_common_fish INTEGER DEFAULT 0,
                 large_shiny_fish INTEGER DEFAULT 0,
                 large_legendary_fish INTEGER DEFAULT 0,
@@ -27,6 +28,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS fish
 cur.execute("""CREATE TABLE IF NOT EXISTS baits
             (
                 username TEXT PRIMARY KEY,
+                user_id INTEGER UNIQUE,
                 chum INTEGER DEFAULT 0,
                 bait_ball INTEGER DEFAULT 0,
                 mackerel INTEGER DEFAULT 0,
@@ -69,7 +71,7 @@ def add_column_to_baits_db(column_name: str, column_type, default_value):
         print(f"Warning, error {e}")
 
     conn.commit()
-add_column_to_baits_db("user_id", "BIGINT", 0)
+# add_column_to_baits_db("user_id", "BIGINT", 0)
 
 def add_column_to_fish_db(column_name: str, column_type, default_value):
     # 1) List shark table
@@ -82,7 +84,13 @@ def add_column_to_fish_db(column_name: str, column_type, default_value):
         print(f"Warning, error {e}")
 
     conn.commit()
-add_column_to_fish_db("user_id", "BIGINT", 0)
+# add_column_to_fish_db("user_id", "BIGINT", 0)
+
+def add_user_ids(username: str, user_id: int):
+    cur.execute("UPDATE baits SET user_id=? WHERE username=?", (user_id, username))
+    conn.commit()
+    cur.execute("UPDATE fish SET user_id=? WHERE username=?", (user_id, username))
+    conn.commit()
 
 
 def add_to_shop(bait: str, price: int):
@@ -145,11 +153,6 @@ class baitTypes(Enum):
     MACKEREL = 3
     STINGRAY = 4
     BARRACUDA = 5
-    CHUM_5X = 6
-    BAIT_BALL_5X = 7
-    MACKEREL_5X = 8
-    STINGRAY_5X = 9
-    BARRACUDA_5X = 10
 
 
 def add_fish_caught(username: str, user_id: int, size: str, rarity: str):
@@ -209,7 +212,7 @@ def check_user_is_in_baits(username: str, user_id: int = 0) -> bool | str:
         return f"Added {username} to baits table"
 
 
-def buy_baits(username: str, bait: int, user_id: int):
+def buy_baits(username: str, bait: int, user_id: int, amount: int):
     """
     Allows Users to buy baits from a selection of baits
 
@@ -228,29 +231,14 @@ def buy_baits(username: str, bait: int, user_id: int):
     match bait:
         case baitTypes.CHUM.value:
             bait_bought = "chum"
-        case baitTypes.CHUM_5X.value:
-            bait_bought = "chum"
-            bundle = True
         case baitTypes.BAIT_BALL.value:
             bait_bought = "bait_ball"
-        case baitTypes.BAIT_BALL_5X.value:
-            bait_bought = "bait_ball"
-            bundle = True
         case baitTypes.MACKEREL.value:
             bait_bought = "mackerel"
-        case baitTypes.MACKEREL_5X.value:
-            bait_bought = "mackerel"
-            bundle = True
         case baitTypes.STINGRAY.value:
             bait_bought = "stingray"
-        case baitTypes.STINGRAY_5X.value:
-            bait_bought = "stingray"
-            bundle = True
         case baitTypes.BARRACUDA.value:
             bait_bought = "barracuda"
-        case baitTypes.BARRACUDA_5X.value:
-            bait_bought = "barracuda"
-            bundle = True
         case _:
             logging.error(f"[BAIT SQL] {bait} could not be found when prompted by {username}")
             raise ex.ItemNotFound("Bait not found!!", 1001)
@@ -259,20 +247,19 @@ def buy_baits(username: str, bait: int, user_id: int):
 
     price = cur.execute("SELECT price FROM baits_shop WHERE name=?", (bait_bought,)).fetchone()[0]
 
-    if coins < price:
+    if coins < price * amount:
         reason = "Not enough coins!!"
         return fail, None, reason
 
     remove_coins(user_id=user_id, coins_to_remove=price)
 
-    amount = 1 if not bundle else 5
-    cur.execute(f"UPDATE baits SET {bait_bought} = {bait_bought} + ? WHERE username = ?", (amount, username))
+    cur.execute(f"UPDATE baits SET {bait_bought} = {bait_bought} + ? WHERE user_id = ?", (amount, user_id))
     conn.commit()
     bait_bought = bait_bought.replace("_", " ")
     return success, bait_bought, None
 
 
-def use_bait(username: str, bait: str):
+def use_bait(user_id: int, bait: str):
 
-    cur.execute(f"UPDATE baits SET {bait.replace(' ', '_')}= {bait.replace(' ', '_')} - 1 WHERE username = ?", (username,))
+    cur.execute(f"UPDATE baits SET {bait.replace(' ', '_')}= {bait.replace(' ', '_')} - 1 WHERE user_id= ?", (user_id,))
     conn.commit()
