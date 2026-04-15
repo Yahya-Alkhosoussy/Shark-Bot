@@ -40,7 +40,8 @@ cursor.execute(
         coins REAL,
         rarity TEXT,
         level INTEGER,
-        net_uses INTEGER
+        net_uses INTEGER,
+        sold BOOLEAN DEFAULT 0
     )"""
 )
 
@@ -58,7 +59,7 @@ cursor.execute(
         'titanium net' BOOLEAN,
         'net of doom' BOOLEAN,
         time TEXT
-    )    
+    )
 """)
 
 connection.commit()
@@ -1041,43 +1042,6 @@ def remove_coins(user_id: int, coins_to_remove: int):
     connection.commit()
 
 
-# BAIT SET UP
-def setup_bait_shop():
-    cursor.execute("""CREATE TABLE IF NOT EXISTS bait
-                            (bait text PRIMARY KEY, price real)""")
-    # baits  = ["chum", "worms", ""]
-    # prices = [120]
-
-
-# create_dex("spiderbyte2007", "Bull Shark", "2025-10-18")
-
-# create_dex("harunkal", "Bull Shark", "2025-10-21", "rope net", "normal")
-
-# add_coins("sharktrocity", 40)
-
-# add_coins("spiderbyte2007", 250)
-
-# print(buy_net("spiderbyte2007", "gold net"))
-
-# print(get_dex("spiderbyte2007"))
-
-# print(is_net_available("harunkal", "net of doom"))
-
-# print(get_net("spiderbyte2007"), " ", get_next_net("spiderbyte2007"))
-
-# create_dex("spiderbyte2007", "Bull Shark", "2025-10-18")
-
-# print(get_odds("spiderbyte2007", "gold net"))
-
-# [print(get_net_availability("spiderbyte2007"))]
-
-# try:
-#     print(get_dex("spiderbyte"))
-# except sqlite3.OperationalError:
-#     print("No table exists")
-
-
-# print(get_dex("spiderbyte2007"))
 
 
 def add_row_to_nets():
@@ -1133,7 +1097,97 @@ def delete_all_rows_from_nets():
     connection.commit()
 
 
-# delete_all_rows_from_nets()
-# add_row_to_nets()
+# Shark sales
+def create_shark_sales_table():
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS sales
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            shark_rarity INTEGER UNIQUE,
+            normal_price INTEGER,
+            shiny_price INTEGER,
+            legendary_price INTEGER
+        )"""
+    )
+    connection.commit()
+    """ EXAMPLE:
+    id = 1
+    shark_rarity = 1 -- very common
+    normal_price = 10
+    shiny_price = 20
+    legendary_price = 40
+    """
+    rarities = [
+        SharkRarity.VERY_COMMON.value,
+        SharkRarity.COMMON.value,
+        SharkRarity.UNCOMMON.value,
+        SharkRarity.RARE.value,
+        SharkRarity.ULTRA_RARE.value
+    ]
+    normal_prices = [10, 20, 30, 40, 50]
+    shiny_prices = [20, 40, 50, 60, 70]
+    legendary_prices = [40, 80, 120, 200, 500]
+    for rarity, normal_price, shiny_price, legendary_price in zip(rarities, normal_prices, shiny_prices, legendary_prices):
+        cursor.execute(
+            "INSERT OR IGNORE INTO sales (shark_rarity, normal_price, shiny_price, legendary_price) VALUES (?,?,?,?)",
+            (rarity, normal_price, shiny_price, legendary_price)
+        )
+    connection.commit()
+
+create_shark_sales_table()
+
+def add_column_to_new_dex(column_name: str, column_type: str, default_value):
+    try:
+        cursor.execute(f"ALTER TABLE dex ADD COLUMN {column_name} {column_type} DEFAULT {default_value}")
+    except sqlite3.OperationalError as e:
+        print(f"Warning, error {e}")
+    connection.commit()
+
+add_column_to_new_dex("sold", "BOOLEAN", 0)
+
+def get_sellable_sharks(user_id: int) -> tuple[list[int], list[str], list[str]]:
+    "Returns a tuple containing a list of shark names and a list of their rarities."
+    cursor.execute("SELECT id, shark, rarity FROM dex WHERE user_id=? AND sold=? AND shark IS NOT NULL", (user_id, False))
+    results = cursor.fetchall()
+    ids = []
+    names = []
+    rarities = []
+    for id, name, rarity in results:
+        ids.append(id)
+        names.append(name)
+        rarities.append(rarity)
+
+    return ids, names, rarities
+
+def get_shark_sale_prices():
+    cursor.execute("SELECT shark_rarity, normal_price, shiny_price, legendary_price FROM sales")
+    results = cursor.fetchall()
+
+    return_value: dict[int, tuple[int, int, int]] = {}
+    for rarity, normal_price, shiny_price, legenedary_price in results:
+        return_value[rarity] = (normal_price, shiny_price, legenedary_price)
+
+    return return_value
+
+def sell_shark(user_id: int, shark_grade: str, shark_name: str, table_id: int) -> int:
+    prices = get_shark_sale_prices()
+
+    rarity = cursor.execute("SELECT rarity FROM sharks WHERE name=?", (shark_name,)).fetchone()[0]
+
+    price = prices[rarity]
+
+    match shark_grade:
+        case "normal":
+            coins_to_give = price[0]
+        case "shiny":
+            coins_to_give = price[1]
+        case "legendary":
+            coins_to_give = price[2]
+        case _:
+            coins_to_give = 0
+
+    add_coins(user_id, coins_to_give)
+    cursor.execute("UPDATE dex SET sold=1 WHERE id=?", (table_id,))
+    return coins_to_give
 
 connection.commit()  # pushes changes to database
