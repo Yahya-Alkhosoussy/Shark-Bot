@@ -526,7 +526,7 @@ class Fishing:
             await message.reply("Timed out, try again with `?update shop items`")
             return
 
-        if follow.content.strip().lower == "?cancel":
+        if follow.content.strip().lower() == "?cancel":
             await follow.reply("Cancelled.")
             return
 
