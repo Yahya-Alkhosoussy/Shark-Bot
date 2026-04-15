@@ -33,7 +33,7 @@ from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
-from SQL.fishingSQL.baits import add_fish_caught, get_baits
+from SQL.fishingSQL.baits import add_column_to_baits_db, add_column_to_fish_db, add_fish_caught, add_user_ids, get_baits
 from SQL.rolesSQL.roles import add_message_ids_to_role_sets_table, fill_emoji_map, update_role_emoji_ASCII, update_role_message
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
@@ -1334,7 +1334,20 @@ async def sell_shark(ctx: commands.Context):
 
     await ctx.reply(f"Shark sold! You got {coins_gained} coins from this!")
 
-
+@bot.command(name="migrate")
+@commands.is_owner()
+async def migrate_and_make_new_tables(ctx: commands.Context):
+    await ctx.reply("Will do")
+    try:
+        # sg.migrate_old_dex_to_new_dex()
+        add_column_to_fish_db("user_id", "BIGINT", 0)
+        add_column_to_baits_db("user_id", "BIGINT", 0)
+        assert ctx.guild
+        for member in ctx.guild.members:
+            add_user_ids(member.name, member.id)
+    except OperationalError as e:
+        await ctx.reply(f"Got an error {str(e)}")
+    await ctx.reply("Migrated and did everything!!")
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):
