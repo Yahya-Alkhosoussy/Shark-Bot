@@ -963,7 +963,7 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
     shark_name_msg = []
     i = 0
     for shark in shark_names_to_send:
-        msg_to_add = f"{shark}: {shark_names_counter[shark]}"
+        msg_to_add = f"{shark}: {shark_names_counter[shark]} \n"
         if not shark_name_msg:
             shark_name_msg.append(msg_to_add)
 
@@ -1258,6 +1258,82 @@ async def update_react_roles(ctx: commands.Context):
 async def random_question(ctx: commands.Context):
     await ctx.reply("I don't got $5 for call of duty.")
     await ctx.reply("I will proceed to not just ban you, but kick you.")
+
+@bot.group()
+async def sell(ctx):
+    pass
+
+@sell.command("shark")
+async def sell_shark(ctx: commands.Context):
+    await ctx.reply("Grabbing all sellable sharks for you...")
+    ids, names, rarities = sg.get_sellable_sharks(ctx.author.id)
+    all_messages = []
+    message = "Here are your sharks that can be sold: \n"
+
+    name_to_rarity: dict[str, dict[str, int]] = {}
+
+    for name, rarity in zip(names, rarities):
+        if not name_to_rarity.get(name):
+            name_to_rarity[name] = {}
+        if not name_to_rarity[name].get(rarity):
+            name_to_rarity[name][rarity] = 1
+        else:
+            name_to_rarity[name][rarity] += 1
+
+    for name, dictionary in name_to_rarity.items():
+        for rarity, count in dictionary.items():
+            to_add = f"{rarity} {name}: {count} shark{'s' if count > 1 else ''}\n"
+            if len(message) + len(to_add) > 2000:
+                all_messages.append(message)
+                message = to_add
+            else:
+                message += to_add
+    all_messages.append(message)
+
+    for msg in all_messages:
+        await ctx.send(msg)
+
+    await ctx.reply("Please send the rarity and name of the shark you want to sell or `cancel` to cancel sale. Ex: `Normal Megalodon`")
+
+    def check(m: discord.Message):
+        return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
+
+    try:
+        follow = await bot.wait_for("message", check=check, timeout=30)
+    except asyncio.TimeoutError:
+        await ctx.reply("Timed out, try again with `?sell shark`")
+        return
+
+    reply = follow.content.strip().lower()
+
+    if "normal" not in reply and "shiny" not in reply and "legendary" not in reply and reply != "cancel":
+        await follow.reply("You did not put it in correctly. Retry with `sell shark`")
+        return
+
+    if reply == "cancel":
+        await follow.reply("Cancelling sale")
+        return
+
+    reply = follow.content.split(" ", 1)
+
+    rarity = reply[0]
+    shark = reply[1]
+
+    # Find the matching ID
+    found_id = None
+    for shark_id, name, rar in zip(ids, names, rarities):
+        if name.lower() == shark.lower() and rar.lower() == rarity.lower():
+            found_id = shark_id
+            break
+
+    if not found_id:
+        await ctx.reply("Failed to find shark in the list, try again with `?sell shark`")
+        return
+
+    coins_gained = sg.sell_shark(ctx.author.id, rarity, shark, found_id)
+
+    await ctx.reply(f"Shark sold! You got {coins_gained} coins from this!")
+
 
 # check for errors
 @bot.event
