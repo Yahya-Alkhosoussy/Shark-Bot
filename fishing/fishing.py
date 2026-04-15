@@ -62,7 +62,7 @@ class Fishing:
             await channel.send("Net not found, defaulting to basic net. Fishing now!🎣")
             net = "rope net"
         if bait is not None:
-            use_bait(message.author.name, bait=bait)
+            use_bait(message.author.id, bait=bait)
             baits, uses = get_baits(username=message.author.name)
             use = 0
             i = 0
@@ -593,12 +593,6 @@ class Fishing:
             i += 1
             send += f"{i}. {name} - {price} coins.\n"
 
-        for bait in baits:
-            name = bait[0] + " x 5"
-            price = bait[1] * 5
-            i += 1
-            send += f"{i}. {name} - {price} coins.\n"
-
         await message.reply(send)
 
         def check(m: discord.Message):
@@ -615,12 +609,11 @@ class Fishing:
                 and (m.content.strip().lower() == "cancel" or isInt)
             )
 
-        follow = None
-
         try:
             follow = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
             await message.reply("Timed out, try again with `?buy bait`")
+            return
 
         if follow:
             logging.info(follow.content.strip().lower())
@@ -628,10 +621,24 @@ class Fishing:
             if follow.content.strip().lower() == "cancel":
                 await follow.reply("Cancelled.")
                 return
+
+        await message.channel.send("How much of the bait do you want?")
+
+        try:
+            follow_2 = await self.client.wait_for("message", check=check, timeout=30)
+        except asyncio.TimeoutError:
+            await message.reply("Timed out, try again with `?buy bait`")
+            return
+
         try:
             check_user_is_in_baits(username=message.author.name, user_id=message.author.id)
-            if follow:
-                success, bait_bought, reason = buy_baits(username=message.author.name, bait=int(follow.content), user_id=message.author.id)
+            if follow and follow_2:
+                success, bait_bought, reason = buy_baits(
+                    username=message.author.name,
+                    bait=int(follow.content),
+                    amount=int(follow_2.content),
+                    user_id=message.author.id
+                )
             else:
                 raise ValueError()
         except ex.ItemNotFound as e:
