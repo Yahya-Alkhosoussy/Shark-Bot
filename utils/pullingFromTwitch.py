@@ -1,3 +1,4 @@
+import asyncio
 import re
 import time
 from datetime import datetime, timedelta, timezone
@@ -10,29 +11,31 @@ from exceptions.exceptions import FormatError
 
 load_dotenv()
 
+_token_lock = asyncio.Lock()
 
 async def refresh_token(user: str):
-    async with aiohttp.ClientSession() as sesh:
-        token_r = await sesh.post(
-            "https://id.twitch.tv/oauth2/token",
-            data={
-                "client_id": getenv("mod_log_id"),
-                "client_secret": getenv("mod_log_secret"),
-                "grant_type": "refresh_token",
-                "refresh_token": getenv(user.upper() + "_TWITCH_REFRESH_TOKEN"),
-            },
-        )
-    data = await token_r.json()
+    async with _token_lock:
+        async with aiohttp.ClientSession() as sesh:
+            token_r = await sesh.post(
+                "https://id.twitch.tv/oauth2/token",
+                data={
+                    "client_id": getenv("mod_log_id"),
+                    "client_secret": getenv("mod_log_secret"),
+                    "grant_type": "refresh_token",
+                    "refresh_token": getenv(user.upper() + "_TWITCH_REFRESH_TOKEN"),
+                },
+            )
+        data = await token_r.json()
 
-    # update in memory
-    environ["TWITCH_ACCESS_TOKEN"] = data["access_token"]
+        # update in memory
+        environ["TWITCH_ACCESS_TOKEN"] = data["access_token"]
 
-    # update .env
-    set_key(".env", f"{user.upper()}_TWITCH_ACCESS_TOKEN", data["access_token"])
+        # update .env
+        set_key(".env", f"{user.upper()}_TWITCH_ACCESS_TOKEN", data["access_token"])
 
-    if "refresh_token" in data:
-        environ[f"{user.upper()}_TWITCH_REFRESH_TOKEN"] = data["refresh_token"]
-        set_key(".env", f"{user.upper()}_TWITCH_REFRESH_TOKEN", data["refresh_token"])
+        if "refresh_token" in data:
+            environ[f"{user.upper()}_TWITCH_REFRESH_TOKEN"] = data["refresh_token"]
+            set_key(".env", f"{user.upper()}_TWITCH_REFRESH_TOKEN", data["refresh_token"])
 
     return data["access_token"]
 
