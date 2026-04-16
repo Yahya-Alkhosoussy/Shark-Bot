@@ -2,8 +2,25 @@ import os
 import shutil
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
+
+def setup_portable_msvc():
+    msvc_dir = Path(__file__).parent / "msvc_portable"
+    if msvc_dir.exists():
+        return str(msvc_dir)
+
+    print("Downloading portable MSVC downloader...")
+    script_url = "https://gist.githubusercontent.com/mmozeiko/7f3162ec2988e81e56d5c4e22cde9977/raw/portable-msvc.py"
+    downloader_script = Path(__file__).parent / "portable-msvc.py"
+    urllib.request.urlretrieve(script_url, downloader_script)
+
+    print("Extracting MSVC (this will take a while)...")
+    # This downloads the actual compiler binaries into the msvc_portable folder
+    subprocess.check_call([sys.executable, str(downloader_script)], cwd=Path(__file__).parent)
+
+    return str(msvc_dir)
 
 def ensure_cmake():
     if shutil.which("cmake"):
@@ -50,6 +67,9 @@ def generate_sub():
 
 
 def install():
+
+    msvc_path = setup_portable_msvc()
+
     fishing_dir = Path(__file__).parent / "fishing"
     # Clean build completely
     shutil.rmtree(fishing_dir / "build", ignore_errors=True)
@@ -61,6 +81,9 @@ def install():
         **os.environ,
         "Python3_ROOT_DIR": str(Path(sys.executable).parent.parent),
         "Python3_EXECUTABLE": sys.executable,
+        "DISTUTILS_USE_SDK": "1",
+        "MSSDK": "1",
+        "PATH": f"{msvc_path}/bin/x64;" + os.environ["PATH"] # Add portable compiler to PATH
     }
     subprocess.check_call(
         ["cmake", "-G", "Visual Studio 17 2022", "-S", ".", "-B", "build", "-DPYBIND11_FINDPYTHON=ON"],
