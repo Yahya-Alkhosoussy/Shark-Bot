@@ -17,7 +17,7 @@ from pydantic import ValidationError
 
 from exceptions import exceptions as ex
 
-# from fishing.build.fish_multiple import fish_multiple_times
+from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from logModActions.modActions import ModLoop
