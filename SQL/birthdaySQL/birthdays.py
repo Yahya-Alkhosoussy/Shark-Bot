@@ -144,4 +144,7 @@ def has_custom_gif(username: str) -> int | None:
     except sqlite3.OperationalError as e:
         print(f"Got an error {e}")
         return None
-    return cur.fetchone()[0]
+    result = cur.fetchone()
+    if not result or result[0] is None:
+        return None
+    return result[0]
