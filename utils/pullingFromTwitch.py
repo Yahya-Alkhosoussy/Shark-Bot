@@ -3,15 +3,26 @@ import re
 import time
 from datetime import datetime, timedelta, timezone
 from os import environ, getenv
+from pathlib import Path
 
 import aiohttp
-from dotenv import load_dotenv, set_key
+from dotenv import load_dotenv
+
+if __name__ == "__main__":
+    import sys
+
+    # So it would always run from the most parent directory and avoid import errors
+    project_root = Path(__file__).parent.parent
+    print(project_root)
+    sys.path.insert(0, str(project_root))
+
 
 from exceptions.exceptions import FormatError
 
 load_dotenv()
 
 _token_lock = asyncio.Lock()
+
 
 async def refresh_token(user: str):
     async with _token_lock:
@@ -27,15 +38,34 @@ async def refresh_token(user: str):
             )
         data = await token_r.json()
 
-        # update in memory
-        environ["TWITCH_ACCESS_TOKEN"] = data["access_token"]
+        env_path = Path(".env")
 
-        # update .env
-        set_key(".env", f"{user.upper()}_TWITCH_ACCESS_TOKEN", data["access_token"])
+        lines = env_path.read_text().splitlines()
+        key = f"{user.upper()}_TWITCH_ACCESS_TOKEN"
+        updated = False
+        for i, line in enumerate(lines):
+            if line.startswith(f"{key}="):
+                lines[i] = f"{key}={data['access_token']}"
+                updated = True
+                break
+
+        if not updated:
+            lines.append(f"{key}={data['access_token']}")
+
+        # update in memory
+        environ[f"{user.upper()}_TWITCH_ACCESS_TOKEN"] = data["access_token"]
 
         if "refresh_token" in data:
             environ[f"{user.upper()}_TWITCH_REFRESH_TOKEN"] = data["refresh_token"]
-            set_key(".env", f"{user.upper()}_TWITCH_REFRESH_TOKEN", data["refresh_token"])
+            key = f"{user.upper()}_TWITCH_REFRESH_TOKEN"
+            updated = False
+            for i, line in enumerate(lines):
+                if line.startswith(f"{key}="):
+                    lines[i] = f"{key}={data['refresh_token']}"
+                    updated = True
+                    break
+
+        env_path.write_text("\n".join(lines) + "\n")
 
     return data["access_token"]
 
@@ -228,3 +258,7 @@ async def get_bans(
             duration.append(None)
 
     return people_banned, reasons, mod_that_banned, duration, created_at
+
+
+if __name__ == "__main__":
+    print(asyncio.run(get_bans(user="shark", twitch_user="sharkocalypse")))
