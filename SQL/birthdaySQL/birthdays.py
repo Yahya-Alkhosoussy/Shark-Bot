@@ -139,5 +139,9 @@ def remove_message(message: str):
 
 
 def has_custom_gif(username: str) -> int | None:
-    cur.execute("SELECT custom_gif_index FROM birthdays WHERE name=?", (username,))
-    return cur.fetchone()[0]
+    try:
+        cur.execute("SELECT custom_gif_index FROM birthdays WHERE name=?", (username,))
+        return cur.fetchone()[0]
+    except sqlite3.OperationalError as e:
+        print(f"Got an error {e}")
+        return None

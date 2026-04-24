@@ -152,6 +152,7 @@ class BirthdayLoop:
             if len(birthdays_today) == 1:
                 user = birthdays_today[0]
                 gif_index = b.has_custom_gif(user.name)
+                print("found user and got the custom gif index")
                 if gif_index is not None:
                     gif = b.get_custom_gifs(gif_index)
                     num_of_messages = b.get_number_of_messages()
