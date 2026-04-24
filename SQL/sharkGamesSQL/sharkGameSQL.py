@@ -60,7 +60,8 @@ cursor.execute(
         'net of doom' BOOLEAN,
         time TEXT
     )
-""")
+"""
+)
 
 connection.commit()
 
@@ -115,13 +116,29 @@ def create_dex(user_id: int, username: str, shark_name: str, when_caught: str, n
     level = 0
     current_time = dt.datetime.now()
     time_caught: str = f"{current_time.date()} {current_time.hour}"
-    row: tuple = (user_id, username, shark_name, when_caught, fact[0][0], weight[0][0], net_type, coins, rarity, level, net_uses)
-    cursor.execute("INSERT OR IGNORE INTO dex (user_id, username, shark, time, fact, weight, net, coins, rarity, level, net_uses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
+    row: tuple = (
+        user_id,
+        username,
+        shark_name,
+        when_caught,
+        fact[0][0],
+        weight[0][0],
+        net_type,
+        coins,
+        rarity,
+        level,
+        net_uses,
+    )
+    cursor.execute(
+        "INSERT OR IGNORE INTO dex (user_id, username, shark, time, fact, weight, net, coins, rarity, level, net_uses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        row,
+    )
     # Check if row exists
     row_count = cursor.execute(f"SELECT COUNT(*) FROM '{username} nets'").fetchone()[0]
     if row_count == 0:
         cursor.execute(
-            "INSERT INTO nets (user_id, username, 'rope net', 'leather net','gold net', 'titanium net', 'net of doom', time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (user_id, username, True, False, False, False, False, time_caught)
+            "INSERT INTO nets (user_id, username, 'rope net', 'leather net','gold net', 'titanium net', 'net of doom', time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (user_id, username, True, False, False, False, False, time_caught),
         )
         connection.commit()
     connection.commit()
@@ -157,14 +174,17 @@ def migrate_old_dex_to_new_dex():
     dex_tables = [t for t in table_names if t.endswith(" dex")]
     for table in dex_tables:
         username = table.removesuffix(" dex")
-        user_id =  USERNAME_TO_ID.get(username)
+        user_id = USERNAME_TO_ID.get(username)
         if not user_id:
             user_id = 0
         rows = cursor.execute(f"SELECT * FROM '{table}'").fetchall()
         for row in rows:
-            cursor.execute("INSERT OR IGNORE INTO dex (username, user_id, shark, time, fact, weight, net, coins, rarity, level, net_uses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                           (username, user_id, *row))
+            cursor.execute(
+                "INSERT OR IGNORE INTO dex (username, user_id, shark, time, fact, weight, net, coins, rarity, level, net_uses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (username, user_id, *row),
+            )
             connection.commit()
+
 
 # migrate_old_dex_to_new_dex()
 
@@ -480,7 +500,7 @@ def get_net_availability(username: str):
                     case NetTypes.LEATHER_NET.value:
                         for row in cursor.execute(
                             "SELECT net_uses FROM dex WHERE net='leather net' AND username=? ORDER BY id DESC LIMIT 1",
-                            (username,)
+                            (username,),
                         ):
                             net_uses = row[0]
                         if net_uses % 5 != 1 or net_uses % 5 != 0:
@@ -497,8 +517,7 @@ def get_net_availability(username: str):
 
                     case NetTypes.GOLD_NET.value:
                         for row in cursor.execute(
-                            "SELECT net_uses FROM dex WHERE net='gold net' AND username=? ORDER BY id DESC LIMIT 1",
-                            (username,)
+                            "SELECT net_uses FROM dex WHERE net='gold net' AND username=? ORDER BY id DESC LIMIT 1", (username,)
                         ):
                             net_uses = row[0]
                         if net_uses % 5 != 1 or net_uses % 5 != 0:
@@ -516,7 +535,7 @@ def get_net_availability(username: str):
                     case NetTypes.TITANIUM_NET.value:
                         for row in cursor.execute(
                             "SELECT net_uses FROM dex WHERE net='titanium net' AND username=? ORDER BY id DESC LIMIT 1",
-                            (username,)
+                            (username,),
                         ):
                             net_uses = row[0]
                         if net_uses % 5 != 1 or net_uses % 5 != 0:
@@ -534,7 +553,7 @@ def get_net_availability(username: str):
                     case NetTypes.NET_OF_DOOM.value:
                         for row in cursor.execute(
                             "SELECT net_uses FROM dex WHERE net='net of doom' AND username=? ORDER BY id DESC LIMIT 1",
-                            (username,)
+                            (username,),
                         ):
                             net_uses = row[0]
                         if net_uses % 5 != 1 or net_uses % 5 != 0:
@@ -555,9 +574,11 @@ def get_net_availability(username: str):
 
     return available_nets, about_to_break, broken, net_uses_list
 
+
 def get_net_uses(user_id: int, net: str) -> int:
     cursor.execute("SELECT net_uses FROM dex WHERE user_id=? AND net=? ORDER BY id DESC limit 1;", (user_id, net))
     return cursor.fetchone()[0]
+
 
 def remove_net_use(username: str, net: str, net_uses: int):
     try:
@@ -681,7 +702,9 @@ def buy_net(username: str, net: int, user_id: int, amount: int):
         time_now: str = f"{current_time.date()} {current_time.hour}"
         if not is_net_available(username, net_to_buy) and not bundle:
             cursor.execute(f"UPDATE '{username} nets' SET '{net_to_buy}'=1, time='{time_now}'")
-            existing = cursor.execute("SELECT COUNT(*) FROM dex WHERE net=? AND username=?", (net_to_buy, username)).fetchone()[0]
+            existing = cursor.execute("SELECT COUNT(*) FROM dex WHERE net=? AND username=?", (net_to_buy, username)).fetchone()[
+                0
+            ]
 
             if existing > 0:
                 cursor.execute("SELECT id FROM dex WHERE net=? AND username=? ORDER BY id DESC LIMIT 1", (net_to_buy, username))
@@ -730,7 +753,7 @@ def buy_net(username: str, net: int, user_id: int, amount: int):
                 (
                     coins - price[-1] * amount,
                     id,
-                )
+                ),
             )
 
             logging.info("[SHARK GAME SQL] Could not buy net, user already had it")
@@ -1042,8 +1065,6 @@ def remove_coins(user_id: int, coins_to_remove: int):
     connection.commit()
 
 
-
-
 def add_row_to_nets():
     # 1) list all user tables:
     cursor.execute("""
@@ -1122,7 +1143,7 @@ def create_shark_sales_table():
         SharkRarity.COMMON.value,
         SharkRarity.UNCOMMON.value,
         SharkRarity.RARE.value,
-        SharkRarity.ULTRA_RARE.value
+        SharkRarity.ULTRA_RARE.value,
     ]
     normal_prices = [10, 20, 30, 40, 50]
     shiny_prices = [20, 40, 50, 60, 70]
@@ -1130,11 +1151,13 @@ def create_shark_sales_table():
     for rarity, normal_price, shiny_price, legendary_price in zip(rarities, normal_prices, shiny_prices, legendary_prices):
         cursor.execute(
             "INSERT OR IGNORE INTO sales (shark_rarity, normal_price, shiny_price, legendary_price) VALUES (?,?,?,?)",
-            (rarity, normal_price, shiny_price, legendary_price)
+            (rarity, normal_price, shiny_price, legendary_price),
         )
     connection.commit()
 
+
 create_shark_sales_table()
+
 
 def add_column_to_new_dex(column_name: str, column_type: str, default_value):
     try:
@@ -1143,7 +1166,9 @@ def add_column_to_new_dex(column_name: str, column_type: str, default_value):
         print(f"Warning, error {e}")
     connection.commit()
 
+
 # add_column_to_new_dex("sold", "BOOLEAN", 0)
+
 
 def get_sellable_sharks(user_id: int) -> tuple[list[int], list[str], list[str]]:
     "Returns a tuple containing a list of shark names and a list of their rarities."
@@ -1159,6 +1184,7 @@ def get_sellable_sharks(user_id: int) -> tuple[list[int], list[str], list[str]]:
 
     return ids, names, rarities
 
+
 def get_shark_sale_prices():
     cursor.execute("SELECT shark_rarity, normal_price, shiny_price, legendary_price FROM sales")
     results = cursor.fetchall()
@@ -1168,6 +1194,7 @@ def get_shark_sale_prices():
         return_value[rarity] = (normal_price, shiny_price, legenedary_price)
 
     return return_value
+
 
 def sell_shark(user_id: int, shark_grade: str, shark_name: str, table_id: int) -> int:
     prices = get_shark_sale_prices()
@@ -1189,5 +1216,23 @@ def sell_shark(user_id: int, shark_grade: str, shark_name: str, table_id: int) -
     add_coins(user_id, coins_to_give)
     cursor.execute("UPDATE dex SET sold=1 WHERE id=?", (table_id,))
     return coins_to_give
+
+
+def add_40_net_uses_to_all():
+    cursor.execute("SELECT DISTINCT user_id, username FROM dex")
+    results = cursor.fetchall()
+
+    net_names = ["leather net", "gold net", "titanium net", "net of doom"]
+    for name, id in results:
+        for net in net_names:
+            cursor.execute("SELECT MAX(id) FROM dex WHERE user_id=? AND net=?", (id, net))
+            table_id = cursor.fetchone()
+            if table_id:
+                table_id = table_id[0]
+            else:
+                continue  # did not own the net
+            cursor.execute("UPDATE dex SET net_uses=? WHERE id=?", (40, id))
+        print(f"Did it for {name}")
+
 
 connection.commit()  # pushes changes to database
