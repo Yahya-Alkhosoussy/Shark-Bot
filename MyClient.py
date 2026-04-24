@@ -1076,6 +1076,14 @@ async def force_restart(ctx: commands.Context, stash: bool):
     await bot.close()  # closes the bot normally
 
 
+@bot.command(name="compensation")
+@commands.is_owner()
+async def compensate_by_adding_net_uses(ctx: commands.Context):
+    await ctx.reply("giving everyone free net uses")
+    sg.add_40_net_uses_to_all()
+    await ctx.reply("Added")
+
+
 @bot.group()
 async def add(ctx: commands.Context):
     pass
