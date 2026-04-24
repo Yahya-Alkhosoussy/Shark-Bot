@@ -1232,6 +1232,7 @@ def add_40_net_uses_to_all():
             else:
                 continue  # did not own the net
             cursor.execute("UPDATE dex SET net_uses=? WHERE id=?", (40, id))
+            connection.commit()
         print(f"Did it for {name}")
 
 
