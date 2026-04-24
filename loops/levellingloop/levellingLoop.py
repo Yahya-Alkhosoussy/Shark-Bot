@@ -3,8 +3,8 @@ from io import BytesIO
 from pathlib import Path
 
 import discord
-from discord.ext import commands
 import requests
+from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 
 import SQL.levellingSQL.levellingSQL as ls
@@ -190,10 +190,11 @@ class levelingLoop:
 
         try:
             await user.add_roles(role)
-            _role = guild.get_role(ROLES_SHARK_SQUAD[str(level - 1)])
-            if _role:
-                await user.remove_roles(_role)
-            logging.info(f"Added role {role} to {user.name}")
+            if level != 0:
+                _role = guild.get_role(ROLES_SHARK_SQUAD[str(level - 1)])
+                if _role:
+                    await user.remove_roles(_role)
+                logging.info(f"Added role {role} to {user.name}")
         except discord.HTTPException:
             logging.error("No can do, HTTPException")
             return
