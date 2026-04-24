@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from sqlite3 import OperationalError
+from typing import Counter
 
 import discord
 from discord.ext import commands
@@ -41,6 +42,7 @@ from utils.checks import is_mod
 from utils.core import AppConfig, get_full_path
 from utils.pullingFromTwitch import get_clips, user_exists
 from utils.ticketing import TicketingConfig
+from utils.fishing import FishingConfig
 
 # ======= Logging/Env =======
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -856,7 +858,6 @@ def get_fish_result(username: str, user_id: int, size: str, fish_list: list[tupl
     amount="How many times do you want to fish?"
 )
 async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, amount: int):
-    await interaction.response.send_message("This is still in the workshop!")
     await interaction.response.send_message(f"Attempting to fish {amount} times...")
     available_nets, _, _, _ = sg.get_net_availability(interaction.user.name)
     user = interaction.user
@@ -1339,7 +1340,7 @@ async def sell_shark(ctx: commands.Context):
 async def migrate_and_make_new_tables(ctx: commands.Context):
     await ctx.reply("Will do")
     try:
-        # sg.migrate_old_dex_to_new_dex()
+        sg.migrate_old_dex_to_new_dex()
         add_column_to_fish_db("user_id", "BIGINT", 0)
         add_column_to_baits_db("user_id", "BIGINT", 0)
         assert ctx.guild
