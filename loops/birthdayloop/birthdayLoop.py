@@ -166,12 +166,14 @@ class BirthdayLoop:
                     num_of_gifs = b.get_number_of_gifs()
                     rand_int = random.randint(1, num_of_gifs)
                     gif: str = b.get_gif(index=rand_int)
+                    print("gif found!")
                     num_of_messages = b.get_number_of_messages()
                     message_index = random.randint(1, num_of_messages)
                     message = b.get_birthday_message(message_index)
 
                     # formating message
                     message = message.replace("@user", user.mention)
+                    print("About to send message")
 
                     await channel.send(message)
                     await channel.send(gif)
@@ -200,6 +202,7 @@ class BirthdayLoop:
             if loop.is_being_cancelled():
                 logging.info("Birthday loop cancelled (shutdown)")
             else:
+                print("Bday loop died")
                 logging.info("Birthday loop ended normally.")
 
         @loop.error
