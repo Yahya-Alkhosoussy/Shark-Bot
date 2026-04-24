@@ -14,11 +14,10 @@ from typing import Counter
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
+from fishing.build.fish_multiple import fish_multiple_times
 from pydantic import ValidationError
 
 from exceptions import exceptions as ex
-
-from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from logModActions.modActions import ModLoop
@@ -40,9 +39,9 @@ from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.checks import is_mod
 from utils.core import AppConfig, get_full_path
+from utils.fishing import FishingConfig
 from utils.pullingFromTwitch import get_clips, user_exists
 from utils.ticketing import TicketingConfig
-from utils.fishing import FishingConfig
 
 # ======= Logging/Env =======
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a")
@@ -504,7 +503,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             send = "Here's your available nets: \n"
             i = 1
             for net, net_use in zip(nets, total_net_uses):
-                send += f"{i}. {net}{f": {net_use} uses left." if net != "rope net" else ""} \n"
+                send += f"{i}. {net}{f': {net_use} uses left.' if net != 'rope net' else ''} \n"
                 i += 1
             i = 1
             if about_to_break:
@@ -570,10 +569,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                     return
 
                 success, net_name, reason = sg.buy_net(
-                    user.name,
-                    int(follow.content.strip().lower()),
-                    user.id,
-                    int(follow_2.content.strip().lower())
+                    user.name, int(follow.content.strip().lower()), user.id, int(follow_2.content.strip().lower())
                 ) or (None, None, None)
                 if success:
                     logging.info(f"Found net: {net_name} for {user}")
@@ -585,7 +581,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
 
         if message.content.startswith(prefix + "game on"):
             self.shark_loops.start_for(message.guild.id)
-            handled=True
+            handled = True
 
         if message.content.startswith(prefix + "shark facts"):
             await message.reply(
@@ -817,6 +813,7 @@ async def live_setup_2(interaction: discord.Interaction, twitch_username: str, c
     await channel.send(" data validated. Thank you!")
     return
 
+
 @bot.tree.command(name="anonymous-vent")
 @discord.app_commands.describe()
 async def anon_venting(interaction: discord.Interaction, vent_message: str):
@@ -830,7 +827,10 @@ async def anon_venting(interaction: discord.Interaction, vent_message: str):
         message = await vent_channel.send(vent_message)
 
     if isinstance(channel, discord.TextChannel) and isinstance(user, discord.Member) and message:
-        await channel.send(f"User ({user.nick if user.nick else user.name}) Sent an anonymous vent with the message ID of {message.id}")
+        await channel.send(
+            f"User ({user.nick if user.nick else user.name}) Sent an anonymous vent with the message ID of {message.id}"
+        )
+
 
 # Helper function
 def get_fish_result(username: str, user_id: int, size: str, fish_list: list[tuple[str, int]]) -> tuple[int, int, int]:
@@ -838,10 +838,10 @@ def get_fish_result(username: str, user_id: int, size: str, fish_list: list[tupl
     shiny_fish = 0
     legendary_fish = 0
     for fish in fish_list:
-        if fish[0] == 'normal':
+        if fish[0] == "normal":
             normal_fish += fish[1]
             add_fish_caught(username, user_id, size, "normal")
-        elif fish[0] == 'shiny':
+        elif fish[0] == "shiny":
             shiny_fish += fish[1]
             add_fish_caught(username, user_id, size, "shiny")
         else:
@@ -855,7 +855,7 @@ def get_fish_result(username: str, user_id: int, size: str, fish_list: list[tupl
 @discord.app_commands.describe(
     net="What net do you want to use?",
     bait="Put the bait you want to use here! Type 'None' if you don't want to use a bait",
-    amount="How many times do you want to fish?"
+    amount="How many times do you want to fish?",
 )
 async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, amount: int):
     await interaction.response.send_message(f"Attempting to fish {amount} times...")
@@ -918,7 +918,7 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
         boost_amount=boost_amount,
         shark_names=sg.get_shark_names(rarity=rarity),
         fish_odds=fish_odds,
-        bait=is_bait_used
+        bait=is_bait_used,
     )
 
     result.large_fish_caught
@@ -939,7 +939,6 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
 
     shark_names_to_send = set(shark_names)
 
-
     lines = [
         "You have caught the following:",
         f"{f'Large normal fish caught: {large_fish[0]} fish' if large_fish[0] > 0 else ''}",
@@ -955,7 +954,7 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
         f"{f'small legendary fish caught: {small_fish[2]} fish' if small_fish[2] > 0 else ''}",
         f"Coins gained: {coins} coins",
         "",
-        f"{f'Sharks caught: {len(result.sharks_caught)}' if len(result.sharks_caught) > 0 else ''}"
+        f"{f'Sharks caught: {len(result.sharks_caught)}' if len(result.sharks_caught) > 0 else ''}",
     ]
 
     cleaned = [line for line in lines if line != ""]
@@ -1041,7 +1040,40 @@ async def restart_bot(ctx: commands.Context, stash: bool):
     await bot.close()  # closes the bot normally
 
 
+@bot.command(name="force", hidden=True)
+@commands.is_owner()
+async def force_restart(ctx: commands.Context, stash: bool):
 
+    await ctx.send("Force restarting the bot...")
+    await ctx.send("Checking for updates...")
+
+    # sync up python's PATH with window's PATH
+    os.environ["PATH"] = get_full_path()
+
+    git_path = shutil.which("git")
+
+    try:
+        assert git_path
+        if stash:
+            res_0 = subprocess.run([git_path, "stash"], capture_output=True, check=True, text=True, shell=True)
+            await ctx.send("Stashed successfully")
+            await ctx.send(res_0.stdout)
+        res = subprocess.run([git_path, "pull"], capture_output=True, check=True, text=True, shell=True)
+        await ctx.send("Pulled successfully")
+        await ctx.send(res.stdout)
+        res_2 = subprocess.run([sys.executable, "setup.py"], check=True, capture_output=True, text=True)
+        await ctx.send("Successfully installed all dependencies")
+        await ctx.send(res_2.stdout[-len(" Setup complete!") :])
+    except subprocess.CalledProcessError as e:
+        await ctx.send(f"failed: error {e.stderr}")
+    except Exception as e:
+        await ctx.send(f"Failed: Error {str(e)}")
+
+    await ctx.send("Restarting now...")
+
+    subprocess.Popen([sys.executable] + sys.argv)
+
+    await bot.close()  # closes the bot normally
 
 
 @bot.group()
@@ -1105,6 +1137,7 @@ async def env(ctx: commands.Context, var_name: str, var_value: str):
 
     await ctx.send("Updated environmental variable!")
 
+
 @update.command(name="role")
 @is_mod()
 async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: str):
@@ -1113,11 +1146,12 @@ async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: st
     roleSet_id = update_role_message(roleSet, role.id, config.guilds[ctx.guild.id])
     await ctx.send(f"role updated. new id: {roleSet_id}")
 
+
 @update.command(name="emoji")
 @is_mod()
 async def update_role_emoji(ctx: commands.Context, role: discord.Role, emoji: str):
     await ctx.send("Updating role's emoji")
-    emoji = emoji.replace("\uFE0F", "").replace("\uFE0E", "")
+    emoji = emoji.replace("\ufe0f", "").replace("\ufe0e", "")
     update_role_emoji_ASCII(emoji, role.id)
     assert ctx.guild
     await bot.ensure_react_roles_message(ctx.guild)
@@ -1186,6 +1220,7 @@ async def remove_net(ctx: commands.Context, member: discord.Member, net: str):
         return
     await ctx.send("Net removed!")
 
+
 # helper function
 def split_emoji_map_messages(emojiMap: dict, max_chars: int = 2000) -> list[str]:
     messages = []
@@ -1226,6 +1261,7 @@ def split_emoji_map_messages(emojiMap: dict, max_chars: int = 2000) -> list[str]
 
     return messages
 
+
 @bot.command(name="mapping")
 @is_mod()
 async def get_emoji_mapping(ctx: commands.Context):
@@ -1235,13 +1271,16 @@ async def get_emoji_mapping(ctx: commands.Context):
     for message in messages:
         await ctx.send(message)
 
+
 @bot.group()
 async def get(ctx: commands.Context):
     pass
 
+
 @get.group()
 async def shark(ctx: commands.Context):
     pass
+
 
 @shark.command(name="message")
 @commands.is_owner()
@@ -1249,20 +1288,24 @@ async def get_shark_message(ctx: commands.Context):
     message_id = config.shark_message_id
     await ctx.reply(str(message_id))
 
+
 @update.command("rr")
 @commands.is_owner()
 async def update_react_roles(ctx: commands.Context):
     add_message_ids_to_role_sets_table()
     await ctx.send("Done")
 
+
 @bot.command(name="pleasebuymecallofduty")
 async def random_question(ctx: commands.Context):
     await ctx.reply("I don't got $5 for call of duty.")
     await ctx.reply("I will proceed to not just ban you, but kick you.")
 
+
 @bot.group()
 async def sell(ctx):
     pass
+
 
 @sell.command("shark")
 async def sell_shark(ctx: commands.Context):
@@ -1294,7 +1337,9 @@ async def sell_shark(ctx: commands.Context):
     for msg in all_messages:
         await ctx.send(msg)
 
-    await ctx.reply("Please send the rarity and name of the shark you want to sell or `cancel` to cancel sale. Ex: `Normal Megalodon`")
+    await ctx.reply(
+        "Please send the rarity and name of the shark you want to sell or `cancel` to cancel sale. Ex: `Normal Megalodon`"
+    )
 
     def check(m: discord.Message):
         return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
@@ -1335,6 +1380,7 @@ async def sell_shark(ctx: commands.Context):
 
     await ctx.reply(f"Shark sold! You got {coins_gained} coins from this!")
 
+
 @bot.command(name="migrate")
 @commands.is_owner()
 async def migrate_and_make_new_tables(ctx: commands.Context):
@@ -1349,6 +1395,7 @@ async def migrate_and_make_new_tables(ctx: commands.Context):
     except OperationalError as e:
         await ctx.reply(f"Got an error {str(e)}")
     await ctx.reply("Migrated and did everything!!")
+
 
 @bot.command("tutorial")
 async def shark_game_tutorial(ctx: commands.Context):
@@ -1366,9 +1413,7 @@ async def shark_game_tutorial(ctx: commands.Context):
 
     username = ctx.author.name
 
-    tutorial_channel = await ctx.guild.create_text_channel(
-        f"tutorial {username}", category=category
-    )
+    tutorial_channel = await ctx.guild.create_text_channel(f"tutorial {username}", category=category)
 
     for role, role_id in zip(mod_roles, MOD_ROLE_IDS):
         if role:
@@ -1383,9 +1428,7 @@ async def shark_game_tutorial(ctx: commands.Context):
                 external_emojis=True,
             )
         else:
-            raise KeyError(
-                f"Could not get role from guild for roleId {MOD_ROLE_IDS}. Cannot set MODS staff role permissions!"
-            )
+            raise KeyError(f"Could not get role from guild for roleId {MOD_ROLE_IDS}. Cannot set MODS staff role permissions!")
     if isinstance(ctx.author, discord.Member):
         await tutorial_channel.set_permissions(
             ctx.author,
@@ -1400,9 +1443,7 @@ async def shark_game_tutorial(ctx: commands.Context):
     else:
         raise TypeError("ctx.author is not Member type! Cannot set user permissions")
 
-    await tutorial_channel.set_permissions(
-        ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False
-    )
+    await tutorial_channel.set_permissions(ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False)
 
     embed = discord.Embed(
         description=f"📬 Tutorial setting was created! Look here --> {tutorial_channel.mention}",
@@ -1411,6 +1452,7 @@ async def shark_game_tutorial(ctx: commands.Context):
     await ctx.send(embed=embed, ephemeral=True)
 
     await bot.shark_loops.tutorial(ctx.guild.id, ctx.author.id, tutorial_channel)
+
 
 @bot.command("done")
 async def done_with_tutorial(ctx: commands.Context):
@@ -1424,6 +1466,7 @@ async def done_with_tutorial(ctx: commands.Context):
     await ctx.reply("Thank you for completing the tutorial. Deleting channel in 3 seconds!")
     await asyncio.sleep(3)
     await ctx.channel.delete(reason="Tutorial Done")
+
 
 # check for errors
 @bot.event
@@ -1471,7 +1514,9 @@ async def on_command_error(ctx: commands.Context, error):
             elif isinstance(error, commands.MissingPermissions):
                 await bot_channel.send(f"{user} tried using command {ctx.command} but does not have the permissions needed")
             else:
-                await bot_channel.send(f"{user} tried using command {ctx.command} but is missing something. Error: {str(error)}")
+                await bot_channel.send(
+                    f"{user} tried using command {ctx.command} but is missing something. Error: {str(error)}"
+                )
             return
 
 
