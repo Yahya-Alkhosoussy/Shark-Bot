@@ -1223,11 +1223,11 @@ def add_40_net_uses_to_all():
     results = cursor.fetchall()
 
     net_names = ["leather net", "gold net", "titanium net", "net of doom"]
-    for name, id in results:
+    for id, name in results:
         for net in net_names:
             cursor.execute("SELECT MAX(id) FROM dex WHERE user_id=? AND net=?", (id, net))
             table_id = cursor.fetchone()
-            if table_id:
+            if table_id and table_id[0] is not None:
                 table_id = table_id[0]
             else:
                 continue  # did not own the net
