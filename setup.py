@@ -2,7 +2,6 @@ import os
 import shutil
 import subprocess
 import sys
-import urllib.request
 from pathlib import Path
 
 
@@ -15,6 +14,7 @@ def setup_portable_msvc():
     script_url = "https://gist.githubusercontent.com/mmozeiko/7f3162ec2988e81e56d5c4e22cde9977/raw/portable-msvc.py"
     downloader_script = Path(__file__).parent / "portable-msvc.py"
     import requests
+
     response = requests.get(script_url)
     response.raise_for_status()
     downloader_script.write_bytes(response.content)
@@ -25,18 +25,19 @@ def setup_portable_msvc():
 
     return str(msvc_dir)
 
+
 def ensure_cmake():
     if shutil.which("cmake"):
         print("CMake already exists at: ", shutil.which("cmake"))
-        return # Cmake exists
+        return  # Cmake exists
 
     print("cmake not found, installing via pip")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "cmake"])
 
     # Add Pip's cmake to Path so it can be used imediately
-    cmake_dir = Path(sys.executable).parent / "Scripts" # windows
+    cmake_dir = Path(sys.executable).parent / "Scripts"  # windows
     if not cmake_dir.exists():
-        cmake_dir = Path(sys.executable).parent # Unix
+        cmake_dir = Path(sys.executable).parent  # Unix
 
     os.environ["PATH"] = str(cmake_dir) + os.pathsep + os.environ["PATH"]
 
@@ -45,9 +46,11 @@ def ensure_cmake():
 
     # Make sure it was installed correctly
     import cmake
-    print(cmake.CMAKE_BIN_DIR) # shows where binary is
+
+    print(cmake.CMAKE_BIN_DIR)  # shows where binary is
 
     print("CMake installed successfully")
+
 
 def generate_sub():
     fishing_dir = Path(__file__).parent / "fishing"
@@ -63,16 +66,16 @@ def generate_sub():
     print(f"pyd_dir: {pyd_dir}")  # verify the path
     print(f"pyd files: {pyd_files}")  # verify it found the right file
     # Generate the stub
-    subprocess.check_call([sys.executable, "-m", "pybind11_stubgen", "fish_multiple", "-o", str(pyd_dir)],
-        env={**os.environ, "PYTHONPATH": pyd_dir})
-
-
+    subprocess.check_call(
+        [sys.executable, "-m", "pybind11_stubgen", "fish_multiple", "-o", str(pyd_dir)],
+        env={**os.environ, "PYTHONPATH": pyd_dir},
+    )
 
 
 def install():
 
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'certifi', 'pip'])
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'certifi'])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "certifi", "pip"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "certifi"])
 
     # msvc_path = setup_portable_msvc() # uncomment if you do not have visual studio installed
 
@@ -89,19 +92,16 @@ def install():
         "Python3_EXECUTABLE": sys.executable,
         "DISTUTILS_USE_SDK": "1",
         "MSSDK": "1",
-    # uncomment if you do not have visual studio installed
-    #    "PATH": f"{msvc_path}/bin/x64;" + os.environ["PATH"] # Add portable compiler to PATH
+        # uncomment if you do not have visual studio installed
+        #    "PATH": f"{msvc_path}/bin/x64;" + os.environ["PATH"] # Add portable compiler to PATH
     }
+    print("Building C++ file(s)")
     subprocess.check_call(
         ["cmake", "-G", "Visual Studio 18 2026", "-S", ".", "-B", "build", "-DPYBIND11_FINDPYTHON=ON"],
         cwd=Path(__file__).parent / "fishing",
-        env=env
+        env=env,
     )
-    subprocess.run(
-        ["cmake", "--build", "build"],
-        cwd=fishing_dir,
-        env=os.environ.copy()
-    )
+    subprocess.run(["cmake", "--build", "build"], cwd=fishing_dir, env=os.environ.copy())
 
     # Install pybind11-stubgen if not already installed
     subprocess.check_call([sys.executable, "-m", "pip", "install", "pybind11-stubgen"])
