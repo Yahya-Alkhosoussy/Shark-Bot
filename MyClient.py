@@ -386,12 +386,12 @@ Shark Catch Game:
             self.loop_processing = True
             after: str | None = None if len(message.content[6:]) == 0 else message.content[6:]
             if after is not None:
+                sg.check_for_username_change(message.author.name, message.author.id)
                 baits, _ = get_baits(message.author.name)
                 if after not in baits:
                     await message.reply(f"You do not own the bait ({after}) or it is an invalid bait, try the command again")
                     return
             try:
-                sg.check_for_username_change(user.name, user.id)
                 await self.fishing.fish(message=message, bait=after)
             except ex.ItemNotFound as e:
                 await message.channel.send(f"{message.author.mention} {str(e)}")
@@ -399,6 +399,7 @@ Shark Catch Game:
             handled = True
 
         if message.content.startswith(prefix + "buy bait"):
+            sg.check_for_username_change(message.author.name, message.author.id)
             try:
                 await self.fishing.buy_bait(message)
             except ex.ItemNotFound as e:
@@ -406,6 +407,7 @@ Shark Catch Game:
             handled = True
 
         if message.content.startswith(prefix + "my baits"):
+            sg.check_for_username_change(message.author.name, message.author.id)
             bait_names, uses = get_baits(username=message.author.name)
             if not bait_names:
                 await message.reply("You do not own any baits")
@@ -419,10 +421,12 @@ Shark Catch Game:
             handled = True
 
         if message.content.startswith(prefix + "my fish"):
+            sg.check_for_username_change(message.author.name, message.author.id)
             await self.fishing.get_fish(message=message)
             handled = True
 
         if message.content.startswith(prefix + "get dex"):
+            sg.check_for_username_change(message.author.name, message.author.id)
             basic_dex = sg.get_basic_dex(user.id)
             (dex, coins) = basic_dex if basic_dex else (None, None)
 
@@ -461,6 +465,7 @@ Shark Catch Game:
             handled = True
 
         if message.content.startswith(prefix + "detailed dex"):
+            sg.check_for_username_change(message.author.name, message.author.id)
             await message.reply("Generating your dex, check your DMs!")
             dex = sg.get_dex(user.id)
 
@@ -498,6 +503,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             handled = True
 
         if message.content.startswith(prefix + "my nets"):
+            sg.check_for_username_change(message.author.name, message.author.id)
             nets, about_to_break, _, net_uses = sg.get_net_availability(str(user))
             total_net_uses = [0]
             total_net_uses.extend(net_uses)
@@ -516,6 +522,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             handled = True
 
         if message.content.startswith(prefix + "coins"):
+            sg.check_for_username_change(message.author.name, message.author.id)
             coins = 0 if sg.check_currency(user.id) is None else sg.check_currency(user.id)
 
             await message.reply(f"You have {coins} coins!")
@@ -569,7 +576,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                     await message.reply("Timed out, try again with `?buy net`")
                     return
 
-                sg.check_for_username_change(user.name, user.id)
+                sg.check_for_username_change(message.author.name, message.author.id)
 
                 success, net_name, reason = sg.buy_net(
                     user.name, int(follow.content.strip().lower()), user.id, int(follow_2.content.strip().lower())
