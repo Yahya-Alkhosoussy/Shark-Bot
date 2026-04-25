@@ -1092,7 +1092,7 @@ async def force_restart(ctx: commands.Context, stash: bool):
 @commands.is_owner()
 async def compensate_by_adding_net_uses(ctx: commands.Context):
     await ctx.reply("giving everyone free net uses")
-    sg.add_40_net_uses_to_all()
+    sg.add_80_net_uses_to_all()
     await ctx.reply("Added")
 
 
