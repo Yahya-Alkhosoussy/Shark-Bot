@@ -130,7 +130,7 @@ Grab_sharks grab_shark_fishing_no_bait(std::vector<std::string> shark_names, int
     
     std::random_device rd;
     std::mt19937 gen(rd()); //mersenee twister engine
-    std::uniform_int_distribution<int> dist(0, shark_names.size());
+    std::uniform_int_distribution<int> dist(0, shark_names.size() - 1);
     
     int rand_idx = dist(gen);
 
