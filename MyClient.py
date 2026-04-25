@@ -391,6 +391,7 @@ Shark Catch Game:
                     await message.reply(f"You do not own the bait ({after}) or it is an invalid bait, try the command again")
                     return
             try:
+                sg.check_for_username_change(user.name, user.id)
                 await self.fishing.fish(message=message, bait=after)
             except ex.ItemNotFound as e:
                 await message.channel.send(f"{message.author.mention} {str(e)}")
@@ -567,6 +568,8 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                 except asyncio.TimeoutError:
                     await message.reply("Timed out, try again with `?buy net`")
                     return
+
+                sg.check_for_username_change(user.name, user.id)
 
                 success, net_name, reason = sg.buy_net(
                     user.name, int(follow.content.strip().lower()), user.id, int(follow_2.content.strip().lower())
@@ -870,6 +873,8 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
     if net == "rope net":
         await channel.send("You cannot use the rope net for this!")
         return
+
+    sg.check_for_username_change(user.name, user.id)
 
     net_uses = sg.get_net_uses(user.id, net)
     if net_uses < amount:

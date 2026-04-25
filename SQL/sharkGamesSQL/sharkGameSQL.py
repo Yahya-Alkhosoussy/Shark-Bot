@@ -144,6 +144,28 @@ def create_dex(user_id: int, username: str, shark_name: str, when_caught: str, n
     connection.commit()
 
 
+def check_for_username_change(username: str, user_id: int):
+    cursor.execute("SELECT DISTINCT username FROM dex WHERE user_id=?", (user_id,))
+    results = cursor.fetchall()
+    usernames = []
+    table_ids = []
+    for result in results:
+        usernames.append(result[0])
+        cursor.execute("SELECT MAX(id) FROM dex WHERE username=?", (result[0],))
+        table_ids.append(cursor.fetchone()[0])
+
+    old_id: int = 0
+    new_username: str = ""
+    for id, username in zip(table_ids, usernames):
+        if id > old_id:
+            old_id = id
+            new_username = username
+
+    if new_username != "":
+        cursor.execute("UPDATE dex SET username=? WHERE user_id=?", (new_username, user_id))
+        connection.commit()
+
+
 def migrate_old_dex_to_new_dex():
 
     USERNAME_TO_ID = {
