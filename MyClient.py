@@ -893,7 +893,7 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
         await channel.send(f"{user.mention}, You do not own that bait! Try again with a bait you own.")
         return
 
-    if bait != "None":
+    if bait.lower() != "none":
         for _bait, use in zip(available_baits, uses):
             if _bait == bait and use < amount:
                 await channel.send(f"{user.mention}, you do not own enough of that bait. please buy more or fish less.")
