@@ -1240,7 +1240,7 @@ def sell_shark(user_id: int, shark_grade: str, shark_name: str, table_id: int) -
     return coins_to_give
 
 
-def add_40_net_uses_to_all():
+def add_80_net_uses_to_all():
     cursor.execute("SELECT DISTINCT user_id, username FROM dex")
     results = cursor.fetchall()
 
@@ -1253,7 +1253,7 @@ def add_40_net_uses_to_all():
                 table_id = table_id[0]
             else:
                 continue  # did not own the net
-            cursor.execute("UPDATE dex SET net_uses=? WHERE id=?", (40, table_id))
+            cursor.execute("UPDATE dex SET net_uses=? WHERE id=?", (80, table_id))
             connection.commit()
         print(f"Did it for {name}")
 
