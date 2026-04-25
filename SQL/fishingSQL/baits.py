@@ -60,6 +60,7 @@ def set_up_shop():
 
 set_up_shop()
 
+
 def add_column_to_baits_db(column_name: str, column_type, default_value):
     # 1) List shark table
     try:
@@ -71,7 +72,10 @@ def add_column_to_baits_db(column_name: str, column_type, default_value):
         print(f"Warning, error {e}")
 
     conn.commit()
+
+
 # add_column_to_baits_db("user_id", "BIGINT", 0)
+
 
 def add_column_to_fish_db(column_name: str, column_type, default_value):
     # 1) List shark table
@@ -84,7 +88,10 @@ def add_column_to_fish_db(column_name: str, column_type, default_value):
         print(f"Warning, error {e}")
 
     conn.commit()
+
+
 # add_column_to_fish_db("user_id", "BIGINT", 0)
+
 
 def add_user_ids(username: str, user_id: int):
     cur.execute("UPDATE baits SET user_id=? WHERE username=?", (user_id, username))
@@ -251,7 +258,7 @@ def buy_baits(username: str, bait: int, user_id: int, amount: int):
         reason = "Not enough coins!!"
         return fail, None, reason
 
-    remove_coins(user_id=user_id, coins_to_remove=price)
+    remove_coins(user_id=user_id, coins_to_remove=price * amount)
 
     cur.execute(f"UPDATE baits SET {bait_bought} = {bait_bought} + ? WHERE user_id = ?", (amount, user_id))
     conn.commit()
