@@ -1436,6 +1436,7 @@ async def shark_game_tutorial(ctx: commands.Context):
     tutorial_channel = await ctx.guild.create_text_channel(f"tutorial {username}", category=category)
 
     try:
+        await tutorial_channel.edit(sync_permissions=False)  # break category sync first
         await tutorial_channel.set_permissions(
             ctx.guild.me,
             send_messages=True,
