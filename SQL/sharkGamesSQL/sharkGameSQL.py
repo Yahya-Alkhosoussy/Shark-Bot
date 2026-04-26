@@ -134,13 +134,19 @@ def create_dex(user_id: int, username: str, shark_name: str, when_caught: str, n
         row,
     )
     # Check if row exists
-    row_count = cursor.execute(f"SELECT COUNT(*) FROM '{username} nets'").fetchone()[0]
+    try:
+        row_count = cursor.execute(f"SELECT COUNT(*) FROM '{username} nets'").fetchone()[0]
+    except sqlite3.OperationalError:
+        row_count = 0
     if row_count == 0:
-        cursor.execute(
-            "INSERT INTO nets (user_id, username, 'rope net', 'leather net','gold net', 'titanium net', 'net of doom', time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (user_id, username, True, False, False, False, False, time_caught),
-        )
-        connection.commit()
+        try:
+            cursor.execute(
+                "INSERT INTO nets (user_id, username, 'rope net', 'leather net','gold net', 'titanium net', 'net of doom', time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (user_id, username, True, False, False, False, False, time_caught),
+            )
+            connection.commit()
+        except sqlite3.IntegrityError:
+            pass
     connection.commit()
 
 
@@ -506,6 +512,7 @@ def get_net_availability(username: str):
     try:
         all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets' ORDER BY time DESC LIMIT 1;"))
     except sqlite3.OperationalError:
+        all_nets.extend(cursor.execute("SELECT 'leather net', 'gold net', 'titanium net', 'net of doom' FROM nets"))
         all_nets.extend(available_nets)
 
     net_uses: int = 0
@@ -515,6 +522,7 @@ def get_net_availability(username: str):
     i = 0
     try:
         for nets in all_nets[0]:
+            print(nets)
             if nets == 0:
                 i += 1
             else:
