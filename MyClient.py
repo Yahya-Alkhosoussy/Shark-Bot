@@ -1478,7 +1478,12 @@ async def shark_game_tutorial(ctx: commands.Context):
     else:
         raise TypeError("ctx.author is not Member type! Cannot set user permissions")
 
-    await tutorial_channel.set_permissions(ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False)
+    try:
+        await tutorial_channel.set_permissions(
+            ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False
+        )
+    except discord.Forbidden as e:
+        await ctx.send(f"I got an error while editing permissions for the tutorial channel. {str(e)}")
 
     embed = discord.Embed(
         description=f"📬 Tutorial setting was created! Look here --> {tutorial_channel.mention}",
