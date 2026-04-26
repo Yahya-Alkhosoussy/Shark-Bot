@@ -1419,8 +1419,8 @@ async def migrate_and_make_new_tables(ctx: commands.Context):
 
 @bot.command("tutorial")
 async def shark_game_tutorial(ctx: commands.Context):
-    # MOD_ROLE_IDS = [1434904030647288050, 1386628035591012393]
-    MOD_ROLE_IDS = [1066090372113125466]
+    MOD_ROLE_IDS = [1434904030647288050, 1386628035591012393]
+    # MOD_ROLE_IDS = [1066090372113125466]
     mod_roles = []
     assert ctx.guild
     for role_id in MOD_ROLE_IDS:
