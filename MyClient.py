@@ -1465,16 +1465,19 @@ async def shark_game_tutorial(ctx: commands.Context):
         else:
             raise KeyError(f"Could not get role from guild for roleId {MOD_ROLE_IDS}. Cannot set MODS staff role permissions!")
     if isinstance(ctx.author, discord.Member):
-        await tutorial_channel.set_permissions(
-            ctx.author,
-            send_messages=True,
-            read_messages=True,
-            add_reactions=False,  # Set the permissions for the user
-            embed_links=True,
-            attach_files=True,
-            read_message_history=True,
-            external_emojis=True,
-        )
+        try:
+            await tutorial_channel.set_permissions(
+                ctx.author,
+                send_messages=True,
+                read_messages=True,
+                add_reactions=False,  # Set the permissions for the user
+                embed_links=True,
+                attach_files=True,
+                read_message_history=True,
+                external_emojis=True,
+            )
+        except discord.Forbidden as e:
+            await ctx.send(f"Got an error while making the permissions. {str(e)}")
     else:
         raise TypeError("ctx.author is not Member type! Cannot set user permissions")
 
