@@ -1435,6 +1435,17 @@ async def shark_game_tutorial(ctx: commands.Context):
 
     tutorial_channel = await ctx.guild.create_text_channel(f"tutorial {username}", category=category)
 
+    await tutorial_channel.set_permissions(
+        ctx.guild.me,
+        send_messages=True,
+        read_messages=True,
+        add_reactions=True,  # set permissions for the staff team
+        embed_links=True,
+        attach_files=True,
+        read_message_history=True,
+        external_emojis=True,
+    )
+
     for role, role_id in zip(mod_roles, MOD_ROLE_IDS):
         if role:
             await tutorial_channel.set_permissions(
@@ -1462,17 +1473,6 @@ async def shark_game_tutorial(ctx: commands.Context):
         )
     else:
         raise TypeError("ctx.author is not Member type! Cannot set user permissions")
-
-    await tutorial_channel.set_permissions(
-        ctx.guild.me,
-        send_messages=True,
-        read_messages=True,
-        add_reactions=True,  # set permissions for the staff team
-        embed_links=True,
-        attach_files=True,
-        read_message_history=True,
-        external_emojis=True,
-    )
 
     await tutorial_channel.set_permissions(ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False)
 
