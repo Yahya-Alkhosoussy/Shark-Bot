@@ -1460,7 +1460,13 @@ async def shark_game_tutorial(ctx: commands.Context):
                 read_message_history=True,
             )
         except discord.Forbidden as e:
-            await ctx.send(f"Got an error while making the permissions. {str(e)}")
+            debug = (
+                f"Author: {ctx.author} ({ctx.author.id})"
+                f"Author top role: {ctx.author.top_role} (position {ctx.author.top_role.position})"
+                f"Bot top role: {ctx.guild.me.top_role} (position {ctx.guild.me.top_role.position})"
+                f"Author roles: {[r.name for r in ctx.author.roles]}"
+            )
+            await ctx.send(f"Got an error while making the permissions. {str(e)} Debug statements: {debug}")
     else:
         raise TypeError("ctx.author is not Member type! Cannot set user permissions")
 
