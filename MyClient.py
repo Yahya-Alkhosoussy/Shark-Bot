@@ -1475,9 +1475,17 @@ async def shark_game_tutorial(ctx: commands.Context):
             ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False
         )
     except discord.Forbidden as e:
+        debug_string = ""
+        for target, overwrite in category.overwrites.items():
+            debug_string = f"\nTarget: {target}\n"
+            for perm, value in overwrite:
+                if value is not None:
+                    debug_string += f"{perm}: {value}\n"
+
         raise Exception(
             f"I got an error while editing permissions for the tutorial channel. {str(e)}"
-            f" Category overwrites: {category.overwrites}"
+            f"\nCategory overwrites: {category.overwrites}\n"
+            f"{debug_string}"
         )
 
     embed = discord.Embed(
