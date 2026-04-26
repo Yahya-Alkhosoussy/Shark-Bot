@@ -1435,16 +1435,19 @@ async def shark_game_tutorial(ctx: commands.Context):
 
     tutorial_channel = await ctx.guild.create_text_channel(f"tutorial {username}", category=category)
 
-    await tutorial_channel.set_permissions(
-        ctx.guild.me,
-        send_messages=True,
-        read_messages=True,
-        add_reactions=True,  # set permissions for the staff team
-        embed_links=True,
-        attach_files=True,
-        read_message_history=True,
-        external_emojis=True,
-    )
+    try:
+        await tutorial_channel.set_permissions(
+            ctx.guild.me,
+            send_messages=True,
+            read_messages=True,
+            add_reactions=True,  # set permissions for the staff team
+            embed_links=True,
+            attach_files=True,
+            read_message_history=True,
+            external_emojis=True,
+        )
+    except discord.Forbidden as e:
+        await ctx.send(f"I got an error while putting permissions on myself. {str(e)}")
 
     for role, role_id in zip(mod_roles, MOD_ROLE_IDS):
         if role:
