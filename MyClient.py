@@ -1475,7 +1475,10 @@ async def shark_game_tutorial(ctx: commands.Context):
             ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False
         )
     except discord.Forbidden as e:
-        raise Exception(f"I got an error while editing permissions for the tutorial channel. {str(e)}")
+        raise Exception(
+            f"I got an error while editing permissions for the tutorial channel. {str(e)}"
+            f" Category overwrites: {category.overwrites}"
+        )
 
     embed = discord.Embed(
         description=f"📬 Tutorial setting was created! Look here --> {tutorial_channel.mention}",
