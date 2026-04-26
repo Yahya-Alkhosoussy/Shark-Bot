@@ -1433,37 +1433,49 @@ async def shark_game_tutorial(ctx: commands.Context):
 
     username = ctx.author.name
 
-    overwrites = {
-        ctx.guild.default_role: discord.PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-        ctx.guild.me: discord.PermissionOverwrite(
-            view_channel=True, send_messages=True, read_messages=True, manage_channels=True, manage_permissions=True
-        ),
-        ctx.author: discord.PermissionOverwrite(
+    tutorial_channel = await ctx.guild.create_text_channel(f"tutorial {username}", category=category)
+
+    try:
+        await tutorial_channel.edit(sync_permissions=False)  # break category sync first
+        await tutorial_channel.set_permissions(
+            ctx.guild.me,
             send_messages=True,
             read_messages=True,
-            add_reactions=False,
-            embed_links=True,
-            attach_files=True,
             read_message_history=True,
-            external_emojis=True,
-        ),
-    }
+        )
+    except discord.Forbidden as e:
+        raise Exception(f"I got an error while putting permissions on myself. {str(e)}")
 
     for role, role_id in zip(mod_roles, MOD_ROLE_IDS):
         if role:
-            overwrites[role] = discord.PermissionOverwrite(send_messages=True, read_messages=True, read_message_history=True)
+            await tutorial_channel.set_permissions(role, send_messages=True, read_messages=True, read_message_history=True)
         else:
             raise KeyError(f"Could not get role from guild for roleId {MOD_ROLE_IDS}. Cannot set MODS staff role permissions!")
+    if isinstance(ctx.author, discord.Member):
+        try:
+            await tutorial_channel.set_permissions(
+                ctx.author,
+                send_messages=True,
+                read_messages=True,
+                read_message_history=True,
+            )
+        except discord.Forbidden as e:
+            debug = (
+                f"Author: {ctx.author} ({ctx.author.id})"
+                f"Author top role: {ctx.author.top_role} (position {ctx.author.top_role.position})"
+                f"Bot top role: {ctx.guild.me.top_role} (position {ctx.guild.me.top_role.position})"
+                f"Author roles: {[r.name for r in ctx.author.roles]}"
+            )
+            raise Exception(f"Got an error while making the permissions. {str(e)} Debug statements: {debug}")
+    else:
+        raise TypeError("ctx.author is not Member type! Cannot set user permissions")
 
     try:
-        tutorial_channel = await ctx.guild.create_text_channel(f"tutorial {username}", category=category, overwrites=overwrites)
-    except discord.Forbidden as e:
-        debug = (
-            f"Bot guild permissions: {ctx.guild.me.guild_permissions.value}"
-            f"manage_roles: {ctx.guild.me.guild_permissions.manage_roles}"
-            f"manage_channels: {ctx.guild.me.guild_permissions.manage_channels}"
+        await tutorial_channel.set_permissions(
+            ctx.guild.default_role, send_messages=False, read_messages=False, view_channel=False
         )
-        raise Exception("I got an error. " + debug + str(e))
+    except discord.Forbidden as e:
+        raise Exception(f"I got an error while editing permissions for the tutorial channel. {str(e)}")
 
     embed = discord.Embed(
         description=f"📬 Tutorial setting was created! Look here --> {tutorial_channel.mention}",
