@@ -1441,27 +1441,14 @@ async def shark_game_tutorial(ctx: commands.Context):
             ctx.guild.me,
             send_messages=True,
             read_messages=True,
-            add_reactions=True,  # set permissions for the staff team
-            embed_links=True,
-            attach_files=True,
             read_message_history=True,
-            external_emojis=True,
         )
     except discord.Forbidden as e:
         await ctx.send(f"I got an error while putting permissions on myself. {str(e)}")
 
     for role, role_id in zip(mod_roles, MOD_ROLE_IDS):
         if role:
-            await tutorial_channel.set_permissions(
-                role,
-                send_messages=True,
-                read_messages=True,
-                add_reactions=True,  # set permissions for the staff team
-                embed_links=True,
-                attach_files=True,
-                read_message_history=True,
-                external_emojis=True,
-            )
+            await tutorial_channel.set_permissions(role, send_messages=True, read_messages=True, read_message_history=True)
         else:
             raise KeyError(f"Could not get role from guild for roleId {MOD_ROLE_IDS}. Cannot set MODS staff role permissions!")
     if isinstance(ctx.author, discord.Member):
@@ -1470,11 +1457,7 @@ async def shark_game_tutorial(ctx: commands.Context):
                 ctx.author,
                 send_messages=True,
                 read_messages=True,
-                add_reactions=False,  # Set the permissions for the user
-                embed_links=True,
-                attach_files=True,
                 read_message_history=True,
-                external_emojis=True,
             )
         except discord.Forbidden as e:
             await ctx.send(f"Got an error while making the permissions. {str(e)}")
