@@ -1455,7 +1455,15 @@ async def shark_game_tutorial(ctx: commands.Context):
         else:
             raise KeyError(f"Could not get role from guild for roleId {MOD_ROLE_IDS}. Cannot set MODS staff role permissions!")
 
-    tutorial_channel = await ctx.guild.create_text_channel(f"tutorial {username}", category=category, overwrites=overwrites)
+    try:
+        tutorial_channel = await ctx.guild.create_text_channel(f"tutorial {username}", category=category, overwrites=overwrites)
+    except discord.Forbidden as e:
+        debug = (
+            f"Bot guild permissions: {ctx.guild.me.guild_permissions.value}"
+            f"manage_roles: {ctx.guild.me.guild_permissions.manage_roles}"
+            f"manage_channels: {ctx.guild.me.guild_permissions.manage_channels}"
+        )
+        raise Exception("I got an error. " + debug + str(e))
 
     embed = discord.Embed(
         description=f"📬 Tutorial setting was created! Look here --> {tutorial_channel.mention}",
