@@ -13,8 +13,7 @@ from sqlite3 import OperationalError
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
-
-# from fishing.build.fish_multiple import fish_multiple_times
+from fishing.build.fish_multiple import fish_multiple_times
 from pydantic import ValidationError
 
 from exceptions import exceptions as ex
@@ -923,85 +922,85 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
 
     fish_odds = sg.fishing_odds_fish(username=str(user), net_used=net)
 
-    # result = fish_multiple_times(
-    #     times=amount,
-    #     net=net,
-    #     boost=boost,
-    #     boost_amount=boost_amount,
-    #     shark_names=sg.get_shark_names(rarity=rarity),
-    #     fish_odds=fish_odds,
-    #     bait=is_bait_used,
-    # )
+    result = fish_multiple_times(
+        times=amount,
+        net=net,
+        boost=boost,
+        boost_amount=boost_amount,
+        shark_names=sg.get_shark_names(rarity=rarity),
+        fish_odds=fish_odds,
+        bait=is_bait_used,
+    )
 
-    # result.large_fish_caught
-    # medium_fish = result.medium_fish_caught
-    # small_fish = result.small_fish_caught
-    # coins = result.coins_gotten
+    result.large_fish_caught
+    medium_fish = result.medium_fish_caught
+    small_fish = result.small_fish_caught
+    coins = result.coins_gotten
 
-    # large_fish = get_fish_result(user.name, user.id, "large", result.large_fish_caught)
-    # medium_fish = get_fish_result(user.name, user.id, "medium", result.medium_fish_caught)
-    # small_fish = get_fish_result(user.name, user.id, "small", result.small_fish_caught)
+    large_fish = get_fish_result(user.name, user.id, "large", result.large_fish_caught)
+    medium_fish = get_fish_result(user.name, user.id, "medium", result.medium_fish_caught)
+    small_fish = get_fish_result(user.name, user.id, "small", result.small_fish_caught)
 
-    # shark_names: list[str] = []
+    shark_names: list[str] = []
 
-    # for _, shark_name in result.sharks_caught:
-    #     shark_names.append(shark_name)
+    for _, shark_name in result.sharks_caught:
+        shark_names.append(shark_name)
 
-    # shark_names_counter = Counter(shark_names)
+    shark_names_counter = Counter(shark_names)
 
-    # shark_names_to_send = set(shark_names)
+    shark_names_to_send = set(shark_names)
 
-    # lines = [
-    #     "You have caught the following:",
-    #     f"{f'Large normal fish caught: {large_fish[0]} fish' if large_fish[0] > 0 else ''}",
-    #     f"{f'Large shiny fish caught: {large_fish[1]} fish' if large_fish[1] > 0 else ''}",
-    #     f"{f'Large legendary fish caught: {large_fish[2]} fish' if large_fish[2] > 0 else ''}",
-    #     "",
-    #     f"{f'medium normal fish caught: {medium_fish[0]} fish' if medium_fish[0] > 0 else ''}",
-    #     f"{f'medium shiny fish caught: {medium_fish[1]} fish' if medium_fish[1] > 0 else ''}",
-    #     f"{f'medium legendary fish caught: {medium_fish[2]} fish' if medium_fish[2] > 0 else ''}",
-    #     "",
-    #     f"{f'small normal fish caught: {small_fish[0]} fish' if small_fish[0] > 0 else ''}",
-    #     f"{f'small shiny fish caught: {small_fish[1]} fish' if small_fish[1] > 0 else ''}",
-    #     f"{f'small legendary fish caught: {small_fish[2]} fish' if small_fish[2] > 0 else ''}",
-    #     f"Coins gained: {coins} coins",
-    #     "",
-    #     f"{f'Sharks caught: {len(result.sharks_caught)}' if len(result.sharks_caught) > 0 else ''}",
-    # ]
+    lines = [
+        "You have caught the following:",
+        f"{f'Large normal fish caught: {large_fish[0]} fish' if large_fish[0] > 0 else ''}",
+        f"{f'Large shiny fish caught: {large_fish[1]} fish' if large_fish[1] > 0 else ''}",
+        f"{f'Large legendary fish caught: {large_fish[2]} fish' if large_fish[2] > 0 else ''}",
+        "",
+        f"{f'medium normal fish caught: {medium_fish[0]} fish' if medium_fish[0] > 0 else ''}",
+        f"{f'medium shiny fish caught: {medium_fish[1]} fish' if medium_fish[1] > 0 else ''}",
+        f"{f'medium legendary fish caught: {medium_fish[2]} fish' if medium_fish[2] > 0 else ''}",
+        "",
+        f"{f'small normal fish caught: {small_fish[0]} fish' if small_fish[0] > 0 else ''}",
+        f"{f'small shiny fish caught: {small_fish[1]} fish' if small_fish[1] > 0 else ''}",
+        f"{f'small legendary fish caught: {small_fish[2]} fish' if small_fish[2] > 0 else ''}",
+        f"Coins gained: {coins} coins",
+        "",
+        f"{f'Sharks caught: {len(result.sharks_caught)}' if len(result.sharks_caught) > 0 else ''}",
+    ]
 
-    # cleaned = [line for line in lines if line != ""]
-    # to_send = "\n".join(cleaned)
+    cleaned = [line for line in lines if line != ""]
+    to_send = "\n".join(cleaned)
 
-    # shark_name_msg = []
-    # i = 0
-    # for shark in shark_names_to_send:
-    #     msg_to_add = f"{shark}: {shark_names_counter[shark]} \n"
-    #     if not shark_name_msg:
-    #         shark_name_msg.append(msg_to_add)
+    shark_name_msg = []
+    i = 0
+    for shark in shark_names_to_send:
+        msg_to_add = f"{shark}: {shark_names_counter[shark]} \n"
+        if not shark_name_msg:
+            shark_name_msg.append(msg_to_add)
 
-    #     elif len(shark_name_msg[i]) + len(msg_to_add) >= 2000:
-    #         shark_name_msg.append(msg_to_add)
-    #         i += 1
-    #     else:
-    #         shark_name_msg[i] += msg_to_add
+        elif len(shark_name_msg[i]) + len(msg_to_add) >= 2000:
+            shark_name_msg.append(msg_to_add)
+            i += 1
+        else:
+            shark_name_msg[i] += msg_to_add
 
-    # current_time = f"{datetime.now().date()} {datetime.now().hour}"
-    # if shark_names_to_send:
-    #     for shark in shark_names_to_send:
-    #         count = shark_names_counter[shark]
-    #         for i in range(count):
-    #             sg.create_dex(user.id, user.name, shark, current_time, net, result.sharks_caught[0][0], net_uses=net_uses)
+    current_time = f"{datetime.now().date()} {datetime.now().hour}"
+    if shark_names_to_send:
+        for shark in shark_names_to_send:
+            count = shark_names_counter[shark]
+            for i in range(count):
+                sg.create_dex(user.id, user.name, shark, current_time, net, result.sharks_caught[0][0], net_uses=net_uses)
 
-    # await channel.send("Done fishing! Grabbing details now.")
+    await channel.send("Done fishing! Grabbing details now.")
 
-    # sg.remove_net_use(user.name, net, net_uses=net_uses - amount)
+    sg.remove_net_use(user.name, net, net_uses=net_uses - amount)
 
-    # sg.add_coins(user.id, coins)
+    sg.add_coins(user.id, coins)
 
-    # await channel.send(to_send)
-    # if shark_name_msg:
-    #     for message in shark_name_msg:
-    #         await channel.send(message)
+    await channel.send(to_send)
+    if shark_name_msg:
+        for message in shark_name_msg:
+            await channel.send(message)
 
 
 @bot.command(name="restart", hidden=True)
