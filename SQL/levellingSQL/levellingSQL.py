@@ -1,12 +1,17 @@
 import logging
 import sqlite3
 from enum import Enum
+from typing import Any, Sequence
+
+import discord
 
 connection = sqlite3.connect("databases/leveling_shark.db")
 cur = connection.cursor()
 
-cur.execute("""CREATE TABLE IF NOT EXISTS level
-                        (username TEXT PRIMARY KEY, level INTEGER, exp INTEGER, until_next_level INTEGER)""")
+cur.execute(
+    """CREATE TABLE IF NOT EXISTS level
+            (username TEXT PRIMARY KEY, level INTEGER, exp INTEGER, until_next_level INTEGER, user_id BIGINT DEFAULT 0)"""
+)
 
 
 class indicies(Enum):
@@ -42,6 +47,13 @@ def check_level(username: str):
     connection.commit()  # pushes changes to database
 
     return level_up
+
+
+def add_column_to_level(column_name: str, column_type: str, default_value: Any):
+    try:
+        cur.execute(f"ALTER TABLE level ADD COLUMN {column_name} {column_type} DEFAULT {default_value}")
+    except sqlite3.OperationalError as e:
+        print(f"Warning, error: {e}")
 
 
 def calculate_xp_needed(username: str) -> int:
@@ -81,15 +93,15 @@ def get_info(username: str) -> tuple[int, int, int, int]:
     )
 
 
-def add_user(username: str):
+def add_user(username: str, user_id: int):
     """
     Docstring for add_user
 
     :param username: The user's username
     :type username: str
     """
-    rows: tuple = (username, 0, 0, 50)
-    cur.execute("INSERT OR IGNORE INTO level (username, level, exp, until_next_level) VALUES (?, ?, ?, ?)", rows)
+    rows: tuple = (username, 0, 0, 50, user_id)
+    cur.execute("INSERT OR IGNORE INTO level (username, level, exp, until_next_level, user_id) VALUES (?, ?, ?, ?, ?)", rows)
     connection.commit()
     if cur.rowcount > 0:
         logging.info(f"[LEVELING SYSTEM] {username} was added to the leveling database")
@@ -97,7 +109,7 @@ def add_user(username: str):
     return False
 
 
-def add_to_level(username: str, boost: bool, boost_amount: int):
+def add_to_level(username: str, user_id: int, boost: bool, boost_amount: int):
     """
     Docstring for add_to_level
 
@@ -108,6 +120,10 @@ def add_to_level(username: str, boost: bool, boost_amount: int):
     :param boost_amount: How much is the boosted amount
     :type boost_amount: int
     """
+    if check_for_username_change(username, user_id):
+        cur.execute("UPDATE level SET username=? WHERE user_id=?", (username, user_id))
+        connection.commit()
+
     info = []
     for row in cur.execute("SELECT * FROM level WHERE username=?", (username,)):
         info.extend(row)  # breaks to tuple into individual indicies
@@ -119,6 +135,14 @@ def add_to_level(username: str, boost: bool, boost_amount: int):
 
     cur.execute(f"UPDATE level SET exp={info[indicies.EXP.value]} WHERE username=?", (username,))
     connection.commit()
+
+
+def check_for_username_change(username: str, user_id: int) -> bool:
+    cur.execute("SELECT DISTINCT username WHERE user_id=?", (user_id,))
+    result = cur.fetchall()
+    if len(result) > 1 or result[0] != username:
+        return True
+    return False
 
 
 def get_rank(username: str) -> int | None:
@@ -195,6 +219,34 @@ def level_0_xp_reset():
             cur.execute("UPDATE level SET exp=? WHERE username=?", (user_to_xp[user], user))
             check_level(username=user)
 
+    connection.commit()
+
+
+def add_user_ids_to_table(guild_members: Sequence[discord.Member]):
+    known_duplicates: dict[int, tuple[str, str]] = {
+        682614503636336699: ("sour__gravity", "chasing_gravity"),
+        232569360357654529: ("priestessmary", "vampire_priestess"),
+    }
+    for member in guild_members:
+        if member.id in known_duplicates:
+            user = known_duplicates[member.id]
+            old_info: tuple[int, int] = cur.execute("SELECT level, exp FROM level WHERE username=?", (user[0],)).fetchall()[
+                0
+            ]  # old username
+            old_level, old_exp = old_info
+            info: tuple[int, int] = cur.execute("SELECT level, exp FROM level WHERE username=?", (user[1],)).fetchall()[0]
+            level, exp = info
+            new_level = old_level + level
+            new_exp = old_exp + exp
+            cur.execute(
+                """UPDATE level
+                SET level=?, exp=?, user_id=?, until_next_level=?
+                WHERE username=?""",
+                (new_level, new_exp, member.id, new_level * 50, user[1]),
+            )
+            cur.execute("DELETE FROM level WHERE username=?", (user[0],))
+        else:
+            cur.execute("UPDATE level SET user_id=? WHERE username=?", (member.id, member.name))
     connection.commit()
 
 

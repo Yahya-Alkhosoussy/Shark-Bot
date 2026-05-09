@@ -134,7 +134,7 @@ class levelingLoop:
         self.bot = bot
 
     async def add_users(self, user: discord.Member):
-        return ls.add_user(username=user.name)
+        return ls.add_user(username=user.name, user_id=user.id)
 
     async def check_role(self, user: discord.Member):
         level, _, _, _ = ls.get_info(username=user.name)
@@ -207,10 +207,10 @@ class levelingLoop:
         username = message.author.name
 
         # Make sure the user is added to the database
-        ls.add_user(username=username)
+        ls.add_user(username=username, user_id=message.author.id)
 
         # Add to the user's level
-        ls.add_to_level(username=username, boost=boost_event, boost_amount=boost_amount)
+        ls.add_to_level(username=username, boost=boost_event, boost_amount=boost_amount, user_id=message.author.id)
 
         leveled_up = ls.check_level(username=username)  # leveled_up is a boolean and level is an integer
 

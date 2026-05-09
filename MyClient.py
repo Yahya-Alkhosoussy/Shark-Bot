@@ -34,6 +34,7 @@ from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.clipManagement.clips import add_user, get_nick, get_username
 from SQL.fishingSQL.baits import add_column_to_baits_db, add_column_to_fish_db, add_fish_caught, add_user_ids, get_baits
+from SQL.levellingSQL.levellingSQL import add_user_ids_to_table
 from SQL.rolesSQL.roles import add_message_ids_to_role_sets_table, fill_emoji_map, update_role_emoji_ASCII, update_role_message
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
@@ -1511,6 +1512,19 @@ async def done_with_tutorial(ctx: commands.Context):
     await ctx.reply("Thank you for completing the tutorial. Deleting channel in 3 seconds!")
     await asyncio.sleep(3)
     await ctx.channel.delete(reason="Tutorial Done")
+
+
+@bot.command("merge")
+@commands.is_owner()
+async def merge(ctx: commands.Context):
+    assert ctx.guild
+    await ctx.send(f"Starting merge for {len(ctx.guild.members)} members...")
+    try:
+        await asyncio.to_thread(add_user_ids_to_table, ctx.guild.members)
+    except Exception as e:
+        await ctx.send(f"Got an error {e}")
+        return
+    await ctx.send("Merge complete.")
 
 
 # check for errors
