@@ -49,7 +49,7 @@ def check_level(username: str):
     return level_up
 
 
-def add_column_to_level(column_name: str, column_type: str, default_value: Any):
+def add_column_to_level(cur: sqlite3.Cursor, column_name: str, column_type: str, default_value: Any):
     try:
         cur.execute(f"ALTER TABLE level ADD COLUMN {column_name} {column_type} DEFAULT {default_value}")
     except sqlite3.OperationalError as e:
@@ -229,7 +229,7 @@ def add_user_ids_to_table(guild_members: Sequence[discord.Member]):
         682614503636336699: ("sour__gravity", "chasing_gravity"),
         232569360357654529: ("priestessmary", "vampire_priestess"),
     }
-    add_column_to_level("user_id", "BIGINT", 0)
+    add_column_to_level(cur, "user_id", "BIGINT", 0)
 
     for member in guild_members:
         if member.id in known_duplicates:
