@@ -229,6 +229,8 @@ def add_user_ids_to_table(guild_members: Sequence[discord.Member]):
         682614503636336699: ("sour__gravity", "chasing_gravity"),
         232569360357654529: ("priestessmary", "vampire_priestess"),
     }
+    add_column_to_level("user_id", "BIGINT", 0)
+
     for member in guild_members:
         if member.id in known_duplicates:
             user = known_duplicates[member.id]
