@@ -223,6 +223,8 @@ def level_0_xp_reset():
 
 
 def add_user_ids_to_table(guild_members: Sequence[discord.Member]):
+    conn = sqlite3.connect("your.db")
+    cur = conn.cursor()
     known_duplicates: dict[int, tuple[str, str]] = {
         682614503636336699: ("sour__gravity", "chasing_gravity"),
         232569360357654529: ("priestessmary", "vampire_priestess"),
@@ -247,7 +249,7 @@ def add_user_ids_to_table(guild_members: Sequence[discord.Member]):
             cur.execute("DELETE FROM level WHERE username=?", (user[0],))
         else:
             cur.execute("UPDATE level SET user_id=? WHERE username=?", (member.id, member.name))
-    connection.commit()
+    conn.commit()
 
 
 # print(cur.execute("SELECT * FROM level").fetchall())
