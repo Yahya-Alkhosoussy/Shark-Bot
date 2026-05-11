@@ -194,20 +194,20 @@ class MyBot(commands.Bot):
                             config.saveConfig()
                             print("After saving:")
                             print(config.set_up_done)
-            if guild_name == "shark squad":
-                for member in guild.members:
-                    try:
-                        user_added = await self.leveling_loop.add_users(user=member)
-                    except Exception as e:
-                        logging.error(str(e))
-                        user_added = False
-                    if user_added:
-                        try:
-                            role_added = await self.leveling_loop.add_role(user=member)
-                            if role_added is None:
-                                logging.warning(f"Failed to add role to member {member}, returned None")
-                        except Exception as e:
-                            logging.error(str(e))
+            # if guild_name == "shark squad":
+            #     for member in guild.members:
+            #         try:
+            #             user_added = await self.leveling_loop.add_users(user=member)
+            #         except Exception as e:
+            #             logging.error(str(e))
+            #             user_added = False
+            #         if user_added:
+            #             try:
+            #                 role_added = await self.leveling_loop.add_role(user=member)
+            #                 if role_added is None:
+            #                     logging.warning(f"Failed to add role to member {member}, returned None")
+            #             except Exception as e:
+            #                 logging.error(str(e))
 
     # ======= ANNOUNCE ARRIVAL =======
     async def on_member_join(self, member: discord.Member):
