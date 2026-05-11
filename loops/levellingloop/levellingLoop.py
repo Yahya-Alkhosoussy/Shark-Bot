@@ -124,7 +124,7 @@ ROLES_SHARK_SQUAD: LevelRoleSet = config.level_roles["shark squad"]
 
 # ============= UTILITY =======================
 def get_level(user: discord.Member):
-    level, _, _, _ = ls.get_info(username=user.name)
+    level, _, _, _ = ls.get_info(user_id=user.id)
     return level
 
 
@@ -137,7 +137,7 @@ class levelingLoop:
         return ls.add_user(username=user.name, user_id=user.id)
 
     async def check_role(self, user: discord.Member):
-        level, _, _, _ = ls.get_info(username=user.name)
+        level, _, _, _ = ls.get_info(user_id=user.id)
         level_role_id = ROLES_SHARK_SQUAD["10"]
         guild = user.guild
         role = guild.get_role(level_role_id)
@@ -145,7 +145,7 @@ class levelingLoop:
             await user.add_roles(role)
 
     async def add_role(self, user: discord.Member):
-        level, _, _, _ = ls.get_info(username=user.name)
+        level, _, _, _ = ls.get_info(user_id=user.id)
         level_role_id = ROLES_SHARK_SQUAD[f"{level}"]
         guild = user.guild
         role = guild.get_role(level_role_id)
@@ -204,18 +204,18 @@ class levelingLoop:
         boost_event = config["boost"]
         boost_amount = config["boost amount"]
 
-        username = message.author.name
+        user_id = message.author.id
 
         # Make sure the user is added to the database
-        ls.add_user(username=username, user_id=message.author.id)
+        ls.add_user(username=message.author.name, user_id=message.author.id)
 
         # Add to the user's level
-        ls.add_to_level(username=username, boost=boost_event, boost_amount=boost_amount, user_id=message.author.id)
+        ls.add_to_level(username=message.author.name, boost=boost_event, boost_amount=boost_amount, user_id=message.author.id)
 
-        leveled_up = ls.check_level(username=username)  # leveled_up is a boolean and level is an integer
+        leveled_up = ls.check_level(user_id=user_id)  # leveled_up is a boolean and level is an integer
 
         if leveled_up:
-            level, _, _, _ = ls.get_info(username=username)
+            level, _, _, _ = ls.get_info(user_id=user_id)
             channel = message.channel
             message_to_send: str | None
             if level == 1:
@@ -247,8 +247,7 @@ Swim thoughtfully, respect the depths, and enjoy your sparkling new habitat. {me
                 await channel.send(message_to_send)
 
     async def check_level(self, message: discord.Message):
-        username = message.author.name
-        level, exp, exp_needed, rank = ls.get_info(username=username)
+        level, exp, exp_needed, rank = ls.get_info(user_id=message.author.id)
         if not isinstance(rank, int):
             rank = 0
         if isinstance(message.author, discord.Member):

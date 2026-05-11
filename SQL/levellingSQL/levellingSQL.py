@@ -21,7 +21,7 @@ class indicies(Enum):
     UNTIL_NEXT_LEVEL = 3
 
 
-def check_level(username: str):
+def check_level(user_id: int):
     """
     Docstring for check_level
 
@@ -31,7 +31,7 @@ def check_level(username: str):
     :return level_up: Whether or not the user has levelled up
     """
     info = []
-    for row in cur.execute("SELECT * FROM level WHERE username=?", (username,)):
+    for row in cur.execute("SELECT * FROM level WHERE user_id=?", (user_id,)):
         info.extend(row)  # breaks to tuple into individual indicies
 
     level_up = False
@@ -40,10 +40,10 @@ def check_level(username: str):
         level_up = True
         info[indicies.LEVEL.value] += 1
         info[indicies.EXP.value] = 0
-        info[indicies.UNTIL_NEXT_LEVEL.value] = calculate_xp_needed(username=username)
-        cur.execute(f"UPDATE level SET level={info[indicies.LEVEL.value]} WHERE username='{username}'")
-        cur.execute(f"UPDATE level SET exp={info[indicies.EXP.value]} WHERE username='{username}'")
-        cur.execute(f"UPDATE level SET until_next_level={info[indicies.UNTIL_NEXT_LEVEL.value]} WHERE username='{username}'")
+        info[indicies.UNTIL_NEXT_LEVEL.value] = calculate_xp_needed(user_id=user_id)
+        cur.execute(f"UPDATE level SET level={info[indicies.LEVEL.value]} WHERE user_id='{user_id}'")
+        cur.execute(f"UPDATE level SET exp={info[indicies.EXP.value]} WHERE user_id='{user_id}'")
+        cur.execute(f"UPDATE level SET until_next_level={info[indicies.UNTIL_NEXT_LEVEL.value]} WHERE user_id='{user_id}'")
     connection.commit()  # pushes changes to database
 
     return level_up
@@ -56,21 +56,21 @@ def add_column_to_level(cur: sqlite3.Cursor, column_name: str, column_type: str,
         print(f"Warning, error: {e}")
 
 
-def calculate_xp_needed(username: str) -> int:
+def calculate_xp_needed(user_id: int) -> int:
     """
     This function is to calculate the XP needed for the next level
 
     :param username: The user's username
     :type username: str
     """
-    xp_needed = cur.execute("SELECT until_next_level FROM level WHERE username=?", (username,)).fetchone()[0]
+    xp_needed = cur.execute("SELECT until_next_level FROM level WHERE user_id=?", (user_id,)).fetchone()[0]
 
     xp_needed += 50
 
     return xp_needed
 
 
-def get_info(username: str) -> tuple[int, int, int, int]:
+def get_info(user_id: int) -> tuple[int, int, int, int]:
     """
     Docstring for get_info
 
@@ -79,10 +79,10 @@ def get_info(username: str) -> tuple[int, int, int, int]:
     """
 
     info = []
-    for row in cur.execute("SELECT * FROM level WHERE username=?", (username,)):
+    for row in cur.execute("SELECT * FROM level WHERE user_id=?", (user_id,)):
         info.extend(row)
 
-    rank = get_rank(username=username)
+    rank = get_rank(user_id=user_id)
     assert rank is not None
 
     return (
@@ -145,8 +145,8 @@ def check_for_username_change(username: str, user_id: int) -> bool:
     return False
 
 
-def get_rank(username: str) -> int | None:
-    data = cur.execute("SELECT level, exp FROM level WHERE username=?", (username,)).fetchone()
+def get_rank(user_id: int) -> int | None:
+    data = cur.execute("SELECT level, exp FROM level WHERE user_id=?", (user_id,)).fetchone()
 
     if not data:
         return None
@@ -208,16 +208,16 @@ def reset_levels():
 
 # reset_levels()
 def level_0_xp_reset():
-    cur.execute("SELECT username, exp FROM level WHERE level=0")
+    cur.execute("SELECT user_id, exp FROM level WHERE level=0")
     info = cur.fetchall()
-    user_to_xp: dict[str, int] = {}  # username to xp gained
+    user_to_xp: dict[int, int] = {}  # user_id to xp gained
     for user, exp in info:
         user_to_xp[user] = exp
 
         if user_to_xp[user] < 0:
             user_to_xp[user] += 5000
-            cur.execute("UPDATE level SET exp=? WHERE username=?", (user_to_xp[user], user))
-            check_level(username=user)
+            cur.execute("UPDATE level SET exp=? WHERE user_id=?", (user_to_xp[user], user))
+            check_level(user_id=user)
 
     connection.commit()
 
