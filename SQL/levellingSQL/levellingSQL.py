@@ -223,7 +223,7 @@ def level_0_xp_reset():
 
 
 def add_user_ids_to_table(guild_members: Sequence[discord.Member]):
-    conn = sqlite3.connect("your.db")
+    conn = sqlite3.connect("databases/leveling_shark.db")
     cur = conn.cursor()
     known_duplicates: dict[int, tuple[str, str]] = {
         682614503636336699: ("sour__gravity", "chasing_gravity"),
