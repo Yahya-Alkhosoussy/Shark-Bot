@@ -258,6 +258,8 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             else:
                 to_send = f"{member} has left the server"
                 await channel.send(to_send)
+        else:
+            logging.warning(f"[WELCOME] Channel not found for {guild_name} ({guild.id})")
 
     async def ensure_react_roles_message(self, guild: discord.Guild):
         try:
