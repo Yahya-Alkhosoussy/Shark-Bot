@@ -239,19 +239,19 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             await self.leveling_loop.add_role(user=member)
 
     # ======= ANNOUNCE DEPARTURE =======
-    async def on_member_remove(self, member):
+    async def on_member_remove(self, member: discord.Member):
         guild = member.guild
         welcome_channels = config.channels["welcome"]
         # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file,
         # so for consistency we use the one on the YAML
         guild_name: str = config.guilds[guild.id]
-        channel_id = welcome_channels.get(guild_name)
+        channel_id = welcome_channels[guild_name]
         if channel_id is None:
             logging.warning(f"[GOODBYE] No channel configured for {guild_name} ({guild.id})")
             return
 
         channel = guild.get_channel(channel_id)
-        if channel is not None:
+        if channel is not None and isinstance(channel, discord.TextChannel):
             if guild_name == "shark squad":
                 to_send = f"{member} has left the Aquarium."
                 await channel.send(to_send)
