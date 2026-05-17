@@ -17,7 +17,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS emojis
 cur.execute("""CREATE TABLE IF NOT EXISTS guilds
                         (id INTEGER PRIMARY KEY, name TEXT UNIQUE, guild_id INTEGER)""")
 cur.execute("""CREATE TABLE IF NOT EXISTS roleSets
-                        (id INTEGER PRIMARY KEY, name TEXT, message_id BIGINT, guild_table_id BIGINT, UNIQUE(name, guild_table_id))""") # noqa: E501
+                        (id INTEGER PRIMARY KEY, name TEXT, message_id BIGINT, guild_table_id BIGINT, UNIQUE(name, guild_table_id))""")  # noqa: E501
 cur.execute("""CREATE TABLE IF NOT EXISTS roles
                         (id INTEGER PRIMARY KEY, name TEXT UNIQUE, role_id INTEGER, emoji_id INTEGER, guild_id INTEGER, roleSet_ID INTEGER)""")  # noqa: E501
 
@@ -57,7 +57,8 @@ def put_emoji_in_table(animated: bool, emoji_name: str, discord_id: int | None) 
     Puts emoji in the SQL table and returns the emoji ID
     """
     cur.execute(
-        "INSERT OR IGNORE INTO emojis (animated, name, discord_id) VALUES (?, ?, ?)", (animated, emoji_name.replace("\uFE0F", "").replace("\uFE0E", ""), discord_id)
+        "INSERT OR IGNORE INTO emojis (animated, name, discord_id) VALUES (?, ?, ?)",
+        (animated, emoji_name.replace("\ufe0f", "").replace("\ufe0e", ""), discord_id),
     )
     conn.commit()
 
@@ -79,8 +80,7 @@ def put_role_set_in_table(role_set_name: str, guild_table_id: int) -> int:
     Puts role set in the SQL table and returns the role set ID
     """
     cur.execute(
-        "INSERT OR IGNORE INTO roleSets (name, guild_table_id, message_id) VALUES (?, ?, ?)",
-        (role_set_name, guild_table_id, 0)
+        "INSERT OR IGNORE INTO roleSets (name, guild_table_id, message_id) VALUES (?, ?, ?)", (role_set_name, guild_table_id, 0)
     )
     conn.commit()
     return cur.execute("SELECT id FROM roleSets WHERE name = ?", (role_set_name,)).fetchone()[0]
@@ -179,6 +179,7 @@ def get_role_id(role_name: str) -> int:
     cur.execute("SELECT role_id FROM roles WHERE name=?", (role_name,))
     return cur.fetchone()[0]
 
+
 def update_role_message(roleSet: str, role_id: int, guild_name: str):
     guild_table_id = put_guild_in_table(guild_name=guild_name)
     roleSet_id = put_role_set_in_table(roleSet, guild_table_id)
@@ -186,14 +187,17 @@ def update_role_message(roleSet: str, role_id: int, guild_name: str):
     conn.commit()
     return roleSet_id
 
+
 def update_role_emoji_ASCII(emoji_name: str, role_id: int):
     emoji_id = cur.execute("SELECT emoji_id FROM roles WHERE role_id=?", (role_id,)).fetchone()[0]
     cur.execute("UPDATE emojis SET name=?, animated=0, discord_id=NULL WHERE id=?", (emoji_name, emoji_id))
     conn.commit()
 
+
 def add_message_id_to_table(role_set_name: str, message_id: int):
     cur.execute("UPDATE roleSets SET message_id=? WHERE name=?", (message_id, role_set_name))
     conn.commit()
+
 
 def add_message_ids_to_role_sets_table():
 
@@ -224,15 +228,25 @@ def add_message_ids_to_role_sets_table():
 
     # Shark Squad
     role_set_names = ["general", "birthdays", "friend", "backpack", "sherpa", "Pronouns"]
-    message_ids = [1432537821352296580, 1432539470334394408, 1459553811604705432, 1471587842152071432, 1432541922387562529, 1489269683784909052]
+    message_ids = [
+        1432537821352296580,
+        1432539470334394408,
+        1459553811604705432,
+        1471587842152071432,
+        1432541922387562529,
+        1489269683784909052,
+    ]
 
     for role_set, message_id in zip(role_set_names, message_ids):
         if role_set == "general" or role_set == "Pronouns":
-            cur.execute("INSERT OR IGNORE INTO roleSets (name, message_id, guild_table_id) VALUES (?, ?, ?)", (role_set, message_id, 2))
+            cur.execute(
+                "INSERT OR IGNORE INTO roleSets (name, message_id, guild_table_id) VALUES (?, ?, ?)", (role_set, message_id, 2)
+            )
             conn.commit()
             continue
         cur.execute("UPDATE roleSets SET message_id=?, guild_table_id=? WHERE name=?", (message_id, 2, role_set))
         conn.commit()
+
 
 def get_role_messages(guild_name: str, guild_id: int) -> tuple[list[str], list[int]]:
     guild_table_id = put_guild_in_table(guild_name=guild_name, guild_id=guild_id)
@@ -246,6 +260,7 @@ def get_role_messages(guild_name: str, guild_id: int) -> tuple[list[str], list[i
 
     return names, msg_ids
 
+
 def is_role_message_in_table(role_message_name: str, guild_id: int) -> bool:
     cur.execute("SELECT id FROM guilds WHERE guild_id=?", (guild_id,))
     guild_table_id = cur.fetchone()[0]
@@ -253,6 +268,7 @@ def is_role_message_in_table(role_message_name: str, guild_id: int) -> bool:
     if cur.fetchone()[0] != 0:
         return True
     return False
+
+
 # add_message_ids_to_role_sets_table()
 # print(get_role_messages("shark squad", 1273776575266951268))
-
