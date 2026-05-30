@@ -15,3 +15,7 @@ pytest
 pytest-asyncio
 freezegun
 pybind11
+PyNaCl
+davey
+spotipy
+yt_dlp
