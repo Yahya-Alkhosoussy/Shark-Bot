@@ -965,9 +965,7 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
 async def link_twitch(interaction: discord.Interaction, twitch_name: str):
     twitch_user_id = await get_user_id(twitch_name, user=None)
     sg.add_twitch(twitch_user_id, twitch_name, interaction.user.id)
-    channel = interaction.channel
-    if isinstance(channel, discord.TextChannel):
-        await channel.send("Connected your twitch!")
+    await interaction.response.send_message("Successfully linked your dex to your twitch account")
 
 
 @bot.command(name="restart", hidden=True)
