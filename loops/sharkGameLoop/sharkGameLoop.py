@@ -75,7 +75,7 @@ class SharkLoops:
                 list_of_names = sg.get_shark_names(sg.SharkRarity.VERY_COMMON)
 
             if not list_of_names:
-                return # nothing to drop
+                return  # nothing to drop
 
             name_index = random.randint(0, len(list_of_names) - 1)
             name_to_drop: str = list_of_names[name_index]  # use name index and not rand_int next time idiot.
@@ -95,7 +95,7 @@ class SharkLoops:
                 channel = c.get_channel(channel_id)
                 if channel and isinstance(channel, discord.TextChannel):
                     message = await channel.send(
-                        "A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣"
+                        "A shark just appeared 🦈! Quick, type `!catch` within 2 minutes to catch it 🎣"
                     )
                     self.config.shark_message_id = message.id
                     self.config.saveConfig()
@@ -107,7 +107,7 @@ class SharkLoops:
                 raise e
 
             def check(m: discord.Message):
-                return m.channel.id == channel_id and not m.author.bot and m.content.lower().startswith("?catch")
+                return m.channel.id == channel_id and not m.author.bot and m.content.lower().startswith("!catch")
 
             deadline = time.monotonic() + self.config.window_time
             caught_users: dict[str, discord.Message] = {}  # username -> first catch message
@@ -125,14 +125,14 @@ class SharkLoops:
                 content = msg.content.strip()
 
                 # Remove the command prefix only once, then strip leading spaces
-                after = content[len("?catch") :].strip() if content.lower().startswith("?catch") else ""
+                after = content[len("!catch") :].strip() if content.lower().startswith("!catch") else ""
 
                 # only first successful catch per user counts
                 user_name = msg.author.name
                 if user_name not in caught_users:
                     caught_users[user_name] = msg
                     lists_of_after[user_name] = after
-                    # Send a message to the user if the net is not available after they send the `?catch` command.
+                    # Send a message to the user if the net is not available after they send the `!catch` command.
                     if not sg.is_net_available(user_name, after) and after:
                         await channel.send(
                             f"{msg.author.mention} you do not own {lists_of_after.get(user_name)}! Defaulting to rope net."
@@ -246,7 +246,7 @@ class SharkLoops:
             list_of_names = sg.get_shark_names(sg.SharkRarity.VERY_COMMON)
 
         if not list_of_names:
-            return # nothing to drop
+            return  # nothing to drop
 
         name_index = random.randint(0, len(list_of_names) - 1)
         name_to_drop: str = list_of_names[name_index]
@@ -261,10 +261,13 @@ class SharkLoops:
             rarity = "normal"
 
         await channel.send("Welcome to the shark game and tutorial! First, the shark catching section!")
-        await channel.send("A shark will appear every 30 minutes and you will have 2 minutes to try and catch it. Try it, here:")
-        await channel.send("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
+        await channel.send(
+            "A shark will appear every 30 minutes and you will have 2 minutes to try and catch it. Try it, here:"
+        )
+        await channel.send("A shark just appeared 🦈! Quick, type `!catch` within 2 minutes to catch it 🎣")
+
         def check(m: discord.Message):
-            return m.channel.id == channel.id and m.author.id == user_id and m.content.lower().startswith("?catch")
+            return m.channel.id == channel.id and m.author.id == user_id and m.content.lower().startswith("!catch")
 
         try:
             msg: discord.Message = await self.client.wait_for("message", check=check, timeout=self.config.window_time)
@@ -273,20 +276,12 @@ class SharkLoops:
 
         content = msg.content.strip()
 
-        after = content[len("?catch") :].strip() if content.lower().startswith("?catch") else ""
+        after = content[len("!catch") :].strip() if content.lower().startswith("!catch") else ""
 
         username = msg.author.name
         time_caught: str = f"{dt.datetime.now().date()} {dt.datetime.now().hour}"
         coins = 0
-        sg.create_dex(
-            msg.author.id,
-            username,
-            name_to_drop,
-            time_caught,
-            "rope net",
-            rarity,
-            net_uses=0
-        )
+        sg.create_dex(msg.author.id, username, name_to_drop, time_caught, "rope net", rarity, net_uses=0)
         if fishing_config.boost is not None:
             coins = sg.reward_coins(
                 user_id=msg.author.id,
@@ -301,11 +296,10 @@ class SharkLoops:
         )
         await channel.send("Congratulations! You caught your first shark!")
         await channel.send("How about we try that again, but give you a net?")
-        await channel.send("Please send `?catch leather net`")
+        await channel.send("Please send `!catch leather net`")
 
         while True:
-
-            await channel.send("A shark just appeared 🦈! Quick, type `?catch` within 2 minutes to catch it 🎣")
+            await channel.send("A shark just appeared 🦈! Quick, type `!catch` within 2 minutes to catch it 🎣")
 
             try:
                 msg: discord.Message = await self.client.wait_for("message", check=check, timeout=self.config.window_time)
@@ -314,21 +308,13 @@ class SharkLoops:
 
             content = msg.content.strip()
 
-            after = content[len("?catch") :].strip() if content.lower().startswith("?catch") else ""
+            after = content[len("!catch") :].strip() if content.lower().startswith("!catch") else ""
 
             username = msg.author.name
             time_caught: str = f"{dt.datetime.now().date()} {dt.datetime.now().hour}"
             coins = 0
             if after == "leather net":
-                sg.create_dex(
-                    msg.author.id,
-                    username,
-                    name_to_drop,
-                    time_caught,
-                    after,
-                    rarity,
-                    net_uses=0
-                )
+                sg.create_dex(msg.author.id, username, name_to_drop, time_caught, after, rarity, net_uses=0)
                 if fishing_config.boost is not None:
                     coins = sg.reward_coins(
                         user_id=msg.author.id,
@@ -343,8 +329,8 @@ class SharkLoops:
                 )
                 break
             else:
-                await channel.send(f"You didn't enter that correctly, after `?catch` you sent {after} instead of `leather net`")
-                await channel.send("Let's try that again. Please enter `?catch`")
+                await channel.send(f"You didn't enter that correctly, after `!catch` you sent {after} instead of `leather net`")
+                await channel.send("Let's try that again. Please enter `!catch`")
                 continue
 
         await channel.send("Nice going! Lets try fishing! do `?fish` and follow the instructions.")
