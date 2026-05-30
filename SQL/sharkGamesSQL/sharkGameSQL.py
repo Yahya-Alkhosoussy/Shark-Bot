@@ -32,6 +32,8 @@ cursor.execute(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL, -- This is the discord ID
         username TEXT NOT NULL,
+        twitch_id INTEGER,
+        twitch_user TEXT,
         shark TEXT,
         time TEXT,
         fact TEXT,
@@ -41,6 +43,9 @@ cursor.execute(
         rarity TEXT,
         level INTEGER,
         net_uses INTEGER,
+        caught_on TEXT,
+        last_fed TEXT,
+        fed_streak INTEGER DEFAULT 0,
         sold BOOLEAN DEFAULT 0
     )"""
 )
@@ -273,6 +278,43 @@ def get_dex(user_id: int):
     except sqlite3.OperationalError:
         full = None
     return full
+
+
+def add_column_to_dex_db(column_name: str, column_type, default_value):
+    try:
+        cursor.execute(
+            f"""
+            ALTER TABLE dex
+            ADD COLUMN {column_name} {column_type} DEFAULT {default_value};
+            """
+        )
+    except sqlite3.OperationalError as e:
+        print(f"Warning, error {e}")
+
+
+def remove_column_from_dex_db(column_name: str):
+    try:
+        cursor.execute(
+            f"""
+            ALTER TABLE dex
+            DROP COLUMN {column_name};
+            """
+        )
+    except sqlite3.OperationalError as e:
+        print(f"Got an error {e}")
+
+
+def add_columns():
+    add_column_to_dex_db("twitch_id", "INTEGER", "NULL")
+    add_column_to_dex_db("twitch_user", "TEXT", "NULL")
+    add_column_to_dex_db("caught_on", "TEXT", "discord")
+    add_column_to_dex_db("last_fed", "TEXT", "NULL")
+    add_column_to_dex_db("fed_streak", "INTEGER", 0)
+
+
+def add_twitch(twitch_id: int, twitch_user: str, discord_id: int):
+    cursor.execute("UPDATE dex SET twitch_id=?, twitch_user=? WHERE user_id=?", (twitch_id, twitch_user, discord_id))
+    connection.commit()
 
 
 def add_column_to_shark_db(column_name: str, column_type, default_value):
