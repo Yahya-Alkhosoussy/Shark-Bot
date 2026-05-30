@@ -41,7 +41,7 @@ from ticketingSystem.Ticket_System import TicketSystem
 from utils.checks import is_mod
 from utils.core import AppConfig, get_full_path
 from utils.fishing import FishingConfig
-from utils.pullingFromTwitch import user_exists
+from utils.pullingFromTwitch import get_user_id, user_exists
 from utils.ticketing import TicketingConfig
 
 # ======= Logging/Env =======
@@ -960,6 +960,16 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
             await channel.send(message)
 
 
+@bot.tree.command(name="link-twitch-for-shark-catch")
+@discord.app_commands.describe(twitch_name="Your twitch username")
+async def link_twitch(interaction: discord.Interaction, twitch_name: str):
+    twitch_user_id = await get_user_id(twitch_name, user=None)
+    sg.add_twitch(twitch_user_id, twitch_name, interaction.user.id)
+    channel = interaction.channel
+    if isinstance(channel, discord.TextChannel):
+        await channel.send("Connected your twitch!")
+
+
 @bot.command(name="restart", hidden=True)
 @commands.is_owner()
 async def restart_bot(ctx: commands.Context, stash: bool):
@@ -1050,6 +1060,29 @@ async def compensate_by_adding_net_uses(ctx: commands.Context):
     await ctx.reply("giving everyone free net uses")
     sg.add_80_net_uses_to_all()
     await ctx.reply("Added")
+
+
+@bot.command(name="play")
+async def play_song(ctx: commands.Context):
+    if not isinstance(ctx.author, discord.Member):
+        return None
+
+    if ctx.author.voice is None or ctx.author.voice.channel is None:
+        await ctx.send("Join a voice channel first.")
+        return
+    target = ctx.author.voice.channel
+    vc = ctx.voice_client
+
+    if vc is None or not isinstance(vc, discord.VoiceClient):
+        vc = await target.connect()
+    elif vc.channel != target:
+        await vc.move_to(target)
+
+    if vc.is_playing():
+        vc.stop()
+
+    source = discord.FFmpegPCMAudio("freesound_community-080047_lose_funny_retro_video-game-80925.mp3")
+    vc.play(source, after=lambda e: print(f"finished: {e}") if e else None)
 
 
 @bot.group()
@@ -1256,6 +1289,14 @@ async def get(ctx: commands.Context):
 @get.group()
 async def shark(ctx: commands.Context):
     pass
+
+
+@shark.command(name="update")
+@commands.is_owner()
+async def get_shark_update(ctx: commands.Context):
+    await ctx.reply("Updating database")
+    sg.add_columns()
+    await ctx.reply("Columns added")
 
 
 @shark.command(name="message")
