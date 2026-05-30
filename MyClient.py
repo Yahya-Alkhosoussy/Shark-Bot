@@ -57,7 +57,7 @@ CONFIG_PATH = Path(r"config.YAML")
 TICKET_CONFIG_PATH = Path(r"ticketingSystem/ticketing.yaml")
 NON_MOD_LOG_CHANNEL_ID = 1430445244733722694
 
-prefix: str = "?"
+prefix: str = "!"
 
 try:
     config = AppConfig(CONFIG_PATH)
@@ -306,12 +306,12 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
                 to_send = """Thank you for asking for help!
 The following are mod exclusive actions:
-1. `?timeout [@user] [duration in seconds] [reason (optional)]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
-2. `?kick [@user] [reason (optional)]` - This command is to kick any user from the server.
-3. `?ban [@user] [reason (optional)]` - This command is to ban any user from the server.
-4. `?add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
-5. `?update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
-6. `?update shop prices` - same as above but for prices."""  # noqa: E501
+1. `!timeout [@user] [duration in seconds] [reason (optional)]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
+2. `!kick [@user] [reason (optional)]` - This command is to kick any user from the server.
+3. `!ban [@user] [reason (optional)]` - This command is to ban any user from the server.
+4. `!add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
+5. `!update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
+6. `!update shop prices` - same as above but for prices."""  # noqa: E501
                 await message.reply(to_send)
                 handled = True
 
@@ -358,22 +358,22 @@ A few notes:
         if message.content.startswith(prefix + "help"):
             send = """Thank you for asking for help! Here are my commands:
 General:
-1. `?help` - Shows all commands.
-2. `?rules` - Show cases all the rules
-3. `?hello` - The bot greets you :>
+1. `!help` - Shows all commands.
+2. `!rules` - Show cases all the rules
+3. `!hello` - The bot greets you :>
 Shark Catch Game:
-1. `?get dex` - Shows all the sharks you caught and how many you've caught.
-2. `?detailed dex ` - Sends you your detailed dex into your DMs.
-3. `?my nets` - Shows you all the nets you own.
-4. `?catch` - Use this when trying to catch a shark! This will use the default net with a low chance of success
-5. `?catch [net name]` - Use this when trying to use a specific net. If you enter a net you do not own it will ignore that net and use the basic one.
-6. `?coins` - Tells you the amount of coins you currently have.
-7. `?buy net` - Use this when trying to buy a new net!
-8. `?describe game` - Gives a short description of the game.
-9. `?fish` - Starts fishing and asks you for a net to use.
-10. `?my baits` - Shows you all the baits you own.
-11. `?fish [bait name]` - Starts fishing with the bait of your choice.
-12. `?buy bait` - Use this when trying to buy bait!
+1. `!get dex` - Shows all the sharks you caught and how many you've caught.
+2. `!detailed dex ` - Sends you your detailed dex into your DMs.
+3. `!my nets` - Shows you all the nets you own.
+4. `!catch` - Use this when trying to catch a shark! This will use the default net with a low chance of success
+5. `!catch [net name]` - Use this when trying to use a specific net. If you enter a net you do not own it will ignore that net and use the basic one.
+6. `!coins` - Tells you the amount of coins you currently have.
+7. `!buy net` - Use this when trying to buy a new net!
+8. `!describe game` - Gives a short description of the game.
+9. `!fish` - Starts fishing and asks you for a net to use.
+10. `!my baits` - Shows you all the baits you own.
+11. `!fish [bait name]` - Starts fishing with the bait of your choice.
+12. `!buy bait` - Use this when trying to buy bait!
             """  # noqa: E501
             await message.reply(send)
             handled = True
@@ -565,7 +565,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             try:
                 follow = await self.wait_for("message", check=check, timeout=30)
             except asyncio.TimeoutError:
-                await message.reply("Timed out, try again with `?buy net`")
+                await message.reply("Timed out, try again with `!buy net`")
 
             if follow:
                 logging.info(follow.content.strip().lower())
@@ -578,7 +578,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                 try:
                     follow_2 = await self.wait_for("message", check=check, timeout=30)
                 except asyncio.TimeoutError:
-                    await message.reply("Timed out, try again with `?buy net`")
+                    await message.reply("Timed out, try again with `!buy net`")
                     return
 
                 sg.check_for_username_change(message.author.name, message.author.id)
@@ -600,7 +600,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
 
         if message.content.startswith(prefix + "shark facts"):
             await message.reply(
-                r"To get facts about specific sharks send: ?{sharkname} or type cancel to abort. Example: Reef Shark"
+                r"To get facts about specific sharks send: !{sharkname} or type cancel to abort. Example: Reef Shark"
             )
 
             def check(m: discord.Message):
@@ -615,7 +615,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
             try:
                 follow = await self.wait_for("message", check=check, timeout=30)
             except asyncio.TimeoutError:
-                await message.reply("Timed out, try again with `?shark facts`")
+                await message.reply("Timed out, try again with `!shark facts`")
                 return
             except Exception:
                 await message.reply("Unexpected error. Try again or report this bug to the bot's author")
@@ -1364,7 +1364,7 @@ async def sell_shark(ctx: commands.Context):
     try:
         follow = await bot.wait_for("message", check=check, timeout=30)
     except asyncio.TimeoutError:
-        await ctx.reply("Timed out, try again with `?sell shark`")
+        await ctx.reply("Timed out, try again with `!sell shark`")
         return
 
     reply = follow.content.strip().lower()
@@ -1390,7 +1390,7 @@ async def sell_shark(ctx: commands.Context):
             break
 
     if not found_id:
-        await ctx.reply("Failed to find shark in the list, try again with `?sell shark`")
+        await ctx.reply("Failed to find shark in the list, try again with `!sell shark`")
         return
 
     coins_gained = sg.sell_shark(ctx.author.id, rarity, shark, found_id)
