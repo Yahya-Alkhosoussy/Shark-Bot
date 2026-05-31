@@ -280,6 +280,16 @@ def get_dex(user_id: int):
     return full
 
 
+def does_user_have_dex(user_id: int):
+    cursor.execute("SELECT COUNT(*) FROM dex WHERE user_id=?", (user_id,))
+    count = cursor.fetchone()
+    if not count:
+        return False
+    if count >= 1:
+        return True
+    return False
+
+
 def add_column_to_dex_db(column_name: str, column_type, default_value):
     try:
         cursor.execute(
