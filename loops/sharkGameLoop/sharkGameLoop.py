@@ -333,7 +333,7 @@ class SharkLoops:
                 await channel.send("Let's try that again. Please enter `!catch`")
                 continue
 
-        await channel.send("Nice going! Lets try fishing! do `?fish` and follow the instructions.")
+        await channel.send("Nice going! Lets try fishing! do `!fish` and follow the instructions.")
 
-        await channel.send("Send `?done` when you're finished so we can finish the tutorial for you!")
+        await channel.send("Send `!done` when you're finished so we can finish the tutorial for you!")
         self.tutorial_done = True
