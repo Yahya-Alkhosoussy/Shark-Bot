@@ -971,6 +971,33 @@ async def link_twitch(interaction: discord.Interaction, twitch_name: str):
         await interaction.response.send_message("You need to do the tutorial then come here and link! Run `!tutorial`.")
 
 
+@bot.tree.command(name="add-a-shark")
+@discord.app_commands.describe(
+    rarity="The rarities are the following: 1. very common, 2. common, 3. unrare, 4. rare, 5. ultra-rare"
+)
+async def add_a_shark_to_db(interaction: discord.Interaction, name: str, fact: str, weight: int, rarity: str):
+    if interaction.user.id != 604366329302220820:  # My user ID
+        await interaction.response.send_message("Only spider can add sharks")
+        return
+    match rarity.lower():
+        case "very common":
+            _rarity = 1
+        case "common":
+            _rarity = 2
+        case "unrare":
+            _rarity = 3
+        case "rare":
+            _rarity = 4
+        case "ultra-rare":
+            _rarity = 5
+        case _:
+            await interaction.response.send_message("Unknown rarity")
+            return
+
+    sg.add_shark_to_db(name, fact, weight, _rarity)
+    await interaction.response.send_message("Shark added!")
+
+
 @bot.command(name="restart", hidden=True)
 @commands.is_owner()
 async def restart_bot(ctx: commands.Context, stash: bool):

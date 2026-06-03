@@ -112,6 +112,14 @@ def get_all_facts(name: str):
     return cursor.execute("SELECT * FROM sharks WHERE name = ?", (name,)).fetchone()
 
 
+def add_shark_to_db(name: str, fact: str, weight: int, rarity: int):
+    cursor.execute(
+        """INSERT OR IGNORE INTO sharks (name, fact, emoji, weight, rarity) VALUES (?, ?, ?, ?, ?)""",
+        (name, fact, "🦈", weight, rarity),
+    )
+    connection.commit()
+
+
 def create_dex(user_id: int, username: str, shark_name: str, when_caught: str, net_used: str, rarity: str, net_uses: int):
     fact = get_something(shark_name, "fact")
     weight = get_something(shark_name, "weight")
