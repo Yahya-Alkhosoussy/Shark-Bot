@@ -1,8 +1,10 @@
-from discord.ext import commands
+import datetime as dt
+
 import discord
+from discord.ext import commands
+
 from utils.checks import is_mod
 from utils.core import AppConfig
-import datetime as dt
 
 
 class Moderation(commands.Cog):
@@ -12,7 +14,9 @@ class Moderation(commands.Cog):
 
     @commands.command(name="timeout")
     @is_mod()
-    async def timeout(self, ctx: commands.Context, member: discord.Member, duration: int, *, reason: str = "No Reason Provided"):
+    async def timeout(
+        self, ctx: commands.Context, member: discord.Member, duration: int, *, reason: str = "No Reason Provided"
+    ):
         assert ctx.guild
         until = dt.timedelta(seconds=duration)
         await member.timeout(until, reason=reason)
@@ -22,7 +26,6 @@ class Moderation(commands.Cog):
             bot=self.bot,
             guild_id=ctx.guild.id,
         )
-
 
     @commands.command(name="kick")
     @is_mod()
@@ -36,12 +39,11 @@ class Moderation(commands.Cog):
             guild_id=ctx.guild.id,
         )
 
-
     @commands.command(name="ban")
     @is_mod()
     async def ban(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No Reason Provided"):
         assert ctx.guild
-        await member.ban(reason=reason)
+        await member.ban(reason=reason, delete_message_days=0, delete_message_seconds=0)
         await ctx.send(f"{member.name} has been banned.")
         await self.config.send_discord_mod_log(
             log_message=f"{ctx.author.name} has banned user {member.name} {f'(nicknamed: {member.nick})) ' if member.nick else ''}from the server. Reason: {reason}",  # noqa: E501
