@@ -293,7 +293,7 @@ def does_user_have_dex(user_id: int):
     count = cursor.fetchone()
     if not count:
         return False
-    if count >= 1:
+    if count[0] >= 1:
         return True
     return False
 
