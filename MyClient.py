@@ -11,6 +11,7 @@ from pathlib import Path
 from sqlite3 import OperationalError
 from typing import Counter
 
+import aiohttp
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
@@ -33,6 +34,7 @@ from moderation.tools import Moderation
 from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
+from SQL.deletedSQL.deleted_messages import add_deleted_message
 from SQL.fishingSQL.baits import add_column_to_baits_db, add_column_to_fish_db, add_fish_caught, add_user_ids, get_baits
 from SQL.levellingSQL.levellingSQL import add_user_ids_to_table
 from SQL.rolesSQL.roles import add_message_ids_to_role_sets_table, fill_emoji_map, update_role_emoji_ASCII, update_role_message
@@ -311,7 +313,8 @@ The following are mod exclusive actions:
 3. `!ban [@user] [reason (optional)]` - This command is to ban any user from the server.
 4. `!add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
 5. `!update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
-6. `!update shop prices` - same as above but for prices."""  # noqa: E501
+6. `!update shop prices` - same as above but for prices.
+7. `!get deleted [username]` - gets all the messages that were deleted by a user in the past week. """  # noqa: E501
                 await message.reply(to_send)
                 handled = True
 
@@ -654,6 +657,42 @@ Rarity: {facts[fact_nums.RARITY.value]}
 
         if not handled:
             await self.process_commands(message)
+
+    async def download_image(self, attachment: discord.Attachment, file_path: Path):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(attachment.url) as resp:
+                if resp.status == 200:
+                    with open(file_path, "wb") as f:
+                        f.write(await resp.read())
+
+    async def on_message_delete(self, message: discord.Message):
+        # save deleted message
+        for attachment in message.attachments:
+            images_dir = Path("images/")
+            if not images_dir.exists():
+                images_dir.mkdir()
+            filename = f"{message.id}_{attachment.filename}"
+            file_path = os.path.join(images_dir, filename)
+            await self.download_image(attachment, Path(file_path))
+
+            add_deleted_message(
+                username=message.author.name,
+                user_id=message.author.id,
+                channel_id=message.channel.id,
+                message_content=message.content,
+                deleted_at=datetime.now(timezone.utc),
+                image_path=file_path,
+                display_name=message.author.display_name,
+            )
+        # No attachment
+        add_deleted_message(
+            username=message.author.name,
+            user_id=message.author.id,
+            channel_id=message.channel.id,
+            message_content=message.content,
+            deleted_at=datetime.now(timezone.utc),
+            display_name=message.author.display_name,
+        )
 
     async def start_shark_game_after_delay(self, guild_id: int, remaining: timedelta):
         await asyncio.sleep(remaining.total_seconds())
