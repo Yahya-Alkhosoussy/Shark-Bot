@@ -1,8 +1,12 @@
 import datetime as dt
+from pathlib import Path
 
 import discord
 from discord.ext import commands
 
+from exceptions.exceptions import ItemNotFound
+from SQL.deletedSQL.deleted_messages import get_deleted_messages as get_messages
+from SQL.deletedSQL.deleted_messages import get_user_id
 from utils.checks import is_mod
 from utils.core import AppConfig
 
@@ -50,3 +54,53 @@ class Moderation(commands.Cog):
             bot=self.bot,
             guild_id=ctx.guild.id,
         )
+
+    @commands.group()
+    @is_mod()
+    async def get(self, ctx: commands.Context):
+        pass
+
+    @get.command(name="deleted")
+    @is_mod()
+    async def get_deleted_messages(self, ctx: commands.Context, *, username: str = ""):
+        try:
+            user_id = get_user_id(username)
+        except ItemNotFound as e:
+            await ctx.send(
+                f"Got an error while trying to find the user: \nError message: {e.message} \nError code: {e.error_code}"
+            )
+            return
+        messages, image_paths, deleted_at = get_messages(user_id, dt.datetime.now())
+        list_to_send: list[str] = []
+        to_send = ""
+        for message, time in zip(messages, deleted_at):
+            if len(to_send) + len(message) + len(f"\nDeleted at: {time}") >= 2000:
+                list_to_send.append(to_send)
+                to_send = message + f"\nDeleted at: {time}"
+                continue
+            to_send += message + f"\nDeleted at: {time}"
+        if to_send != "":
+            list_to_send.append(to_send)
+
+        for message in list_to_send:
+            await ctx.send("Here is all that you requested")
+            await ctx.send(message)
+
+        images_found = False
+        images: list[discord.File] = []
+        for path in image_paths:
+            if path is not None and not images_found:
+                images_found = True
+                await ctx.send("Here are the images that were deleted:")
+            if path is not None:
+                img_location = Path(path)
+                images.append(discord.File(img_location))
+
+            if len(images) == 10:
+                await ctx.send(files=images)
+            elif len(images) == 20:
+                await ctx.send(files=images[10:])
+            elif len(images) > 10:
+                await ctx.send(files=images[10:])
+            else:
+                await ctx.send(files=images)
