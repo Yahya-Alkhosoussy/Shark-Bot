@@ -1223,6 +1223,13 @@ async def update_role_set(ctx: commands.Context, role: discord.Role, roleSet: st
     await ctx.send(f"role updated. new id: {roleSet_id}")
 
 
+@update.command("message")
+@is_mod()
+async def update_discord_role_message(ctx: commands.Context):
+    assert ctx.guild
+    await bot.ensure_react_roles_message(ctx.guild)
+
+
 @update.command(name="emoji")
 @is_mod()
 async def update_role_emoji(ctx: commands.Context, role: discord.Role, emoji: str):
