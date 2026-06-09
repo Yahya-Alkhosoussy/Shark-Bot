@@ -1064,13 +1064,19 @@ async def restart_bot(ctx: commands.Context, stash: bool):
     try:
         assert git_path
         if stash:
-            res_0 = subprocess.run([git_path, "stash"], capture_output=True, check=True, text=True, shell=True)
+            res_0 = await asyncio.to_thread(
+                subprocess.run, [git_path, "stash"], capture_output=True, check=True, text=True, shell=True
+            )
             await ctx.send("Stashed successfully")
             await ctx.send(res_0.stdout)
-        res = subprocess.run([git_path, "pull"], capture_output=True, check=True, text=True, shell=True)
+        res = await asyncio.to_thread(
+            subprocess.run, [git_path, "pull"], capture_output=True, check=True, text=True, shell=True
+        )
         await ctx.send("Pulled successfully")
         await ctx.send(res.stdout)
-        res_2 = subprocess.run([sys.executable, "setup.py"], check=True, capture_output=True, text=True)
+        res_2 = await asyncio.to_thread(
+            subprocess.run, [sys.executable, "setup.py"], check=True, capture_output=True, text=True
+        )
         await ctx.send("Successfully installed all dependencies")
         await ctx.send(res_2.stdout[-len(" Setup complete!") :])
     except subprocess.CalledProcessError as e:
