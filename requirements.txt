@@ -19,3 +19,4 @@ PyNaCl
 davey
 spotipy
 yt_dlp
+ffmpeg
