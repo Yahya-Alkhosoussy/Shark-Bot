@@ -55,12 +55,7 @@ class Moderation(commands.Cog):
             guild_id=ctx.guild.id,
         )
 
-    @commands.group()
-    @is_mod()
-    async def get(self, ctx: commands.Context):
-        pass
-
-    @get.command(name="deleted")
+    @commands.command(name="deleted")
     @is_mod()
     async def get_deleted_messages(self, ctx: commands.Context, *, username: str = ""):
         try:
