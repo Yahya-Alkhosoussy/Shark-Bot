@@ -33,18 +33,20 @@ class reaction_handler:
 
         # get_role_messages(guild_name, guild.id)
         role_names, role_ids = get_role_messages(guild_name, guild.id)
-        react_role_messages = RoleMessageSet(
-            [RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)]
-        )
+        react_role_messages = RoleMessageSet([
+            RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)
+        ])
 
         for _, rr_message in react_role_messages:
-
             channel_id = int(self.config.get_channel_id(guild_name=guild_name, channel="roles"))
             channel = guild.get_channel(channel_id) if channel_id else None
 
             guild_roles = self.ROLES_PER_GUILD[guild.id]
-            role_mapping = guild_roles[rr_message.name] if guild_roles else None
-
+            try:
+                role_mapping = guild_roles[rr_message.name] if guild_roles else None
+            except KeyError as e:
+                logging.error(f"Got an error in role_mapping. Error: {str(e)}")
+                continue
 
             if react_role_messages[rr_message.name] != 0:
                 logging.info(f"There is already a react roles message of {rr_message} for {guild_name}")
@@ -106,12 +108,9 @@ class reaction_handler:
             if channel is None or not isinstance(channel, discord.TextChannel):
                 raise LookupError(f"[RR] No valid channel configured for {guild_name}")
 
-
             message = await channel.send(
                 "React to get your roles: \n"
-                + "\n".join(
-                    (f"{emoji} -> <@&{role_id}>" for emoji, role_id in role_mapping.items()) if role_mapping else ""
-                )
+                + "\n".join((f"{emoji} -> <@&{role_id}>" for emoji, role_id in role_mapping.items()) if role_mapping else "")
             )
 
             if message:
@@ -143,9 +142,9 @@ class reaction_handler:
 
         guild_name = self.config.guilds[int(gid)]
         role_names, role_ids = get_role_messages(guild_name, gid)
-        react_role_messages = RoleMessageSet(
-            [RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)]
-        )
+        react_role_messages = RoleMessageSet([
+            RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)
+        ])
         message_id: int | None = None
 
         for id in react_role_messages.todict().values():
@@ -205,9 +204,9 @@ class reaction_handler:
         guild_name = self.config.guilds[int(gid)]
 
         role_names, role_ids = get_role_messages(guild_name, gid)
-        react_role_messages = RoleMessageSet(
-            [RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)]
-        )
+        react_role_messages = RoleMessageSet([
+            RoleMessage(roleMessageName=name, roleMessageId=id) for name, id in zip(role_names, role_ids)
+        ])
         message_id: int | None = None
         for id in react_role_messages.todict().values():
             if payload.message_id == id:
@@ -372,7 +371,7 @@ class reaction_handler:
 
         await role_set_msg.reply(
             f"""To confirm, the role will be added to the `{role_set}` react roles message?
-{f'Role set {role_set} does not exist, so it will be created.' if is_in_table else f'Role set {role_set} does exist, this role will be added to it.'}
+{f"Role set {role_set} does not exist, so it will be created." if is_in_table else f"Role set {role_set} does exist, this role will be added to it."}
 Send confirm to confirm or deny to deny"""  # noqa: E501
         )
 
