@@ -130,6 +130,7 @@ class MyBot(commands.Bot):
         for guild in self.guilds:
             guild_name: str = config.guilds[guild.id]
             if guild_name == "shark squad":
+                logging.info(f"activating the loops for {guild_name}")
                 sg.setup_net_shop()
                 self.birthday_loops.start_for(guild.id)
                 self.mod_loop.start_for(guild.id)
