@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import discord
 from discord.ext import tasks
@@ -72,8 +73,8 @@ class YoutubeLoop:
             else:
                 logging.info(f"[{guild_name}] Youtube loop has ended normally.")
 
-        @loop.error
-        async def _error(self, error: BaseException):
+        @loop.error  # type: ignore
+        async def _error(error: Any):
             logging.exception(f"An Error has occured: {str(error)}")
 
         self._loops[guild_id] = loop
