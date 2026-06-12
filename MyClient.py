@@ -830,7 +830,19 @@ async def anon_venting(interaction: discord.Interaction, vent_message: str):
     message = None
     if isinstance(vent_channel, discord.TextChannel):
         await vent_channel.send("Anonymous vent:")
-        message = await vent_channel.send(vent_message)
+        vent_messages: list[str] = []
+        if len(vent_message) >= 2000:
+            while len(vent_message) >= 2000:
+                split_pos = vent_message.rfind(" ", 0, 2000)
+                if split_pos == -1:
+                    split_pos = 2000
+                vent_messages.append(vent_message[:split_pos])
+                vent_message = vent_message[split_pos:].lstrip(" ")
+            vent_messages.append(vent_message)
+        else:
+            vent_messages.append(vent_message)
+        for message in vent_messages:
+            message = await vent_channel.send(message)
 
     if isinstance(channel, discord.TextChannel) and isinstance(user, discord.Member) and message:
         await channel.send(
