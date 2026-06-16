@@ -99,3 +99,21 @@ class Moderation(commands.Cog):
                 await ctx.send(files=images[10:])
             else:
                 await ctx.send(files=images)
+
+    @commands.group()
+    async def mod(self, ctx: commands.Context):
+        pass
+
+    @mod.command(name="help")
+    @is_mod()
+    async def mod_help(self, ctx: commands.Context):
+        to_send = """Thank you for asking for help!
+The following are mod exclusive actions:
+1. `!timeout [@user] [duration in seconds] [reason (optional)]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
+2. `!kick [@user] [reason (optional)]` - This command is to kick any user from the server.
+3. `!ban [@user] [reason (optional)]` - This command is to ban any user from the server.
+4. `!add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
+5. `!update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
+6. `!update shop prices` - same as above but for prices.
+7. `!get deleted [username]` - gets all the messages that were deleted by a user in the past week. """  # noqa: E501
+        await ctx.reply(to_send)
