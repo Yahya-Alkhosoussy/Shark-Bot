@@ -81,6 +81,8 @@ def get_deleted_messages(user_id: int, time: datetime):
 def check_for_username_or_display_name_change(new_username: str, new_display_name: str | None, user_id: int):
     cur.execute("SELECT username, display_name FROM deleted WHERE user_id=?", (user_id,))
     results = cur.fetchone()
+    if results is None:
+        return
     username = results[0]
     display_name = results[1]
 
