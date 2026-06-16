@@ -90,15 +90,15 @@ class Moderation(commands.Cog):
             if path is not None:
                 img_location = Path(path)
                 images.append(discord.File(img_location))
-
-            if len(images) == 10:
-                await ctx.send(files=images)
-            elif len(images) == 20:
-                await ctx.send(files=images[10:])
-            elif len(images) > 10:
-                await ctx.send(files=images[10:])
-            else:
-                await ctx.send(files=images)
+            if images_found:
+                if len(images) == 10:
+                    await ctx.send(files=images)
+                elif len(images) == 20:
+                    await ctx.send(files=images[10:])
+                elif len(images) > 10:
+                    await ctx.send(files=images[10:])
+                else:
+                    await ctx.send(files=images)
 
     @commands.group()
     async def mod(self, ctx: commands.Context):
