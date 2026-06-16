@@ -18,6 +18,7 @@ from dotenv import load_dotenv, set_key
 from pydantic import ValidationError
 
 from cogs.clips import Clips
+from cogs.fishing import FishingCog
 from exceptions import exceptions as ex
 from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
@@ -106,6 +107,7 @@ class MyBot(commands.Bot):
     async def load_cogs(self):
         await self.add_cog(Moderation(self, config))
         await self.add_cog(Clips(self))
+        await self.add_cog(FishingCog(self, config))
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -297,114 +299,6 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content.startswith(prefix + "check level") and config.guilds[message.guild.id] == "shark squad":
             await self.leveling_loop.check_level(message)
-            handled = True
-
-        if message.content.startswith(prefix + "mod help"):
-            if isinstance(message.author, discord.Member):
-                is_mod: bool = config.check_for_mod_role(message.author.roles)
-
-                if not is_mod:
-                    await message.reply("You aren't a mod, go away")
-                    return
-
-                to_send = """Thank you for asking for help!
-The following are mod exclusive actions:
-1. `!timeout [@user] [duration in seconds] [reason (optional)]` - This command is to timeout any user for a set duration, if no duration is given it will default to a 10 minute timeout
-2. `!kick [@user] [reason (optional)]` - This command is to kick any user from the server.
-3. `!ban [@user] [reason (optional)]` - This command is to ban any user from the server.
-4. `!add role` - This command prompts a series of requests that the bot will send for more information to add a role to react roles.
-5. `!update shop items` - This command prompts a series of requests that the bot will send for more information to update shop items for the bait shop.
-6. `!update shop prices` - same as above but for prices.
-7. `!get deleted [username]` - gets all the messages that were deleted by a user in the past week. """  # noqa: E501
-                await message.reply(to_send)
-                handled = True
-
-        if message.content.startswith(prefix + "hello"):
-            await message.reply("Hello!")
-            handled = True
-
-        if message.content.startswith(prefix + "rules"):
-            rules_part1 = """
-            The golden rule: don't be a dick. You never know what someone else is going through — patience and empathy go a long way.
-            General rules:
-                1. Use the correct channels. Keep things organized; ask if you're unsure or if there is a want for additional channels.
-2. Respect stream spaces. Streaming Voice Channels are for streaming — do not interrupt or demand to join. If you see others already in a space, do not come in and take it over. Do not talk over others or take up all the oxygen. The room is to be shared.
-3. The rule above also applies to general Voice Channels, the public ones are free for anyone to use, just be respectful and ask, but do not demand.
-4. Absolutely NO AI ART ~ AI is a wonderful tool for those who may have unexpected gaps as they are still learning or due to other issues, but that is never a justified reason to use someone else's art without permision. Any art posted needs to be your own. Theft of art is an instant ban from the both twitch and discord.
-5. Protect your privacy. Do not share Personally Identifiable Information (i.e phone number, snapchat, etc.).
-6. Outside issues stay outside. Shark & the mods cannot moderate what happens beyond the server — report or block as needed.
-7. Be an adult (18+). Act with maturity and respect.
-            """  # noqa: E501
-            rules_part2 = """
-                8. No racism, bigorty or "jokes" about them. Dark humor is fine but read the room - do not use dark humor to hide racism or hatefulness.
-9. Respect others' space. You'll get the same in return.
-10. No trauma Dumping. Venting is fine in the <#1313754697152073789> channel — let other chats stay light and welcoming.
-11. No spam or unsolicited DMs. Always ask first.
-12. No backseating or spoilers. Let others explore and play at their own pace unless help is requested.
-13. Politics are allowed in tge server for a few reasons — the first being that many of our lives were made political without our consent. Creating a safe environment means that topics will occasionally come up that impact our every day lives, including politics. If you are not comfortable having a mature conversation where you can recognize when to walk away when it comes to politics, do not engage with these discussions. Politics that promote hate will not be tolerated. While shark is certainly one to point out hateful politics and correct the behavior, remember that your education is your responsibility. You are not required to all have the same political beliefs, but be open to growth and actually listen to those affected if you are going to be a part of these topics.
-14. For any issues, questions, concerns, etc. you can reach out to any mod. Shark's DMs are also open. Shark has an open door policy - just know it may take me a bit to respond, but shark will for sure get back to you.
-            ---------
-A few notes:
-    - Tag requests: If you want updates, select the Shark Update options <#1336429573608574986> — that's how I make sure no one's left out.
-- If shark ever misremembers something about you, it is never intentional. She cares deeply about this community — thank you for your understanding as we keep improving it together.
-
-            """  # noqa: E501
-
-            await message.reply(rules_part1)
-            await message.reply(rules_part2)
-            handled = True
-
-        if message.content.startswith(prefix + "describe game"):
-            send = f"The shark catch game is a game where once every {config.time_per_loop / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"  # noqa: E501
-            await message.reply(send)
-            handled = True
-
-        if message.content.startswith(prefix + "help"):
-            send = """Thank you for asking for help! Here are my commands:
-General:
-1. `!help` - Shows all commands.
-2. `!rules` - Show cases all the rules
-3. `!hello` - The bot greets you :>
-Shark Catch Game:
-1. `!get dex` - Shows all the sharks you caught and how many you've caught.
-2. `!detailed dex ` - Sends you your detailed dex into your DMs.
-3. `!my nets` - Shows you all the nets you own.
-4. `!catch` - Use this when trying to catch a shark! This will use the default net with a low chance of success
-5. `!catch [net name]` - Use this when trying to use a specific net. If you enter a net you do not own it will ignore that net and use the basic one.
-6. `!coins` - Tells you the amount of coins you currently have.
-7. `!buy net` - Use this when trying to buy a new net!
-8. `!describe game` - Gives a short description of the game.
-9. `!fish` - Starts fishing and asks you for a net to use.
-10. `!my baits` - Shows you all the baits you own.
-11. `!fish [bait name]` - Starts fishing with the bait of your choice.
-12. `!buy bait` - Use this when trying to buy bait!
-            """  # noqa: E501
-            await message.reply(send)
-            handled = True
-
-        if message.content.startswith(prefix + "stop"):
-            active_guild_id = message.guild.id
-            if self.shark_loops.is_running(active_guild_id):
-                self.shark_loops.stop_for(active_guild_id)
-                await message.reply("Stopped.")
-            else:
-                await message.reply("Huh? I'm not running.")
-            handled = True
-
-        if message.content.startswith(prefix + "fish"):
-            self.loop_processing = True
-            after: str | None = None if len(message.content[6:]) == 0 else message.content[6:]
-            if after is not None:
-                sg.check_for_username_change(message.author.name, message.author.id)
-                baits, _ = get_baits(message.author.name)
-                if after not in baits:
-                    await message.reply(f"You do not own the bait ({after}) or it is an invalid bait, try the command again")
-                    return
-            try:
-                await self.fishing.fish(message=message, bait=after)
-            except ex.ItemNotFound as e:
-                await message.channel.send(f"{message.author.mention} {str(e)}")
-            self.loop_processing = False
             handled = True
 
         if message.content.startswith(prefix + "buy bait"):
@@ -1050,6 +944,94 @@ async def add_a_shark_to_db(interaction: discord.Interaction, name: str, fact: s
     await interaction.response.send_message("Shark added!")
 
 
+@bot.command(name="hello")
+async def hello(ctx: commands.Context):
+    await ctx.reply("Hello!")
+
+
+@bot.command(name="rules")
+async def get_rules(ctx: commands.Context):
+    rules_part1 = """
+            The golden rule: don't be a dick. You never know what someone else is going through — patience and empathy go a long way.
+            General rules:
+                1. Use the correct channels. Keep things organized; ask if you're unsure or if there is a want for additional channels.
+2. Respect stream spaces. Streaming Voice Channels are for streaming — do not interrupt or demand to join. If you see others already in a space, do not come in and take it over. Do not talk over others or take up all the oxygen. The room is to be shared.
+3. The rule above also applies to general Voice Channels, the public ones are free for anyone to use, just be respectful and ask, but do not demand.
+4. Absolutely NO AI ART ~ AI is a wonderful tool for those who may have unexpected gaps as they are still learning or due to other issues, but that is never a justified reason to use someone else's art without permision. Any art posted needs to be your own. Theft of art is an instant ban from the both twitch and discord.
+5. Protect your privacy. Do not share Personally Identifiable Information (i.e phone number, snapchat, etc.).
+6. Outside issues stay outside. Shark & the mods cannot moderate what happens beyond the server — report or block as needed.
+7. Be an adult (18+). Act with maturity and respect.
+    """  # noqa: E501
+    rules_part2 = """
+        8. No racism, bigorty or "jokes" about them. Dark humor is fine but read the room - do not use dark humor to hide racism or hatefulness.
+9. Respect others' space. You'll get the same in return.
+10. No trauma Dumping. Venting is fine in the <#1313754697152073789> channel — let other chats stay light and welcoming.
+11. No spam or unsolicited DMs. Always ask first.
+12. No backseating or spoilers. Let others explore and play at their own pace unless help is requested.
+13. Politics are allowed in tge server for a few reasons — the first being that many of our lives were made political without our consent. Creating a safe environment means that topics will occasionally come up that impact our every day lives, including politics. If you are not comfortable having a mature conversation where you can recognize when to walk away when it comes to politics, do not engage with these discussions. Politics that promote hate will not be tolerated. While shark is certainly one to point out hateful politics and correct the behavior, remember that your education is your responsibility. You are not required to all have the same political beliefs, but be open to growth and actually listen to those affected if you are going to be a part of these topics.
+14. For any issues, questions, concerns, etc. you can reach out to any mod. Shark's DMs are also open. Shark has an open door policy - just know it may take me a bit to respond, but shark will for sure get back to you.
+    ---------
+A few notes:
+- Tag requests: If you want updates, select the Shark Update options <#1336429573608574986> — that's how I make sure no one's left out.
+- If shark ever misremembers something about you, it is never intentional. She cares deeply about this community — thank you for your understanding as we keep improving it together.
+
+    """  # noqa: E501
+
+    await ctx.reply(rules_part1)
+    await ctx.send(rules_part2)
+
+
+@bot.command(name="Help")
+async def help_command(ctx: commands.Context):
+    send = """Thank you for asking for help! Here are my commands:
+General:
+1. `!help` - Shows all commands.
+2. `!rules` - Show cases all the rules
+3. `!hello` - The bot greets you :>
+Shark Catch Game:
+1. `!get dex` - Shows all the sharks you caught and how many you've caught.
+2. `!detailed dex ` - Sends you your detailed dex into your DMs.
+3. `!my nets` - Shows you all the nets you own.
+4. `!catch` - Use this when trying to catch a shark! This will use the default net with a low chance of success
+5. `!catch [net name]` - Use this when trying to use a specific net. If you enter a net you do not own it will ignore that net and use the basic one.
+6. `!coins` - Tells you the amount of coins you currently have.
+7. `!buy net` - Use this when trying to buy a new net!
+8. `!describe game` - Gives a short description of the game.
+9. `!fish` - Starts fishing and asks you for a net to use.
+10. `!my baits` - Shows you all the baits you own.
+11. `!fish [bait name]` - Starts fishing with the bait of your choice.
+12. `!buy bait` - Use this when trying to buy bait!
+    """  # noqa: E501
+    await ctx.reply(send)
+
+
+@bot.group()
+async def game(ctx: commands.Context):
+    pass
+
+
+@game.command(name="stop")
+async def game_stop(ctx: commands.Context):
+    assert ctx.guild
+    active_guild_id = ctx.guild.id
+    if bot.shark_loops.is_running(active_guild_id):
+        bot.shark_loops.stop_for(active_guild_id)
+        await ctx.reply("Stopped.")
+    else:
+        await ctx.reply("Huh? I'm not running.")
+
+
+@bot.group()
+async def describe(ctx: commands.Context):
+    pass
+
+
+@describe.command(name="game")
+async def describe_game(ctx: commands.Context):
+    send = f"The shark catch game is a game where once every {config.time_per_loop / 60} minutes a shark will appear for two minutes and everyone will have the opportunity to try and catch it! Collect as many sharks as you can and gain coins that can be used to buy better nets! Good luck!"  # noqa: E501
+    await ctx.reply(send)
+
+
 @bot.command(name="restart", hidden=True)
 @commands.is_owner()
 async def restart_bot(ctx: commands.Context, stash: bool):
@@ -1264,34 +1246,6 @@ async def shop(ctx: commands.Context):
     pass
 
 
-@shop.command(name="items")
-@is_mod()
-async def update_shop_items(ctx: commands.Context):
-    assert ctx.guild
-    bot.updating_store = True
-    await bot.fishing.add_into_shop_internal(message=ctx.message)
-    bot.updating_store = False
-    await config.send_discord_mod_log(
-        log_message=f"{ctx.author.name} has added an item to the shop.",
-        bot=bot,
-        guild_id=ctx.guild.id,
-    )
-
-
-@shop.command(name="prices")
-@is_mod()
-async def update_shop_prices(ctx: commands.Context):
-    assert ctx.guild
-    bot.updating_store = True
-    await bot.fishing.update_shop_prices_internal(message=ctx.message)
-    bot.updating_store = False
-    await config.send_discord_mod_log(
-        log_message=f"{ctx.author.name} has updated prices in the shop.",
-        bot=bot,
-        guild_id=ctx.guild.id,
-    )
-
-
 @bot.command(name="log")
 @is_mod()
 async def get_last_x_chars_of_log(ctx: commands.Context, bytes: int):
@@ -1303,24 +1257,6 @@ async def get_last_x_chars_of_log(ctx: commands.Context, bytes: int):
         raw = log.read()
 
     await ctx.send(file=discord.File(fp=io.BytesIO(raw), filename="log.txt"))
-
-
-@bot.group()
-async def remove(ctx):
-    pass
-
-
-@remove.command(name="net")
-@is_mod()
-async def remove_net(ctx: commands.Context, member: discord.Member, net: str):
-    await ctx.reply(f"Attempting to remove {net}")
-
-    try:
-        sg.remove_net(member.name, net)
-    except OperationalError as e:
-        await ctx.send(f"I encounered an error while trying to remove {net}. Error: {str(e)}")
-        return
-    await ctx.send("Net removed!")
 
 
 # helper function
