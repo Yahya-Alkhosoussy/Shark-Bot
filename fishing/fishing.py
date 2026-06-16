@@ -35,20 +35,20 @@ class Fishing:
         owned_nets, about_to_break, broken, net_uses = sg.get_net_availability(str(user))
 
         await message.reply(
-            "Which net do you want to use?🎣 Type `?net name` to use it or send `cancel` to cancel! If you do not own any nets send `?none` to use a basic net. (You have 30 seconds to send one of the two)"  # noqa: E501
+            "Which net do you want to use?🎣 Type `!net name` to use it or send `cancel` to cancel! If you do not own any nets send `!none` to use a basic net. (You have 30 seconds to send one of the two)"  # noqa: E501
         )
 
         def check(m: discord.Message):
             return (
                 m.author.id == user.id
                 and m.channel.id == message.channel.id
-                and (m.content.strip().lower() == "cancel" or m.content.strip().startswith("?"))
+                and (m.content.strip().lower() == "cancel" or m.content.strip().startswith("!"))
             )
 
         try:
             follow = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await message.reply("Timed out, try again with `?fish`")
+            await message.reply("Timed out, try again with `!fish`")
             return
 
         logging.info(follow.content.strip().lower()[1:])
@@ -442,7 +442,7 @@ class Fishing:
             "Please send the name of the bait you want to add, you have 30 seconds to send it! (WARNING: ONLY THE NAME SHOULD BE SENT)"  # noqa: E501
         )
         channel = message.channel
-        await channel.send("Or cancel please send `?cancel`")
+        await channel.send("Or cancel please send `!cancel`")
 
         def check(m: discord.Message):
             return m.author.id == message.author.id and m.channel.id == message.channel.id
@@ -450,45 +450,45 @@ class Fishing:
         try:
             follow = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await message.reply("Timed out, try again with `?update shop items`")
+            await message.reply("Timed out, try again with `!update shop items`")
             return
 
-        if follow.content.strip().lower == "?cancel":
+        if follow.content.strip().lower == "!cancel":
             await follow.reply("Cancelled.")
             return
 
         await follow.reply(
-            f"To confirm you want {follow.content} to be the name of the bait. Send `?confirm` to confirm and send anything else to cancel."  # noqa: E501
+            f"To confirm you want {follow.content} to be the name of the bait. Send `!confirm` to confirm and send anything else to cancel."  # noqa: E501
         )
 
         try:
             follow_up = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await follow.reply("Timed out, try again with `?update shop items`")
+            await follow.reply("Timed out, try again with `!update shop items`")
             return
 
-        if follow_up.content != "?confirm":
+        if follow_up.content != "!confirm":
             await follow_up.reply("Cancelled your request.")
             return
 
         await follow_up.reply(
-            f"Bait name will be {follow.content}. Send the price of the bait or send `?cancel` to cancel! You have 30 seconds!"
+            f"Bait name will be {follow.content}. Send the price of the bait or send `!cancel` to cancel! You have 30 seconds!"
         )
         bait_name = follow.content
         await channel.send("Please only send the number!")
         try:
             follow_up_2 = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await follow_up.reply("Timed out, try again with `?update shop items`")
+            await follow_up.reply("Timed out, try again with `!update shop items`")
             return
 
-        if follow_up_2.content == "?cancel":
+        if follow_up_2.content == "!cancel":
             await follow_up_2.reply("Cancelled your request.")
             return
 
         try:
             await follow_up_2.reply(
-                f"{follow_up.content} will cost {int(follow_up_2.content)} coins, to confirm send `?confirm` and anything else to cancel"  # noqa E501
+                f"{follow_up.content} will cost {int(follow_up_2.content)} coins, to confirm send `!confirm` and anything else to cancel"  # noqa E501
             )
         except ValueError as e:
             raise ValueError(f"Ran into an issue updating the shop items: {e}")
@@ -496,10 +496,10 @@ class Fishing:
         try:
             follow_up_3 = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await follow_up_2.reply("Timed out, try again with `?update shop items`")
+            await follow_up_2.reply("Timed out, try again with `!update shop items`")
             return
 
-        if follow_up_3.content != "?confirm":
+        if follow_up_3.content != "!confirm":
             await follow_up_3.reply("Cancelled your request.")
 
         await follow_up_3.reply("Adding bait to shop...")
@@ -515,7 +515,7 @@ class Fishing:
             "Please send the name of the bait you want to edit the price of, you have 30 seconds to send it! (WARNING: ONLY THE NAME SHOULD BE SENT)"  # noqa: E501
         )
         channel = message.channel
-        await channel.send("Or cancel please send `?cancel`")
+        await channel.send("Or cancel please send `!cancel`")
 
         def check(m: discord.Message):
             return m.author.id == message.author.id and m.channel.id == message.channel.id
@@ -523,45 +523,45 @@ class Fishing:
         try:
             follow = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await message.reply("Timed out, try again with `?update shop items`")
+            await message.reply("Timed out, try again with `!update shop items`")
             return
 
-        if follow.content.strip().lower() == "?cancel":
+        if follow.content.strip().lower() == "!cancel":
             await follow.reply("Cancelled.")
             return
 
         await follow.reply(
-            f"To confirm you want to edit the following bait: {follow.content}. Send `?confirm` to confirm and send anything else to cancel."  # noqa: E501
+            f"To confirm you want to edit the following bait: {follow.content}. Send `!confirm` to confirm and send anything else to cancel."  # noqa: E501
         )
 
         try:
             follow_up = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await follow.reply("Timed out, try again with `?update shop items`")
+            await follow.reply("Timed out, try again with `!update shop items`")
             return
 
-        if follow_up.content != "?confirm":
+        if follow_up.content != "!confirm":
             await follow_up.reply("Cancelled your request.")
             return
 
         await follow_up.reply(
-            f"Bait that will be edited is: {follow.content}. Send the price of the bait or send `?cancel` to cancel! You have 30 seconds!"  # noqa: E501
+            f"Bait that will be edited is: {follow.content}. Send the price of the bait or send `!cancel` to cancel! You have 30 seconds!"  # noqa: E501
         )
         bait_name = follow.content
         await channel.send("Please only send the number!")
         try:
             follow_up_2 = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await follow_up.reply("Timed out, try again with `?update shop items`")
+            await follow_up.reply("Timed out, try again with `!update shop items`")
             return
 
-        if follow_up_2.content == "?cancel":
+        if follow_up_2.content == "!cancel":
             await follow_up_2.reply("Cancelled your request.")
             return
 
         try:
             await follow_up_2.reply(
-                f"{follow_up.content} will cost {int(follow_up_2.content)} coins, to confirm send `?confirm` and anything else to cancel"  # noqa E501
+                f"{follow_up.content} will cost {int(follow_up_2.content)} coins, to confirm send `!confirm` and anything else to cancel"  # noqa E501
             )
         except ValueError as e:
             raise ValueError(f"Ran into an issue updating the shop items: {e}")
@@ -569,10 +569,10 @@ class Fishing:
         try:
             follow_up_3 = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await follow_up_2.reply("Timed out, try again with `?update shop items`")
+            await follow_up_2.reply("Timed out, try again with `!update shop items`")
             return
 
-        if follow_up_3.content != "?confirm":
+        if follow_up_3.content != "!confirm":
             await follow_up_3.reply("Cancelled your request.")
 
         await follow_up_3.reply("Editing bait price in the shop...")
@@ -612,7 +612,7 @@ class Fishing:
         try:
             follow = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await message.reply("Timed out, try again with `?buy bait`")
+            await message.reply("Timed out, try again with `!buy bait`")
             return
 
         if follow:
@@ -622,12 +622,12 @@ class Fishing:
                 await follow.reply("Cancelled.")
                 return
 
-        await message.channel.send("How much of the bait do you want?")
+        await message.channel.send("How much of the bait do you want!")
 
         try:
             follow_2 = await self.client.wait_for("message", check=check, timeout=30)
         except asyncio.TimeoutError:
-            await message.reply("Timed out, try again with `?buy bait`")
+            await message.reply("Timed out, try again with `!buy bait`")
             return
 
         try:
@@ -637,7 +637,7 @@ class Fishing:
                     username=message.author.name,
                     bait=int(follow.content),
                     amount=int(follow_2.content),
-                    user_id=message.author.id
+                    user_id=message.author.id,
                 )
             else:
                 raise ValueError()
