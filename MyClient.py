@@ -133,7 +133,12 @@ class MyBot(commands.Bot):
         await asyncio.gather(*[setup_guild(guild) for guild in self.guilds], self.tree.sync())
 
         for guild in self.guilds:
-            guild_name: str = config.guilds[guild.id]
+            try:
+                guild_name: str = config.guilds[guild.id]
+            except KeyError as e:
+                logging.error(f"Could not find guild {guild.name} in config. {e}")
+                continue
+
             if guild_name == "shark squad":
                 logging.info(f"activating the loops for {guild_name}")
                 sg.setup_net_shop()
