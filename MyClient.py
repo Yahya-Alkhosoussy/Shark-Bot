@@ -229,7 +229,12 @@ class MyBot(commands.Bot):
         welcome_channels = config.channels["welcome"]
         # The reverse seems illogical, but that is because server names on discord may not match the ones in the YAML file,
         # so for consistency we use the one on the YAML
-        guild_name: str = config.guilds[guild.id]
+        try:
+            guild_name: str = config.guilds[guild.id]
+        except KeyError as e:
+            logging.error(f"Key not found for guild in config. {e}")
+            return
+
         channel_id = welcome_channels[guild_name]
         if not channel_id:
             logging.warning(f"[WELCOME] No channel configured for {guild_name} ({guild.id})")
