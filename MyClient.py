@@ -123,7 +123,10 @@ class MyBot(commands.Bot):
         async def setup_guild(guild):
             self.tree.copy_global_to(guild=guild)
             await self.tree.sync(guild=guild)
-            await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
+            try:
+                await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
+            except ValueError as e:
+                logging.error(f"Got an error in reaction handler: {e}")
             print(f"Tree set up for {guild.name}")
 
         # runs parallel with the other loop
