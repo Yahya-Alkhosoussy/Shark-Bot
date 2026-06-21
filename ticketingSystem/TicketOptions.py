@@ -32,8 +32,9 @@ root_logger.addHandler(handler)
 
 
 class TicketOptions(discord.ui.View):
-    def __init__(self, bot: discord.Client):
+    def __init__(self, bot: discord.Client, send_dm: bool | None = None):
         self.bot = bot
+        self.send_dm = send_dm
         super().__init__(timeout=None)
 
     @discord.ui.button(label="Delete Ticket 🎫", style=discord.ButtonStyle.red, custom_id="delete")
@@ -139,7 +140,7 @@ class TicketOptions(discord.ui.View):
         except Exception as e:
             logging.error(f"Failed to send transcript to log channel: {e}")
 
-        if ticket_creator:
+        if ticket_creator and self.send_dm:
             try:
                 # Create a copy of the embed for DM
                 dm_embed = discord.Embed(
