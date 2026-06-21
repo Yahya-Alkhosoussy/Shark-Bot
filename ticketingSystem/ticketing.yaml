@@ -28,3 +28,13 @@ log channels:
   shark squad:
     mod mail: 1463519489634336768
     tech: 1463520181031534602
+custom ticket:
+  test server: 1517982330734776451
+  shark squad: 1517954322430689350
+custom embed messages:
+  test server: 0
+  shark squad: 0
+custom set up done:
+  test server: false
+  shark squad: false
+path: ticketingSystem\ticketing.yaml
