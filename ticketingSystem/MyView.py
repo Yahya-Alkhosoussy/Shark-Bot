@@ -155,7 +155,7 @@ class MyView(discord.ui.View):
                     description=f"Welcome {interaction.user.mention}, \n describe your problem and our Support will help you soon",  # ticket welcome message  # noqa: E501
                     color=discord.colour.Color.blue(),
                 )
-                await ticket_channel.send(embed=embed, view=CloseButton(bot=self.bot))
+                await ticket_channel.send(embed=embed, view=CloseButton(bot=self.bot, send_dm=True))
 
                 channel_id = ticket_channel.id
                 cur.execute("UPDATE ticket SET ticket_channel = ? WHERE id = ?", (channel_id, ticket_number))
