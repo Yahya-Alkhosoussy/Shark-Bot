@@ -92,6 +92,7 @@ class MyBot(commands.Bot):
         self.leveling_loop = levelingLoop(self)
         self.ticket_system = TicketSystem(self)
         self._ticket_setup_done: dict = config.set_up_done
+        self._custom_ticket_setup_done: dict = ticket_config.custom_setup_done
         self.reaction_handler = reaction_handler(config=config, roles_per_guild=fill_emoji_map(), bot=self)
         self.fishing = Fishing(self)
         self.mod_loop = ModLoop(self, config)
@@ -180,34 +181,17 @@ class MyBot(commands.Bot):
             for key, value in self._ticket_setup_done.items():
                 if key == config.guilds.get(guild_name):
                     if not value:
-                        print("set up not done")
+                        await self.ticket_system.check_for_ticket(ticket_config, guild_name, guild)
+                        self._ticket_setup_done[key] = True
+                        config.saveConfig()
 
-                        logging.info("[TICKETING SYSTEM] Ticket system set up, checking for messages now")
+            for key, value in self._custom_ticket_setup_done.items():
+                if key == config.guilds.get(guild_name):
+                    if not value:
+                        await self.ticket_system.check_for_custom_ticket(ticket_config, guild_name, guild)
+                        self._custom_ticket_setup_done[key] = True
+                        ticket_config.saveConfig(TICKET_CONFIG_PATH)
 
-                        embed_message_ids = ticket_config.embed_messages
-                        if embed_message_ids and embed_message_ids[guild_name] == 0:
-                            channel_id = ticket_config.ticket_channels[guild_name]
-                            if channel_id is not None or channel_id != 0:
-                                channel = guild.get_channel(channel_id)
-                                if channel and isinstance(channel, discord.TextChannel):
-                                    await self.ticket_system.send_ticket_panel(channel=channel)
-                                else:
-                                    logging.warning(
-                                        f"[TICKET SYSTEM] Channel {channel_id} does not exist or is not a TextChannel"
-                                    )
-                                    return
-                            else:
-                                logging.warning(f"[TICKET SYSTEM] Channel ID for {guild_name} is either None or Zero!")
-                                return
-
-                            logging.info(f"[TICKETING SYSTEM] Ticket embed sent to {guild_name}")
-
-                            self._ticket_setup_done[key] = True
-                            print(config.set_up_done)
-                            print(self._ticket_setup_done)
-                            config.saveConfig()
-                            print("After saving:")
-                            print(config.set_up_done)
             if guild_name == "shark squad":
                 for member in guild.members:
                     try:
