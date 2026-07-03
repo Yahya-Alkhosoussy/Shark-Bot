@@ -80,7 +80,9 @@ class Moderation(commands.Cog):
         for message in list_to_send:
             await ctx.send("Here is all that you requested")
             await ctx.send(message)
+        await self.send_images(ctx, image_paths)
 
+    async def send_images(self, ctx: commands.Context, image_paths: list[str | None]):
         images_found = False
         images: list[discord.File] = []
         for path in image_paths:
@@ -90,15 +92,9 @@ class Moderation(commands.Cog):
             if path is not None:
                 img_location = Path(path)
                 images.append(discord.File(img_location))
-            if images_found:
-                if len(images) == 10:
-                    await ctx.send(files=images)
-                elif len(images) == 20:
-                    await ctx.send(files=images[10:])
-                elif len(images) > 10:
-                    await ctx.send(files=images[10:])
-                else:
-                    await ctx.send(files=images)
+        if images_found:
+            for i in range(0, len(images), 10):
+                await ctx.send(files=images[i : i + 10])
 
     @commands.group()
     async def mod(self, ctx: commands.Context):

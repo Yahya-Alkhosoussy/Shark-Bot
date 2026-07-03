@@ -562,6 +562,14 @@ Rarity: {facts[fact_nums.RARITY.value]}
 
     async def on_message_delete(self, message: discord.Message):
         # save deleted message
+        add_deleted_message(
+            message.author.name,
+            message.author.id,
+            message.channel.id,
+            datetime.now(timezone.utc),
+            message.content,
+            display_name=message.author.display_name,
+        )
         for attachment in message.attachments:
             images_dir = Path("images/")
             if not images_dir.exists():
@@ -574,20 +582,10 @@ Rarity: {facts[fact_nums.RARITY.value]}
                 username=message.author.name,
                 user_id=message.author.id,
                 channel_id=message.channel.id,
-                message_content=message.content,
                 deleted_at=datetime.now(timezone.utc),
                 image_path=file_path,
                 display_name=message.author.display_name,
             )
-        # No attachment
-        add_deleted_message(
-            username=message.author.name,
-            user_id=message.author.id,
-            channel_id=message.channel.id,
-            message_content=message.content,
-            deleted_at=datetime.now(timezone.utc),
-            display_name=message.author.display_name,
-        )
 
     async def start_shark_game_after_delay(self, guild_id: int, remaining: timedelta):
         await asyncio.sleep(remaining.total_seconds())
