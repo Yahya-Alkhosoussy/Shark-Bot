@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class SharkBotException(Exception):
     def __init__(self, message: str):
         super().__init__(message)
@@ -68,3 +71,13 @@ class InvalidRole(SharkBotException):
 
     def __str__(self) -> str:
         return self.message
+
+
+class ResponseException(SharkBotException):
+    def __init__(self, message: str, response: Any):
+        super().__init__(message)
+        self.message = message
+        self.response = response
+
+    def __str__(self) -> str:
+        return f"Error: {self.message}. \nResponse: {self.response}"

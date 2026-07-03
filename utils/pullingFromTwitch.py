@@ -8,6 +8,8 @@ from pathlib import Path
 import aiohttp
 from dotenv import load_dotenv
 
+from exceptions.exceptions import ResponseException
+
 if __name__ == "__main__":
     import sys
 
@@ -151,6 +153,9 @@ async def is_live(username: str, user: str | None = None) -> bool:
         params={"user_id": broadcaster_id},
         user=user,
     )
+
+    if "data" not in response:
+        raise ResponseException("Data was not in response", response)
 
     return bool(len(response["data"]) > 0)
 
