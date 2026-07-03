@@ -19,6 +19,7 @@ from pydantic import ValidationError
 
 from cogs.clips import Clips
 from cogs.fishing import FishingCog
+from cogs.music import Music
 from exceptions import exceptions as ex
 from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
@@ -109,6 +110,7 @@ class MyBot(commands.Bot):
         await self.add_cog(Moderation(self, config))
         await self.add_cog(Clips(self))
         await self.add_cog(FishingCog(self, config))
+        await self.add_cog(Music(self))
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -1127,29 +1129,6 @@ async def compensate_by_adding_net_uses(ctx: commands.Context):
     await ctx.reply("Added")
 
 
-@bot.command(name="play")
-async def play_song(ctx: commands.Context):
-    if not isinstance(ctx.author, discord.Member):
-        return None
-
-    if ctx.author.voice is None or ctx.author.voice.channel is None:
-        await ctx.send("Join a voice channel first.")
-        return
-    target = ctx.author.voice.channel
-    vc = ctx.voice_client
-
-    if vc is None or not isinstance(vc, discord.VoiceClient):
-        vc = await target.connect()
-    elif vc.channel != target:
-        await vc.move_to(target)
-
-    if vc.is_playing():
-        vc.stop()
-
-    source = discord.FFmpegPCMAudio("freesound_community-080047_lose_funny_retro_video-game-80925.mp3")
-    vc.play(source, after=lambda e: print(f"finished: {e}") if e else None)
-
-
 @bot.group()
 async def add(ctx: commands.Context):
     pass
@@ -1601,4 +1580,5 @@ async def on_command_error(ctx: commands.Context, error):
             return
 
 
-bot.run(token=token, log_handler=handler)
+if __name__ == "__main__":
+    bot.run(token=token, log_handler=handler)
