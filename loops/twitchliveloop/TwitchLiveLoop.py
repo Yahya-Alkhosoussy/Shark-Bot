@@ -3,6 +3,7 @@ import logging
 import discord
 from discord.ext import tasks
 
+from exceptions.exceptions import ResponseException
 from SQL.socialMedia.twitchLive import get_custom_message, get_live_status, get_users, update_live_status
 from utils.core import AppConfig
 from utils.pullingFromTwitch import get_profile_picture, get_stream_details, is_live
@@ -27,7 +28,12 @@ class TwitchLiveLoop:
             for user in users:
                 user = user[0]
                 saved_live_status: bool = get_live_status(user)
-                new_live_status: bool = await is_live(username=user)
+                try:
+                    new_live_status: bool = await is_live(username=user)
+                except ResponseException as e:
+                    logging.error(f"Got an error while pulling up a twitch request: {str(e)}")
+                    continue
+
                 if saved_live_status != new_live_status and (not saved_live_status):
                     update_live_status(username=user, status=new_live_status)
                     live_link = f"https://www.twitch.tv/{user}"
