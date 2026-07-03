@@ -27,8 +27,8 @@ def add_deleted_message(
     username: str,
     user_id: int,
     channel_id: int,
-    message_content: str,
     deleted_at: datetime,
+    message_content: str | None = None,
     image_path: str | None = None,
     display_name: str | None = None,
 ):
