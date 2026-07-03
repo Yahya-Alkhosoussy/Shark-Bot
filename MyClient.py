@@ -19,7 +19,8 @@ from pydantic import ValidationError
 
 from cogs.clips import Clips
 from cogs.fishing import FishingCog
-from cogs.music import Music
+
+# from cogs.music import Music
 from exceptions import exceptions as ex
 from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
@@ -110,7 +111,7 @@ class MyBot(commands.Bot):
         await self.add_cog(Moderation(self, config))
         await self.add_cog(Clips(self))
         await self.add_cog(FishingCog(self, config))
-        await self.add_cog(Music(self))
+        # await self.add_cog(Music(self))
 
     # ======= ON RUN =======
     async def on_ready(self):
