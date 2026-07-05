@@ -195,21 +195,6 @@ class MyBot(commands.Bot):
                         self._custom_ticket_setup_done[key] = True
                         ticket_config.saveConfig(TICKET_CONFIG_PATH)
 
-            if guild_name == "shark squad":
-                for member in guild.members:
-                    try:
-                        user_added = await self.leveling_loop.add_users(user=member)
-                    except Exception as e:
-                        logging.error(str(e))
-                        user_added = False
-                    if user_added:
-                        try:
-                            role_added = await self.leveling_loop.add_role(user=member)
-                            if role_added is None:
-                                logging.warning(f"Failed to add role to member {member}, returned None")
-                        except Exception as e:
-                            logging.error(str(e))
-
     # ======= ANNOUNCE ARRIVAL =======
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
@@ -242,7 +227,6 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             if chatting_channel and isinstance(chatting_channel, discord.TextChannel):
                 await chatting_channel.send(message)
             await self.leveling_loop.add_users(user=member)
-            await self.leveling_loop.add_role(user=member)
 
     # ======= ANNOUNCE DEPARTURE =======
     # async def on_member_remove(self, member: discord.Member):
