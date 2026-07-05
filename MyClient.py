@@ -33,6 +33,7 @@ from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from modApplication.ApplicationSystem import ApplicationSystem
 from modApplication.ModQuestions import ModQuestions
+from moderation.bot_detection import SpamDetectionCog
 from moderation.tools import Moderation
 from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
@@ -104,6 +105,7 @@ class MyBot(commands.Bot):
         self.mod_application = ApplicationSystem(bot=self)
         self.mod_questions = ModQuestions(bot=self, channel=None)
         self.youtube_loop = YoutubeLoop(bot=self, config=config)
+        self.spam = SpamDetectionCog(self)
         self.updating_store = False
         self.loop_processing = False
 
@@ -111,6 +113,7 @@ class MyBot(commands.Bot):
         await self.add_cog(Moderation(self, config))
         await self.add_cog(Clips(self))
         await self.add_cog(FishingCog(self, config))
+        await self.add_cog(SpamDetectionCog(self))  # for when commands are added in the future
         # await self.add_cog(Music(self))
 
     # ======= ON RUN =======
@@ -292,6 +295,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         if message.guild is None:
             await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
             return
+
+        await self.spam.add_msg_to_deque(discord_message=message)
+        await self.spam.check_for_spam()
 
         # leveling system messages
         if len(message.content) >= 10 and config.guilds[message.guild.id] == "shark squad":
