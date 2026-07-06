@@ -55,18 +55,21 @@ def get_video_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
 
     is_live_response = (
         youtube
-        .playlistItems()
+        .videos()
         .list(
-            part="snippet,liveStreamingDetails",
+            part="liveStreamingDetails",
             id=",".join(video_ids),
         )
         .execute()
     )
 
-    is_live = is_live_response["items"]
+    live_details_by_id = {video["id"]: video.get("liveStreamingDetails") for video in is_live_response["items"]}
 
-    for item, _item in zip(items, is_live):
-        if _item.get("liveStreamingDetails") and "actualEndTime" not in _item.get("liveStreamingDetails"):
+    for item in items:
+        video_id = item.snippet.resourceId.videoId
+        live_details = live_details_by_id.get(video_id)
+
+        if live_details and "actualEndTime" not in live_details:
             item.snippet.is_live = True
 
     return items
