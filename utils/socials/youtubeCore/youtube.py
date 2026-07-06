@@ -37,7 +37,8 @@ def get_video_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
     uploads_playlist_id = get_uploads_id(youtube_handle)
     # Make your API call
     raw_response = (
-        youtube.playlistItems()
+        youtube
+        .playlistItems()
         .list(
             part="snippet",
             playlistId=uploads_playlist_id,
@@ -49,6 +50,27 @@ def get_video_items(youtube_handle: str, limit: int = 10) -> list[PlaylistItem]:
     #     json.dump(raw_response, f)
 
     items = [PlaylistItem(**item) for item in raw_response["items"]]
+
+    video_ids = [item.snippet.resourceId.videoId for item in items]
+
+    is_live_response = (
+        youtube
+        .videos()
+        .list(
+            part="liveStreamingDetails",
+            id=",".join(video_ids),
+        )
+        .execute()
+    )
+
+    live_details_by_id = {video["id"]: video.get("liveStreamingDetails") for video in is_live_response["items"]}
+
+    for item in items:
+        video_id = item.snippet.resourceId.videoId
+        live_details = live_details_by_id.get(video_id)
+
+        if live_details and "actualEndTime" not in live_details:
+            item.snippet.is_live = True
 
     return items
 
