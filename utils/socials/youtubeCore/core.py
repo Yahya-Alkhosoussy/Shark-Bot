@@ -26,6 +26,7 @@ class PlaylistItemSnippet(BaseModel):
     publishedAt: str
     resourceId: ResourceId
     thumbnails: Thumbnails
+    is_live: bool = False
 
     @property
     def url(self) -> str:
