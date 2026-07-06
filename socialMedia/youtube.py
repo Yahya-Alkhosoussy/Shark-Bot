@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 import discord
 from discord.ext import tasks
@@ -21,42 +20,45 @@ class YoutubeLoop:
         return bool(loop and loop.is_running())
 
     async def _tick(self, channel: discord.TextChannel, guild: discord.Guild):
-        handles = get_youtube_handles()
-        for handle in handles:
-            handle = handle[0]
-            video_items = get_video_items(handle)
-            for item in video_items:
-                url = item.snippet.url
-                if is_video_existing(url):
-                    continue
-                title = item.snippet.title
-                id = item.snippet.resourceId.videoId
-                is_live = item.snippet.is_live
-                add_video(youtube_handle=handle, title=title, id=id, url=url)
-                embed = discord.Embed(title=title, colour=discord.Color(0xF6A6BB))
-                icon = get_channel_item(handle)
-                icon_url = icon.snippet.profile_url
-                embed.set_author(name="sharkocalypse", icon_url=icon_url)
-                embed.set_image(url=item.snippet.thumbnail_url)
-                view = discord.ui.View()
-                view.add_item(discord.ui.Button(label="Watch Video", url=url))
-                if isinstance(channel, discord.TextChannel) and guild is not None:
-                    role_id = get_role_id("shark social")
-                    role = guild.get_role(role_id)
-                    if role is not None:
-                        if not is_live:
+        try:
+            handles = get_youtube_handles()
+            for handle in handles:
+                handle = handle[0]
+                video_items = get_video_items(handle)
+                for item in video_items:
+                    url = item.snippet.url
+                    if is_video_existing(url):
+                        continue
+                    title = item.snippet.title
+                    id = item.snippet.resourceId.videoId
+                    is_live = item.snippet.is_live
+                    add_video(youtube_handle=handle, title=title, id=id, url=url)
+                    embed = discord.Embed(title=title, colour=discord.Color(0xF6A6BB))
+                    icon = get_channel_item(handle)
+                    icon_url = icon.snippet.profile_url
+                    embed.set_author(name="sharkocalypse", icon_url=icon_url)
+                    embed.set_image(url=item.snippet.thumbnail_url)
+                    view = discord.ui.View()
+                    view.add_item(discord.ui.Button(label="Watch Video", url=url))
+                    if isinstance(channel, discord.TextChannel) and guild is not None:
+                        role_id = get_role_id("shark social")
+                        role = guild.get_role(role_id)
+                        if role is not None:
+                            if not is_live:
+                                await channel.send(
+                                    f"new post alert! Check out Shark's latest Youtube video here. {role.mention}",
+                                    embed=embed,
+                                    view=view,
+                                )
+                                continue
+                            # is a live stream
                             await channel.send(
-                                f"new post alert! Check out Shark's latest Youtube video here. {role.mention}",
+                                f"Live stream alert! Check out shark's Youtube live! {role.mention}",
                                 embed=embed,
                                 view=view,
                             )
-                            continue
-                        # is a live stream
-                        await channel.send(
-                            f"Live stream alert! Check out shark's Youtube live! {role.mention}",
-                            embed=embed,
-                            view=view,
-                        )
+        except Exception as e:
+            logging.exception(f"Tick failed! Error: {e}")
 
     def start_for(self, guild_id: int):
         if self.is_running(guild_id):
@@ -85,8 +87,8 @@ class YoutubeLoop:
                 logging.info(f"[{guild_name}] Youtube loop has ended normally.")
 
         @loop.error  # type: ignore
-        async def _error(error: Any):
-            logging.exception(f"An Error has occured: {str(error)}")
+        async def _error(error: BaseException):
+            logging.error(f"An Error has occured: {str(error)}")
 
         self._loops[guild_id] = loop
         loop.start(channel, guild)
