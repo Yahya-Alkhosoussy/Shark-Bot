@@ -296,8 +296,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
             return
 
-        await self.spam.add_msg_to_deque(discord_message=message)
-        await self.spam.check_for_spam()
+        if message.attachments:
+            await self.spam.add_msg_to_deque(discord_message=message)
+            await self.spam.check_for_spam()
 
         # leveling system messages
         if len(message.content) >= 10 and config.guilds[message.guild.id] == "shark squad":
