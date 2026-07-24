@@ -21,3 +21,4 @@ spotipy
 yt_dlp
 ffmpeg
 twitchAPI
+flask
