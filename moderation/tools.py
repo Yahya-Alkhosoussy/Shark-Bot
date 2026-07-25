@@ -9,12 +9,17 @@ from SQL.deletedSQL.deleted_messages import get_deleted_messages as get_messages
 from SQL.deletedSQL.deleted_messages import get_user_id
 from utils.checks import is_mod
 from utils.core import AppConfig
+from utils.twitch_core import TwitchBan, TwitchUser, TwitchWarning
 
 
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot, config: AppConfig):
         self.bot = bot
         self.config = config
+        self.log_channel = self.bot.get_channel(1443585446830407703)
+        self.guild = self.bot.get_guild(1273776575266951268)
+        assert self.guild
+        self.bot_maker = self.guild.get_member(604366329302220820)
 
     @commands.command(name="timeout")
     @is_mod()
@@ -113,3 +118,39 @@ The following are mod exclusive actions:
 6. `!update shop prices` - same as above but for prices.
 7. `!get deleted [username]` - gets all the messages that were deleted by a user in the past week. """  # noqa: E501
         await ctx.reply(to_send)
+
+
+    async def log_twitch_ban(self, ban: TwitchBan):
+        try:
+            assert isinstance(self.log_channel, discord.TextChannel), "The log channel is the wrong channel type"
+            assert isinstance(self.bot_maker, discord.Member), "Could not find the member 'spiderbyte'"
+        except AssertionError as e:
+            print(f"Got an error: {e}")
+            return
+
+        if not isinstance(ban.duration, float):
+
+            message = f"""{ban.user.display} got banned on twitch. Here are the details:
+Person banned: {ban.user.login}
+Mod that banned them: {ban.mod_responsible.display}
+Reason given: {ban.reason}
+When the ban happened: {ban.time_banned.strftime(r"%m-%d-%Y %H:%M:%S")}
+"""
+            await self.log_channel.send(message)
+            return
+
+        message = f"""{ban.user.display} got timedout on twitch. Here are the details:
+Person timed out: {ban.user.login}
+Mod responsible: {ban.mod_responsible.display}
+When the timeout happened: {ban.time_banned.strftime(r"%m-%d-%Y %H:%M:%S")}
+How long the timeout is (seconds): {ban.duration}
+How long the timeout is (minutes): {ban.duration / 60}
+{f'Reason given: {ban.reason}' if ban.reason else ''}"""
+
+        await self.log_channel.send(message)
+
+    async def log_twitch_unban(self, user: TwitchUser):
+        pass
+
+    async def log_twitch_warning(self, warning: TwitchWarning):
+        pass
