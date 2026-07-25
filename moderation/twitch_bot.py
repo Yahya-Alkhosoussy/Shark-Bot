@@ -11,6 +11,9 @@ from MyClient import MyBot
 from utils.core import AppConfig
 from pathlib import Path
 import asyncio
+from utils.twitch_core import TwitchUser, TwitchBan, TwitchWarning
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 TARGET_CHANNELS = ["sharkocalypse", "dyslexxik"]
 
@@ -102,14 +105,25 @@ class TwitchBot:
         await ready_event.chat.join_room(TARGET_CHANNELS)
         print("Bot has joined the channels")
 
-    async def on_ban(self, ban: ChannelBanEvent):
+    async def on_ban(self, _ban: ChannelBanEvent):
+        event = _ban.event
+        user = TwitchUser(event.user_name, event.user_login, event.user_id)
+        mod = TwitchUser(event.moderator_user_name, event.moderator_user_login, event.moderator_user_id)
+        duration = event.ends_at - event.banned_at if event.ends_at else None
+        time = event.banned_at.astimezone(ZoneInfo("America/Chicago"))
+        ban = TwitchBan(user, event.reason, mod, time, duration)
+        await self.mod_cog.log_twitch_ban(ban)
+
+    async def on_unban(self, _unban: ChannelUnbanEvent):
         pass
 
-    async def on_unban(self, unban: ChannelUnbanEvent):
-        pass
-
-    async def on_warning(self, warning: ChannelWarningSendEvent):
-        pass
+    async def on_warning(self, _warning: ChannelWarningSendEvent):
+        event = _warning.event
+        user = TwitchUser(event.user_name, event.user_login, event.user_id)
+        mod = TwitchUser(event.moderator_user_name, event.moderator_user_login, event.moderator_user_id)
+        time = datetime.now().astimezone(ZoneInfo("America/Chicago"))
+        warning = TwitchWarning(user, mod, event.reason, event.chat_rules_cited, time)
+        await self.mod_cog.log_twitch_warning(warning)
 
     async def close_bot(self):
         pass
