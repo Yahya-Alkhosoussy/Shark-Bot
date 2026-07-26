@@ -1,19 +1,20 @@
-from twitchAPI.chat import Chat, EventData # noqa
-from twitchAPI.eventsub.websocket import EventSubWebsocket # noqa
-from twitchAPI.helper import first # noqa
-from twitchAPI.oauth import UserAuthenticationStorageHelper # noqa
-from twitchAPI.object.eventsub import ChannelBanEvent, ChannelUnbanEvent, ChannelWarningSendEvent # noqa
-from twitchAPI.twitch import Twitch # noqa
-from twitchAPI.type import AuthScope # noqa
+import asyncio
+from datetime import datetime
+from pathlib import Path
+from zoneinfo import ZoneInfo
 
-from moderation.tools import Moderation # noqa
+from twitchAPI.chat import Chat, EventData
+from twitchAPI.eventsub.websocket import EventSubWebsocket
+from twitchAPI.helper import first  # noqa
+from twitchAPI.oauth import UserAuthenticationStorageHelper
+from twitchAPI.object.eventsub import ChannelBanEvent, ChannelUnbanEvent, ChannelWarningSendEvent  # noqa
+from twitchAPI.twitch import Twitch
+from twitchAPI.type import AuthScope, ChatEvent
+
+from moderation.tools import Moderation
 from MyClient import MyBot
 from utils.core import AppConfig
-from pathlib import Path
-import asyncio
-from utils.twitch_core import TwitchUser, TwitchBan, TwitchWarning
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from utils.twitch_core import TwitchBan, TwitchUnban, TwitchUser, TwitchWarning
 
 TARGET_CHANNELS = ["sharkocalypse", "dyslexxik"]
 
@@ -109,24 +110,81 @@ class TwitchBot:
         event = _ban.event
         user = TwitchUser(event.user_name, event.user_login, event.user_id)
         mod = TwitchUser(event.moderator_user_name, event.moderator_user_login, event.moderator_user_id)
+        broadcaster = TwitchUser(event.broadcaster_user_name, event.broadcaster_user_login, event.broadcaster_user_id)
         duration = event.ends_at - event.banned_at if event.ends_at else None
         time = event.banned_at.astimezone(ZoneInfo("America/Chicago"))
-        ban = TwitchBan(user, event.reason, mod, time, duration)
+        ban = TwitchBan(user, event.reason, mod, time, broadcaster, duration)
         await self.mod_cog.log_twitch_ban(ban)
 
     async def on_unban(self, _unban: ChannelUnbanEvent):
-        pass
+        event = _unban.event
+        user = TwitchUser(event.user_name, event.user_login, event.user_id)
+        mod = TwitchUser(event.moderator_user_name, event.moderator_user_login, event.moderator_user_id)
+        broadcaster = TwitchUser(event.broadcaster_user_name, event.broadcaster_user_login, event.broadcaster_user_id)
+        unban = TwitchUnban(user, mod, broadcaster)
+        await self.mod_cog.log_twitch_unban(unban)
 
     async def on_warning(self, _warning: ChannelWarningSendEvent):
         event = _warning.event
         user = TwitchUser(event.user_name, event.user_login, event.user_id)
         mod = TwitchUser(event.moderator_user_name, event.moderator_user_login, event.moderator_user_id)
         time = datetime.now().astimezone(ZoneInfo("America/Chicago"))
-        warning = TwitchWarning(user, mod, event.reason, event.chat_rules_cited, time)
+        broadcaster = TwitchUser(event.broadcaster_user_name, event.broadcaster_user_login, event.broadcaster_user_id)
+        warning = TwitchWarning(user, mod, event.reason, event.chat_rules_cited, time, broadcaster)
         await self.mod_cog.log_twitch_warning(warning)
 
     async def close_bot(self):
-        pass
+        if self.shark_eventsub:
+            await self.shark_eventsub.stop()
+        if self.dys_eventsub:
+            await self.dys_eventsub.stop()
+        if self.bot_eventsub:
+            await self.bot_eventsub.stop()
+        if self.chat:
+            self.chat.stop()
+        if self.shark_twitch:
+            await self.shark_twitch.close()
+        if self.dys_twitch:
+            await self.dys_twitch.close()
+        if self.bot_twitch:
+            await self.bot_twitch.close()
 
     async def run(self):
-        pass
+        try:
+            await self.setup()
+            assert self.chat, "Chat instance is None"
+            assert self.bot_twitch, "Bot twitch instance is None"
+            assert self.dys_twitch, "Dys twitch instance is None"
+            assert self.shark_twitch, "Shark twitch instance is None"
+            assert self.bot_eventsub, "Bot eventsub instance is None"
+            assert self.dys_eventsub, "Dys eventsub instance is None"
+            assert self.shark_eventsub, "Shark eventsub instance is None"
+
+            self.chat.register_event(ChatEvent.READY, self.on_ready)
+
+            # Dys eventsub stuff
+            dys_user = await first(self.dys_twitch.get_users())
+            assert dys_user, "Dys user id not found"
+            await self.dys_eventsub.listen_channel_ban(broadcaster_user_id=dys_user.id, callback=self.on_ban)
+            await self.dys_eventsub.listen_channel_unban(broadcaster_user_id=dys_user.id, callback=self.on_unban)
+
+            # shark eventsub stuff
+            shark_user = await first(self.shark_twitch.get_users())
+            assert shark_user, "Shark user id is not found"
+            await self.shark_eventsub.listen_channel_ban(broadcaster_user_id=shark_user.id, callback=self.on_ban)
+            await self.shark_eventsub.listen_channel_unban(broadcaster_user_id=shark_user.id, callback=self.on_unban)
+
+            # bot eventsub stuff
+            bot_user = await first(self.bot_twitch.get_users())
+            assert bot_user, "Bot user id is not found"
+            await self.bot_eventsub.listen_channel_warning_send(
+                broadcaster_user_id=dys_user.id, moderator_user_id=bot_user.id, callback=self.on_warning
+            )
+            await self.bot_eventsub.listen_channel_warning_send(
+                broadcaster_user_id=shark_user.id, moderator_user_id=bot_user.id, callback=self.on_warning
+            )
+
+        except Exception as e:
+            print(f"Got an error: {e}")
+        finally:
+            await self.close_bot()
