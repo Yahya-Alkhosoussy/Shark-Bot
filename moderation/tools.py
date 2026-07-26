@@ -9,7 +9,7 @@ from SQL.deletedSQL.deleted_messages import get_deleted_messages as get_messages
 from SQL.deletedSQL.deleted_messages import get_user_id
 from utils.checks import is_mod
 from utils.core import AppConfig
-from utils.twitch_core import TwitchBan, TwitchUser, TwitchWarning
+from utils.twitch_core import TwitchBan, TwitchUnban, TwitchWarning
 
 
 class Moderation(commands.Cog):
@@ -149,8 +149,29 @@ How long the timeout is (minutes): {ban.duration / 60}
 
         await self.log_channel.send(message)
 
-    async def log_twitch_unban(self, user: TwitchUser):
-        pass
+    async def log_twitch_unban(self, unban: TwitchUnban):
+        try:
+            assert isinstance(self.log_channel, discord.TextChannel), "The log channel is in the wrong format"
+            assert isinstance(self.bot_maker, discord.Member), "Could not find the member spider"
+        except AssertionError as e:
+            print(f"Got an error: {e}")
+            return
+
+        await self.log_channel.send(f"{unban.user.display} just got unbanned on twitch by {unban.mod_responsible.display}")
 
     async def log_twitch_warning(self, warning: TwitchWarning):
-        pass
+        try:
+            assert isinstance(self.log_channel, discord.TextChannel), "The log channel is the wrong object type"
+            assert isinstance(self.bot_maker, discord.Member), "Could not find member spider"
+        except AssertionError as e:
+            print(f"Got an error: {e}")
+            return
+
+        message = f"""{warning.user.display} has been given a warning, here are the details:
+Person warned: {warning.user.login}
+Mod responsible: {warning.mod.display}
+When the warning happened: {warning.time_of_warning.strftime(r"%m-%d-%Y %H:%M:%S")}
+Rules cited: {warning.rules_cited}
+{f'Reason given:{warning.reason}' if warning.reason else ''}
+"""
+        await self.log_channel.send(message)
