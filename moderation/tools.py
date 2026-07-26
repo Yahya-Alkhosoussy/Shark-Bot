@@ -130,7 +130,7 @@ The following are mod exclusive actions:
 
         if not isinstance(ban.duration, float):
 
-            message = f"""{ban.user.display} got banned on twitch. Here are the details:
+            message = f"""[AUTO MOD LOG] {ban.user.display} got banned on twitch. Here are the details:
 Channel where it happened: {ban.broadcaster.display}
 Person banned: {ban.user.login}
 Mod that banned them: {ban.mod_responsible.display}
@@ -140,7 +140,7 @@ When the ban happened: {ban.time_banned.strftime(r"%m-%d-%Y %H:%M:%S")}
             await self.log_channel.send(message)
             return
 
-        message = f"""{ban.user.display} got timedout on twitch. Here are the details:
+        message = f"""[AUTO MOD LOG] {ban.user.display} got timedout on twitch. Here are the details:
 Channel where it happened: {ban.broadcaster.display}
 Person timed out: {ban.user.login}
 Mod responsible: {ban.mod_responsible.display}
@@ -159,7 +159,7 @@ How long the timeout is (minutes): {ban.duration / 60}
             print(f"Got an error: {e}")
             return
 
-        message = f"{unban.user.display} just got unbanned on twitch by {unban.mod_responsible.display} in"\
+        message = f"[AUTO MOD LOG] {unban.user.display} just got unbanned on twitch by {unban.mod_responsible.display} in"\
         f" {unban.broadcaster.display}"
 
         await self.log_channel.send(message)
@@ -172,7 +172,7 @@ How long the timeout is (minutes): {ban.duration / 60}
             print(f"Got an error: {e}")
             return
 
-        message = f"""{warning.user.display} has been given a warning, here are the details:
+        message = f"""[AUTO MOD LOG] {warning.user.display} has been given a warning, here are the details:
 Channel where it happened: {warning.broadcaster.display}
 Person warned: {warning.user.login}
 Mod responsible: {warning.mod.display}
