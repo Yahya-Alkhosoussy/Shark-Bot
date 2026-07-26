@@ -15,6 +15,7 @@ class TwitchBan:
     reason: str
     mod_responsible: TwitchUser
     time_banned: datetime
+    broadcaster: TwitchUser
     duration: float | timedelta | None = None
 
     def __post_init__(self):
@@ -25,6 +26,7 @@ class TwitchBan:
 class TwitchUnban:
     user: TwitchUser
     mod_responsible: TwitchUser
+    broadcaster: TwitchUser
 
     def __post_init__(self):
         self.time_unbanned = datetime.now().astimezone(ZoneInfo("America/Chicago"))
@@ -37,6 +39,7 @@ class TwitchWarning:
     reason: str | None
     rules: list[str] | None
     time_of_warning: datetime
+    broadcaster: TwitchUser
 
     def __post_init__(self):
         if self.rules is None:
