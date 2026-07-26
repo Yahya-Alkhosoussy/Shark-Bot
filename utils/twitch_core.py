@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 
 @dataclass
@@ -19,6 +20,14 @@ class TwitchBan:
     def __post_init__(self):
         if isinstance(self.duration, timedelta):
             self.duration = self.duration.total_seconds() if self.duration else None
+
+@dataclass
+class TwitchUnban:
+    user: TwitchUser
+    mod_responsible: TwitchUser
+
+    def __post_init__(self):
+        self.time_unbanned = datetime.now().astimezone(ZoneInfo("America/Chicago"))
 
 @dataclass
 class TwitchWarning:
