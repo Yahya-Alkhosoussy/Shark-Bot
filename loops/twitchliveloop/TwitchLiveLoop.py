@@ -43,6 +43,8 @@ class TwitchLiveLoop:
                         title, game_name, thumbnail = details
                     else:
                         continue
+                    if user == "soulteddieplays":
+                        continue # this is a temporary change until i go back to the UK
                     embed_to_send = discord.Embed(
                         title=f"{user} is live on Twitch! Go check them out!",
                         colour=discord.Color(0xF6A6BB),
