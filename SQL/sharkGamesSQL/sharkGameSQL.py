@@ -229,6 +229,28 @@ def migrate_old_dex_to_new_dex():
 
 # migrate_old_dex_to_new_dex()
 
+def migrate_fishing_to_one_table():
+    cursor.execute(
+        """
+        SELECT name
+        FROM sqlite_master
+        WHERE type='table' AND name NOT LIKE 'sqlite_%'
+        """
+    )
+    tables: list[str] = [row[0] for row in cursor.fetchall()]
+
+    fishing_tables = [t for t in tables if t.endswith(" fish")]
+
+    for table in fishing_tables:
+        username = table.removesuffix(" dex")
+        user_id = 0
+        rows = cursor.execute(f"SELECT * FROM '{table}").fetchall()
+
+        for row in rows:
+            cursor.execute(
+                "INSERT OR INGNORE INTO fish (username, user_id, fish, time) VALUES (?, ?, ?, ?)",
+                (None, None, None, None) # placeholder values
+            )
 
 def fish_caught(username: str, rarity: str):
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS '{username} fish'
