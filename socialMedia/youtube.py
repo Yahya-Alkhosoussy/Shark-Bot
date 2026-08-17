@@ -52,7 +52,9 @@ class YoutubeLoop:
                                 )
                                 continue
                             # is a live stream
-                            await channel.send(
+                            live_channel = guild.get_channel(1455206555069841557)
+                            assert isinstance(live_channel, discord.TextChannel), "Channel is None or wrong type"
+                            await live_channel.send(
                                 f"Live stream alert! Check out shark's Youtube live! {role.mention}",
                                 embed=embed,
                                 view=view,
