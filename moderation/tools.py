@@ -1,5 +1,6 @@
 import datetime as dt
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import discord
 from discord.ext import commands
@@ -113,3 +114,98 @@ The following are mod exclusive actions:
 6. `!update shop prices` - same as above but for prices.
 7. `!get deleted [username]` - gets all the messages that were deleted by a user in the past week. """  # noqa: E501
         await ctx.reply(to_send)
+
+    async def get_entry(
+        self, guild: discord.Guild, action: discord.AuditLogAction, user: discord.Member
+    ) -> discord.AuditLogEntry | None:
+        async for entry in guild.audit_logs(limit=100, action=action):
+            try:
+                assert entry.target
+            except AssertionError:
+                continue
+            if entry.target.id == user.id:
+                return entry
+
+    @commands.Cog.listener()
+    async def on_member_ban(self, guild: discord.Guild, user: discord.Member):
+        ban_log: discord.AuditLogEntry | None = await self.get_entry(guild, discord.AuditLogAction.ban, user)
+
+        if ban_log is None:
+            await self.config.send_discord_mod_log(
+                log_message=f"[AUTO MOD LOG] {user.name}{f' ({user.nick})' if user.nick else ''} got banned from the server.",
+                bot=self.bot,
+                guild_id=guild.id,
+            )
+            return
+        await self.config.send_discord_mod_log(
+            log_message=f"[AUTO MOD LOG] {user.name}{f' ({user.nick})' if user.nick else ''} got banned from the server by:"
+            f" {ban_log.user.name if ban_log.user else 'an unknown moderator'} and the reason given was:"
+            f" {ban_log.reason if ban_log.reason else 'No reason was given'}",
+            bot=self.bot,
+            guild_id=guild.id,
+        )
+
+    @commands.Cog.listener()
+    async def on_member_unban(self, guild: discord.Guild, user: discord.Member):
+        unban_log = await self.get_entry(guild, discord.AuditLogAction.unban, user)
+
+        if unban_log is None:
+            await self.config.send_discord_mod_log(
+                log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was unbanned from the server.",
+                bot=self.bot,
+                guild_id=guild.id,
+            )
+            return
+
+        await self.config.send_discord_mod_log(
+            log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was unbanned from the server by"
+            f" {unban_log.user.name if unban_log.user else 'an unknown moderator'} and the reason given was"
+            f" {unban_log.reason if unban_log.reason else 'No reason was given'}",
+            bot=self.bot,
+            guild_id=guild.id,
+        )
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, guild: discord.Guild, user: discord.Member):
+        kick_log = await self.get_entry(guild, discord.AuditLogAction.kick, user)
+
+        if kick_log is None:
+            await self.config.send_discord_mod_log(
+                log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was kicked from the server.",
+                bot=self.bot,
+                guild_id=guild.id,
+            )
+            return
+
+        await self.config.send_discord_mod_log(
+            log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was kicked from the server by"
+            f" {kick_log.user.name if kick_log.user else 'an unknown moderator'} and the reason given was"
+            f" {kick_log.reason if kick_log.reason else ': No reason was given'}",
+            bot=self.bot,
+            guild_id=guild.id,
+        )
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+
+        if before.timed_out_until is None and after.timed_out_until is None:
+            return
+        if before.timed_out_until is None and after.timed_out_until is not None:
+            try:
+                timeout_length = after.timed_out_until - dt.datetime.now(tz=ZoneInfo("UTC"))
+            except Exception as e:
+                print(e)
+                return
+            await self.config.send_discord_mod_log(
+                log_message=f"{after.name}{f' ({after.nick})' if after.nick else ''} was timed out for"
+                f" {timeout_length.seconds} seconds ({timeout_length.seconds // 60} minutes)",
+                bot=self.bot,
+                guild_id=after.guild.id,
+            )
+        elif before.timed_out_until is not None and after.timed_out_until is None:
+            await self.config.send_discord_mod_log(
+                log_message=f"{after.name}{f' ({after.nick})' if after.nick else ''} has had their timeout removed"
+                " (either ended or manually removed)",
+                bot=self.bot,
+                guild_id=after.guild.id,
+            )
