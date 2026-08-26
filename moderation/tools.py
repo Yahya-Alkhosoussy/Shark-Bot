@@ -166,14 +166,14 @@ The following are mod exclusive actions:
         )
 
     @commands.Cog.listener()
-    async def on_member_remove(self, guild: discord.Guild, user: discord.Member):
-        kick_log = await self.get_entry(guild, discord.AuditLogAction.kick, user)
+    async def on_member_remove(self, user: discord.Member):
+        kick_log = await self.get_entry(user.guild, discord.AuditLogAction.kick, user)
 
         if kick_log is None:
             await self.config.send_discord_mod_log(
                 log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was kicked from the server.",
                 bot=self.bot,
-                guild_id=guild.id,
+                guild_id=user.guild.id,
             )
             return
 
@@ -182,7 +182,7 @@ The following are mod exclusive actions:
             f" {kick_log.user.name if kick_log.user else 'an unknown moderator'} and the reason given was"
             f" {kick_log.reason if kick_log.reason else ': No reason was given'}",
             bot=self.bot,
-            guild_id=guild.id,
+            guild_id=user.guild.id,
         )
 
     @commands.Cog.listener()
