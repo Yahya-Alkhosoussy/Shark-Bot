@@ -15,7 +15,6 @@ import aiohttp
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
-from fishing.build.fish_multiple import fish_multiple_times
 from pydantic import ValidationError
 
 from cogs.clips import Clips
@@ -23,9 +22,11 @@ from cogs.fishing import FishingCog
 
 # from cogs.music import Music
 from exceptions import exceptions as ex
+from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from logModActions.modActions import ModLoop
+from logModActions.modLogger import ModLogger
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
 from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
@@ -55,8 +56,7 @@ root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
 root_logger.addHandler(handler)
 load_dotenv()
-token = os.getenv("token")
-assert token, "No token found in envvars. Impossible to continue."
+
 # ======= CONFIG =======
 CONFIG_PATH = Path(r"config.YAML")
 TICKET_CONFIG_PATH = Path(r"ticketingSystem/ticketing.yaml")
@@ -111,6 +111,7 @@ class MyBot(commands.Bot):
         await self.add_cog(Moderation(self, config))
         await self.add_cog(Clips(self))
         await self.add_cog(FishingCog(self, config))
+        await self.add_cog(ModLogger(self, config))
         # await self.add_cog(Music(self))
 
     # ======= ON RUN =======
@@ -1564,4 +1565,6 @@ async def on_command_error(ctx: commands.Context, error):
 
 
 if __name__ == "__main__":
+    token = os.getenv("token")
+    assert token, "No token found in envvars. Impossible to continue."
     bot.run(token=token, log_handler=handler)
