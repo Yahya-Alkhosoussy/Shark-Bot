@@ -72,14 +72,12 @@ class TwitchBot:
         app_id: str,
         app_secret: str,
         bot_scopes: list[AuthScope],
-        mod_scopes: list[AuthScope],
         target_channels: list[str],
         cog: ModLogger,
     ):
         self.app_id = app_id
         self.app_secret = app_secret
         self.bot_scopes = bot_scopes
-        self.mod_scopes = mod_scopes
         self.target_channels = target_channels
         self.cog = cog
 
