@@ -1,3 +1,4 @@
+import asyncio
 import datetime as dt
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -131,12 +132,15 @@ The following are mod exclusive actions:
         ban_log: discord.AuditLogEntry | None = await self.get_entry(guild, discord.AuditLogAction.ban, user)
 
         if ban_log is None:
-            await self.config.send_discord_mod_log(
-                log_message=f"[AUTO MOD LOG] {user.name}{f' ({user.nick})' if user.nick else ''} got banned from the server.",
-                bot=self.bot,
-                guild_id=guild.id,
-            )
-            return
+            await asyncio.sleep(1)
+            for _ in range(5):
+                ban_log = await self.get_entry(guild, discord.AuditLogAction.ban, user)
+                if ban_log is not None:
+                    break
+                await asyncio.sleep(1)
+            if ban_log is None:
+                return
+
         await self.config.send_discord_mod_log(
             log_message=f"[AUTO MOD LOG] {user.name}{f' ({user.nick})' if user.nick else ''} got banned from the server by:"
             f" {ban_log.user.name if ban_log.user else 'an unknown moderator'} and the reason given was:"
@@ -150,12 +154,14 @@ The following are mod exclusive actions:
         unban_log = await self.get_entry(guild, discord.AuditLogAction.unban, user)
 
         if unban_log is None:
-            await self.config.send_discord_mod_log(
-                log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was unbanned from the server.",
-                bot=self.bot,
-                guild_id=guild.id,
-            )
-            return
+            await asyncio.sleep(1)
+            for _ in range(5):
+                unban_log = await self.get_entry(guild, discord.AuditLogAction.unban, user)
+                if unban_log is not None:
+                    break
+                await asyncio.sleep(1)
+            if unban_log is None:
+                return
 
         await self.config.send_discord_mod_log(
             log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was unbanned from the server by"
@@ -170,12 +176,14 @@ The following are mod exclusive actions:
         kick_log = await self.get_entry(user.guild, discord.AuditLogAction.kick, user)
 
         if kick_log is None:
-            await self.config.send_discord_mod_log(
-                log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was kicked from the server.",
-                bot=self.bot,
-                guild_id=user.guild.id,
-            )
-            return
+            await asyncio.sleep(1)
+            for _ in range(5):
+                kick_log = await self.get_entry(user.guild, discord.AuditLogAction.kick, user)
+                if kick_log is not None:
+                    break
+                await asyncio.sleep(1)
+            if kick_log is None:
+                return
 
         await self.config.send_discord_mod_log(
             log_message=f"{user.name}{f' ({user.nick})' if user.nick else ''} was kicked from the server by"
