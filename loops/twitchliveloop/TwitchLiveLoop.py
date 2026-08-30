@@ -35,7 +35,6 @@ class TwitchLiveLoop:
                     continue
 
                 if saved_live_status != new_live_status and (not saved_live_status):
-                    update_live_status(username=user, status=new_live_status)
                     live_link = f"https://www.twitch.tv/{user}"
                     custom_message = get_custom_message(user)
                     details = await get_stream_details(user)
@@ -44,7 +43,7 @@ class TwitchLiveLoop:
                     else:
                         continue
                     if user == "soulteddieplays":
-                        continue # this is a temporary change until i go back to the UK
+                        continue  # this is a temporary change until i go back to the UK
                     embed_to_send = discord.Embed(
                         title=f"{user} is live on Twitch! Go check them out!",
                         colour=discord.Color(0xF6A6BB),
@@ -65,6 +64,7 @@ class TwitchLiveLoop:
                     channel = guild.get_channel(channel_id)
                     if isinstance(channel, discord.TextChannel):
                         await channel.send(content=custom_message, embed=embed_to_send, view=view)
+                        update_live_status(username=user, status=new_live_status)  # update only once message got sent
                 elif saved_live_status != new_live_status:  # ended live
                     update_live_status(username=user, status=new_live_status)
 
@@ -83,8 +83,8 @@ class TwitchLiveLoop:
             else:
                 logging.info(f"[{guild_name}] twitch live loop ended normally.")
 
-        @loop.error
-        async def _error(self, error: BaseException):
+        @loop.error  # type: ignore[arg-type]
+        async def _error(error: BaseException):
             logging.exception("Error ocurred %s", error)
             print(str(error))
 
