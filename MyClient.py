@@ -1557,8 +1557,8 @@ async def palworld(ctx: commands.Context):
         how_much_longer = datetime(2026, 9, 2, 8, 0, 0, 0, ZoneInfo("EST")) - (datetime.now(tz=ZoneInfo("EST")))
         days = how_much_longer.days
         hours = how_much_longer.seconds // (60 * 60)
-        minutes = how_much_longer.seconds // 60
-        seconds = how_much_longer.seconds
+        minutes = (how_much_longer.seconds // 60) % 60
+        seconds = how_much_longer.seconds % 60
         msg = (
             f"{f'{days} day{'s' if days > 1 else ''} ' if days > 0 else ''}"
             f"{f'{hours} hour{'s' if hours > 1 else ''} ' if hours > 0 else ''}"
