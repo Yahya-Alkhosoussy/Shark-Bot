@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 
 from discord.ext import commands
-from twitchAPI.chat import Chat, EventData
+from twitchAPI.chat import EventData
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.helper import first
 from twitchAPI.oauth import UserAuthenticationStorageHelper
@@ -14,7 +14,7 @@ from twitchAPI.object.eventsub import (
     ChannelWarningSendEvent,
 )
 from twitchAPI.twitch import Twitch
-from twitchAPI.type import AuthScope, ChatEvent
+from twitchAPI.type import AuthScope
 
 from utils.core import AppConfig
 
@@ -95,7 +95,6 @@ class TwitchBot:
         self.dys_twitch: Twitch | None = None
         self.shark_eventsub: EventSubWebsocket | None = None
         self.dys_eventsub: EventSubWebsocket | None = None
-        self.chat: Chat | None = None
         self.dys_id: str | None = None
         self.shark_id: str | None = None
         self.bot_id: str | None = None
@@ -151,8 +150,6 @@ class TwitchBot:
         except Exception as e:
             print(f"Error type: {e}")
 
-        self.chat = await Chat(self.twitch)
-
     async def on_ban(self, ban: ChannelBanEvent):
         event = ban.event
         if event.is_permanent:
@@ -193,25 +190,18 @@ class TwitchBot:
             await self.shark_eventsub.stop()
         if self.dys_eventsub:
             await self.dys_eventsub.stop()
-        if self.chat:
-            self.chat.stop()
         if self.twitch:
             await self.twitch.close()
 
     async def run(self):
         try:
             await self.setup()
-            assert self.chat, "Chat is none"
             assert self.twitch, "Twitch is None"
             assert self.dys_eventsub, "Dys eventsub is None"
             assert self.shark_eventsub, "Shark eventsub is None"
             assert self.dys_id, "Dys' id is None"
             assert self.shark_id, "Shark's ID is None"
             assert self.bot_id, "Bot id is None"
-
-            self.chat.register_event(ChatEvent.READY, self.on_ready)
-
-            self.chat.start()
 
             await asyncio.Event().wait()
         except Exception as e:
