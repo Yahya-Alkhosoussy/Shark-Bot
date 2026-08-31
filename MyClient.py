@@ -16,6 +16,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
 from pydantic import ValidationError
+from twitchAPI.type import AuthScope
 
 from cogs.clips import Clips
 from cogs.fishing import FishingCog
@@ -26,7 +27,7 @@ from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
 from logModActions.modActions import ModLoop
-from logModActions.modLogger import ModLogger
+from logModActions.modLogger import ModLogger, TwitchBot
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
 from loops.clipping.clips import ClipLoop
 from loops.levellingloop.levellingLoop import levelingLoop
@@ -106,13 +107,52 @@ class MyBot(commands.Bot):
         self.youtube_loop = YoutubeLoop(bot=self, config=config)
         self.updating_store = False
         self.loop_processing = False
+        self.twitch_bot: asyncio.Task | None = None
 
-    async def load_cogs(self):
+    async def setup_hook(self):
         await self.add_cog(Moderation(self, config))
         await self.add_cog(Clips(self))
         await self.add_cog(FishingCog(self, config))
         await self.add_cog(ModLogger(self, config))
         # await self.add_cog(Music(self))
+
+        cog = self.get_cog("ModLogger")
+        assert isinstance(cog, ModLogger), f"Cog not found, type: {type(cog)}"
+
+        "moderation:read moderator:read:banned_users moderator:read:chat_messages channel:bot"
+        " channel:moderate"
+        " moderator:read:unban_requests moderator:read:warnings"
+
+        scopes = [
+            AuthScope.CHANNEL_BOT,
+            AuthScope.MODERATION_READ,
+            AuthScope.MODERATOR_READ_BANNED_USERS,
+            AuthScope.MODERATOR_READ_CHAT_MESSAGES,
+            AuthScope.CHANNEL_MODERATE,
+            AuthScope.MODERATOR_READ_UNBAN_REQUESTS,
+            AuthScope.MODERATOR_READ_WARNINGS,
+        ]
+
+        client_id = os.getenv("mod_log_id")
+        client_secret = os.getenv("mod_log_secret")
+
+        assert client_id and client_secret
+
+        twitch_bot = TwitchBot(
+            client_id,
+            client_secret,
+            scopes,
+            ["sharkocalypse", "dyslexxik"],
+            cog,
+        )
+
+        print("About to run the twitch bot")
+        self.twitch_bot = asyncio.create_task(twitch_bot.run())
+        self.twitch_bot.add_done_callback(self._log_twitch_failure)
+
+    def _log_twitch_failure(self, task: asyncio.Task):
+        if not task.cancelled() and task.exception():
+            print(f"Twitch bot crashed: {task.exception()}")
 
     # ======= ON RUN =======
     async def on_ready(self):
@@ -121,8 +161,6 @@ class MyBot(commands.Bot):
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
-
-        await self.load_cogs()
 
         # Set up app commands
         async def setup_guild(guild):
