@@ -10,6 +10,7 @@ from enum import Enum
 from pathlib import Path
 from sqlite3 import OperationalError
 from typing import Counter
+from zoneinfo import ZoneInfo
 
 import aiohttp
 import discord
@@ -44,7 +45,7 @@ from SQL.levellingSQL.levellingSQL import add_user_ids_to_table
 from SQL.rolesSQL.roles import add_message_ids_to_role_sets_table, fill_emoji_map, update_role_emoji_ASCII, update_role_message
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
-from utils.checks import is_mod
+from utils.checks import is_mod, is_palworld_member
 from utils.core import AppConfig, get_full_path
 from utils.fishing import FishingConfig
 from utils.pullingFromTwitch import get_user_id, user_exists
@@ -1545,6 +1546,51 @@ async def merge(ctx: commands.Context):
         await ctx.send(f"Got an error {e}")
         return
     await ctx.send("Merge complete.")
+
+
+@bot.command("palworld")
+@is_palworld_member()
+async def palworld(ctx: commands.Context):
+    assert ctx.guild
+    if (datetime.now(tz=ZoneInfo("EST"))) <= datetime(2026, 9, 2, 8, 0, 0, 0, ZoneInfo("EST")):
+        await ctx.reply("You're too early!")
+        how_much_longer = datetime(2026, 9, 2, 8, 0, 0, 0, ZoneInfo("EST")) - (datetime.now(tz=ZoneInfo("EST")))
+        days = how_much_longer.days
+        hours = how_much_longer.seconds // (60 * 60)
+        minutes = how_much_longer.seconds // 60
+        seconds = how_much_longer.seconds
+        msg = (
+            f"{f'{days} day{'s' if days > 1 else ''} ' if days > 0 else ''}"
+            f"{f'{hours} hour{'s' if hours > 1 else ''} ' if hours > 0 else ''}"
+            f"{f'{minutes} minutes{'s' if minutes > 1 else ''} ' if minutes > 0 else ''}"
+            f"{f'{seconds} second{'s' if seconds > 1 else ''} ' if seconds > 0 else ''}"
+            "left until the command activates."
+        )
+        await ctx.send(msg)
+        return
+
+    await ctx.send("Please check your DMs.")
+
+    member = ctx.author
+    await member.send(
+        "Before getting access to the palworld server, please enter the username of the platform you're joining with "
+        "(i.e. Steam username if you use steam, or PSN if u use playstation): "
+    )
+
+    def check(m: discord.Message):
+        return isinstance(m.channel, discord.DMChannel) and m.author.id == member.id
+
+    try:
+        name: discord.Message = await bot.wait_for("message", check=check, timeout=config.window_time)
+    except asyncio.TimeoutError:
+        await member.send("Timed out, please enter !palworld in the palworld channel")
+        return
+
+    await member.send("Thank you. Here are the details: \nServer IP: 147.185.221.225:16124\nServer Password: SpiderShark")
+
+    await config.send_discord_mod_log(
+        f"Gave {ctx.author.name} access to the palworld server. platform name {name.content}", bot, ctx.guild.id
+    )
 
 
 # check for errors
