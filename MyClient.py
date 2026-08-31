@@ -26,7 +26,6 @@ from exceptions import exceptions as ex
 from fishing.build.fish_multiple import fish_multiple_times
 from fishing.fishing import Fishing
 from handlers.reactions import reaction_handler
-from logModActions.modActions import ModLoop
 from logModActions.modLogger import ModLogger, TwitchBot
 from loops.birthdayloop.birthdayLoop import BirthdayLoop, add_birthday_to_sql, add_custom_gif_internal
 from loops.clipping.clips import ClipLoop
@@ -98,7 +97,6 @@ class MyBot(commands.Bot):
         self._custom_ticket_setup_done: dict = ticket_config.custom_setup_done
         self.reaction_handler = reaction_handler(config=config, roles_per_guild=fill_emoji_map(), bot=self)
         self.fishing = Fishing(self)
-        self.mod_loop = ModLoop(self, config)
         self.tiktok_loop = TikTokLoop(self, config)
         self.clipping_loop = ClipLoop(self, config)
         self.twitch_loop = TwitchLiveLoop(self, config)
@@ -186,7 +184,6 @@ class MyBot(commands.Bot):
                 logging.info(f"activating the loops for {guild_name}")
                 sg.setup_net_shop()
                 self.birthday_loops.start_for(guild.id)
-                self.mod_loop.start_for(guild.id)
                 self.tiktok_loop.start_for(guild.id)
                 self.clipping_loop.start_for(guild.id)
                 self.twitch_loop.start_for(guild.id)
