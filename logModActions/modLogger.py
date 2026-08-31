@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from pathlib import Path
 
 from discord.ext import commands
@@ -66,6 +67,14 @@ class ModLogger(commands.Cog):
         )
 
 
+for name in ("twitchAPI.twitch", "twitchAPI.eventsub.websocket", "twitchAPI.oauth", "twitchAPI.oauth.storage_helper"):
+    lg = logging.getLogger(name)
+    lg.setLevel(logging.DEBUG)
+
+for handler in logging.getLogger().handlers:
+    handler.setLevel(logging.DEBUG)
+
+
 class TwitchBot:
     def __init__(
         self,
@@ -82,6 +91,8 @@ class TwitchBot:
         self.cog = cog
 
         self.twitch: Twitch | None = None
+        self.shark_twitch: Twitch | None = None
+        self.dys_twitch: Twitch | None = None
         self.shark_eventsub: EventSubWebsocket | None = None
         self.dys_eventsub: EventSubWebsocket | None = None
         self.chat: Chat | None = None
@@ -90,23 +101,27 @@ class TwitchBot:
         self.bot_id: str | None = None
 
     async def setup(self):
+        if not Path("tokens").exists():
+            Path("tokens").mkdir()
+
         self.twitch = await Twitch(self.app_id, self.app_secret)
         twitch_helper = UserAuthenticationStorageHelper(self.twitch, self.bot_scopes, Path("tokens/bot_token.json"))
         await twitch_helper.bind()
 
-        main_loop = asyncio.get_event_loop()
+        self.shark_twitch = await Twitch(self.app_id, self.app_secret)
+        shark_helper = UserAuthenticationStorageHelper(self.shark_twitch, self.bot_scopes, Path("tokens/shark_token.json"))
+        await shark_helper.bind()
 
-        self.shark_eventsub = EventSubWebsocket(self.twitch, callback_loop=main_loop)
-        self.shark_eventsub.start()
-        self.dys_eventsub = EventSubWebsocket(self.twitch, callback_loop=main_loop)
-        self.dys_eventsub.start()
+        self.dys_twitch = await Twitch(self.app_id, self.app_secret)
+        dys_helper = UserAuthenticationStorageHelper(self.dys_twitch, self.bot_scopes, Path("tokens/dys_token.json"))
+        await dys_helper.bind()
 
-        user = await first(self.twitch.get_users(logins=["sharkocalypse"]))
+        user = await first(self.shark_twitch.get_users())
         if not user:
             raise ValueError("User sharkocalypse not found")
         self.shark_id = user.id
 
-        user_2 = await first(self.twitch.get_users(logins=["dyslexxik"]))
+        user_2 = await first(self.dys_twitch.get_users())
         if not user_2:
             raise ValueError("User, dyslexxik, not found")
         self.dys_id = user_2.id
@@ -115,6 +130,26 @@ class TwitchBot:
         if not user_3:
             raise ValueError("Bot not found")
         self.bot_id = user_3.id
+
+        main_loop = asyncio.get_event_loop()
+
+        self.shark_eventsub = EventSubWebsocket(self.shark_twitch, callback_loop=main_loop)
+        self.shark_eventsub.start()
+        self.dys_eventsub = EventSubWebsocket(self.dys_twitch, callback_loop=main_loop)
+        self.dys_eventsub.start()
+        try:
+            await self.shark_eventsub.listen_channel_ban(self.shark_id, self.on_ban)
+            await self.shark_eventsub.listen_channel_unban(self.shark_id, self.on_unban)
+            await self.shark_eventsub.listen_channel_unban_request_create(self.shark_id, self.shark_id, self.on_unban_request)
+            await self.shark_eventsub.listen_channel_warning_send(self.shark_id, self.shark_id, self.on_warning)
+
+            await self.dys_eventsub.listen_channel_ban(self.dys_id, self.on_ban)
+            await self.dys_eventsub.listen_channel_unban(self.dys_id, self.on_unban)
+            await self.dys_eventsub.listen_channel_unban_request_create(self.dys_id, self.dys_id, self.on_unban_request)
+            await self.dys_eventsub.listen_channel_warning_send(self.dys_id, self.dys_id, self.on_warning)
+
+        except Exception as e:
+            print(f"Error type: {e}")
 
         self.chat = await Chat(self.twitch)
 
@@ -154,10 +189,10 @@ class TwitchBot:
         print("Joining channels")
 
     async def close_bot(self):
-        if self.dys_eventsub:
-            await self.dys_eventsub.stop()
         if self.shark_eventsub:
             await self.shark_eventsub.stop()
+        if self.dys_eventsub:
+            await self.dys_eventsub.stop()
         if self.chat:
             self.chat.stop()
         if self.twitch:
@@ -175,15 +210,6 @@ class TwitchBot:
             assert self.bot_id, "Bot id is None"
 
             self.chat.register_event(ChatEvent.READY, self.on_ready)
-
-            await self.dys_eventsub.listen_channel_ban(self.dys_id, self.on_ban)
-            await self.dys_eventsub.listen_channel_unban(self.dys_id, self.on_unban)
-            await self.dys_eventsub.listen_channel_unban_request_create(self.dys_id, self.bot_id, self.on_unban_request)
-            await self.dys_eventsub.listen_channel_warning_send(self.dys_id, self.bot_id, self.on_warning)
-            await self.shark_eventsub.listen_channel_ban(self.shark_id, self.on_ban)
-            await self.shark_eventsub.listen_channel_unban(self.shark_id, self.on_unban)
-            await self.shark_eventsub.listen_channel_unban_request_create(self.shark_id, self.bot_id, self.on_unban_request)
-            await self.shark_eventsub.listen_channel_warning_send(self.shark_id, self.bot_id, self.on_warning)
 
             self.chat.start()
 
