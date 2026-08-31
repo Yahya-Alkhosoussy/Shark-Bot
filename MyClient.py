@@ -195,18 +195,28 @@ class MyBot(commands.Bot):
                 if not isinstance(shark_channel, discord.TextChannel):
                     print("channel is in an incorrect format")
                     return
-                shark_message = await shark_channel.fetch_message(shark_message_id)
-                if not isinstance(shark_message, discord.Message):
-                    print("message is not the right type: ", type(shark_message))
-                    return
-                dt = timedelta(minutes=30)
-                now = datetime.now(timezone.utc)
-                delta = now - shark_message.created_at
-                if delta >= dt:
+                done = False
+                try:
+                    shark_message = await shark_channel.fetch_message(shark_message_id)
+                except Exception:
                     self.shark_loops.start_for(guild.id)
-                else:
-                    remaining = dt - delta
-                    asyncio.create_task(self.start_shark_game_after_delay(guild_id=guild.id, remaining=remaining))
+                    done = True
+
+                if not done:
+                    shark_message = await shark_channel.fetch_message(
+                        shark_message_id
+                    )  # known not to error but possibly unbound
+                    if not isinstance(shark_message, discord.Message):
+                        print("message is not the right type: ", type(shark_message))
+                        return
+                    dt = timedelta(minutes=30)
+                    now = datetime.now(timezone.utc)
+                    delta = now - shark_message.created_at
+                    if delta >= dt:
+                        self.shark_loops.start_for(guild.id)
+                    else:
+                        remaining = dt - delta
+                        asyncio.create_task(self.start_shark_game_after_delay(guild_id=guild.id, remaining=remaining))
 
             await self.ticket_system.setup_hook()
             channel_id = config.get_channel_id(guild_name=guild_name, channel="mod app")
