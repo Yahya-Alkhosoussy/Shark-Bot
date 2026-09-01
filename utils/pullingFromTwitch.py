@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import re
 import time
 from datetime import datetime, timedelta, timezone
@@ -109,6 +110,11 @@ async def twitch_request(url: str, params: dict, user: str | None):
 
 async def get_user_id(twitch_user: str, user: str | None):
     user_r = await twitch_request("https://api.twitch.tv/helix/users", params={"login": twitch_user}, user=user)
+
+    if not user_r["data"]:
+        logging.warning(f"No Twitch user found for '{user}'")
+        return None
+
     return user_r["data"][0]["id"]
 
 
@@ -126,6 +132,8 @@ def parse_twitch_duration(duration: str) -> timedelta:
 
 async def internal_handle_stream_end(username: str, user: str):
     broadcaster_id = await get_user_id(username, user)
+    if broadcaster_id is None:
+        return None
 
     # Small buffer for twitch
     time.sleep(30)

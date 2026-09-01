@@ -939,6 +939,9 @@ async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, a
 @discord.app_commands.describe(twitch_name="Your twitch username")
 async def link_twitch(interaction: discord.Interaction, twitch_name: str):
     twitch_user_id = await get_user_id(twitch_name, user=None)
+    if twitch_user_id is None:
+        await interaction.response.send_message(f"Could not find someone with the twitch name {twitch_name}")
+        return
     if sg.does_user_have_dex(interaction.user.id):
         sg.add_twitch(twitch_user_id, twitch_name, interaction.user.id)
         await interaction.response.send_message("Successfully linked your dex to your twitch account")
