@@ -64,8 +64,8 @@ class TikTokLoop:
             else:
                 logging.info(f"[{guild_name}] TikTok loop has ended normally.")
 
-        @loop.error
-        async def _error(self, error: BaseException):
+        @loop.error  # type: ignore
+        async def _error(error):
             logging.exception(f"An Error has occured: {str(error)}")
 
         self._loops[guild_id] = loop
