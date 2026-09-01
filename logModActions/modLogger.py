@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from pathlib import Path
 
 from discord.ext import commands
@@ -65,14 +64,6 @@ class ModLogger(commands.Cog):
             bot=self.bot,
             guild_id=1273776575266951268,
         )
-
-
-for name in ("twitchAPI.twitch", "twitchAPI.eventsub.websocket", "twitchAPI.oauth", "twitchAPI.oauth.storage_helper"):
-    lg = logging.getLogger(name)
-    lg.setLevel(logging.DEBUG)
-
-for handler in logging.getLogger().handlers:
-    handler.setLevel(logging.DEBUG)
 
 
 class TwitchBot:
