@@ -1565,9 +1565,9 @@ async def merge(ctx: commands.Context):
 @is_palworld_member()
 async def palworld(ctx: commands.Context):
     assert ctx.guild
-    if (datetime.now(tz=ZoneInfo("EST"))) <= datetime(2026, 9, 2, 20, 0, 0, 0, ZoneInfo("EST")):
+    if datetime.now(tz=ZoneInfo("EST")) <= datetime(2026, 9, 2, 20, 0, 0, 0, ZoneInfo("EST")):
         await ctx.reply("You're too early!")
-        how_much_longer = datetime(2026, 9, 2, 8, 0, 0, 0, ZoneInfo("EST")) - (datetime.now(tz=ZoneInfo("EST")))
+        how_much_longer = datetime(2026, 9, 2, 20, 0, 0, 0, ZoneInfo("EST")) - (datetime.now(tz=ZoneInfo("EST")))
         days = how_much_longer.days
         hours = how_much_longer.seconds // (60 * 60)
         minutes = (how_much_longer.seconds // 60) % 60
