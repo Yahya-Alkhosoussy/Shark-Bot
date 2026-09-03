@@ -1599,7 +1599,10 @@ async def palworld(ctx: commands.Context):
         await member.send("Timed out, please enter !palworld in the palworld channel")
         return
 
-    await member.send("Thank you. Here are the details: \nServer IP: 147.185.221.225:16124\nServer Password: SpiderShark")
+    await member.send(
+        "Thank you. Here are the details: \nServer IP: 147.185.221.225:16124\nServer Password: SpiderShark"
+        "\nServer name 'The cult of shark' and can be found in the community tab."
+    )
 
     await config.send_discord_mod_log(
         f"Gave {ctx.author.name} access to the palworld server. platform name {name.content}", bot, ctx.guild.id
