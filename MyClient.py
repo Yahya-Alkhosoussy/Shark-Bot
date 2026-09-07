@@ -42,6 +42,7 @@ from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
 from SQL.deletedSQL.deleted_messages import add_deleted_message
 from SQL.fishingSQL.baits import add_column_to_baits_db, add_column_to_fish_db, add_fish_caught, add_user_ids, get_baits
 from SQL.levellingSQL.levellingSQL import add_user_ids_to_table
+from SQL.palworld.serverEligibility import check_eligibility
 from SQL.rolesSQL.roles import add_message_ids_to_role_sets_table, fill_emoji_map, update_role_emoji_ASCII, update_role_message
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
@@ -1585,10 +1586,7 @@ async def palworld(ctx: commands.Context):
     await ctx.send("Please check your DMs.")
 
     member = ctx.author
-    await member.send(
-        "Before getting access to the palworld server, please enter the username of the platform you're joining with "
-        "(i.e. Steam username if you use steam, or PSN if u use playstation): "
-    )
+    await member.send("Before getting access to the palworld server, please enter the your twitch username:")
 
     def check(m: discord.Message):
         return isinstance(m.channel, discord.DMChannel) and m.author.id == member.id
@@ -1599,19 +1597,40 @@ async def palworld(ctx: commands.Context):
         await member.send("Timed out, please enter !palworld in the palworld channel")
         return
 
+    try:
+        eligible = check_eligibility(name.content)
+    except OperationalError as e:
+        await member.send(f"Got an error trying to find your twitch username. Error: {e}")
+        return
+
+    if not eligible:
+        await member.send(
+            "You are not eligible to gain the server details. Please try again later. For more information please contact "
+            "sharkocalypse or someone on the mod team."
+        )
+        return
+
+    await member.send("You are eligible. Please enter your platform name (i.e Steam name if steam, PSN if playstation)")
+
+    try:
+        ign: discord.Message = await bot.wait_for("message", check=check, timeout=config.window_time)
+    except asyncio.TimeoutError:
+        await member.send("You ran out of time! Please run !palworld again in the palworld channel.")
+        return
+
     await member.send(
         "Thank you. Here are the details: \nServer IP: 147.185.221.225:16124\nServer Password: SpiderShark"
         "\nServer name 'The cult of shark' and can be found in the community tab."
     )
 
     await config.send_discord_mod_log(
-        f"Gave {ctx.author.name} access to the palworld server. platform name {name.content}", bot, ctx.guild.id
+        f"Gave {ctx.author.name} access to the palworld server. platform name {ign.content}", bot, ctx.guild.id
     )
 
 
 # check for errors
 @bot.event
-async def on_command_error(ctx: commands.Context, error):
+async def on_command_error(ctx: commands.Context, error):  # noqa: C901
 
     if not bot.shark_loops.is_idle:
         return
