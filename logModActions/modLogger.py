@@ -1,8 +1,10 @@
 import asyncio
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from discord.ext import commands
-from twitchAPI.chat import EventData
+from pytz import utc
+from twitchAPI.chat import Chat, ChatEvent, ChatMessage, EventData
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.helper import first
 from twitchAPI.oauth import UserAuthenticationStorageHelper
@@ -15,6 +17,7 @@ from twitchAPI.object.eventsub import (
 from twitchAPI.twitch import Twitch
 from twitchAPI.type import AuthScope
 
+from SQL.palworld.serverEligibility import add_to_num_of_msgs, add_user, check_if_in_table
 from utils.core import AppConfig
 
 
@@ -89,32 +92,38 @@ class TwitchBot:
         self.dys_id: str | None = None
         self.shark_id: str | None = None
         self.bot_id: str | None = None
+        self.chat: Chat | None = None
 
     async def setup(self):
         if not Path("tokens").exists():
             Path("tokens").mkdir()
 
+        read_scopes = list(self.bot_scopes)
+        read_scopes.append(AuthScope.CHAT_READ)
+
+        print(read_scopes == self.bot_scopes)
+
         self.twitch = await Twitch(self.app_id, self.app_secret)
-        twitch_helper = UserAuthenticationStorageHelper(self.twitch, self.bot_scopes, Path("tokens/bot_token.json"))
+        twitch_helper = UserAuthenticationStorageHelper(self.twitch, read_scopes, Path("tokens/bot_token.json"))
         await twitch_helper.bind()
 
         self.shark_twitch = await Twitch(self.app_id, self.app_secret)
         shark_helper = UserAuthenticationStorageHelper(self.shark_twitch, self.bot_scopes, Path("tokens/shark_token.json"))
         await shark_helper.bind()
 
-        self.dys_twitch = await Twitch(self.app_id, self.app_secret)
-        dys_helper = UserAuthenticationStorageHelper(self.dys_twitch, self.bot_scopes, Path("tokens/dys_token.json"))
-        await dys_helper.bind()
+        # self.dys_twitch = await Twitch(self.app_id, self.app_secret)
+        # dys_helper = UserAuthenticationStorageHelper(self.dys_twitch, self.bot_scopes, Path("tokens/dys_token.json"))
+        # await dys_helper.bind()
 
         user = await first(self.shark_twitch.get_users())
         if not user:
             raise ValueError("User sharkocalypse not found")
         self.shark_id = user.id
 
-        user_2 = await first(self.dys_twitch.get_users())
-        if not user_2:
-            raise ValueError("User, dyslexxik, not found")
-        self.dys_id = user_2.id
+        # user_2 = await first(self.dys_twitch.get_users())
+        # if not user_2:
+        #     raise ValueError("User, dyslexxik, not found")
+        # self.dys_id = user_2.id
 
         user_3 = await first(self.twitch.get_users())
         if not user_3:
@@ -125,18 +134,19 @@ class TwitchBot:
 
         self.shark_eventsub = EventSubWebsocket(self.shark_twitch, callback_loop=main_loop)
         self.shark_eventsub.start()
-        self.dys_eventsub = EventSubWebsocket(self.dys_twitch, callback_loop=main_loop)
-        self.dys_eventsub.start()
+        # self.dys_eventsub = EventSubWebsocket(self.dys_twitch, callback_loop=main_loop)
+        # self.dys_eventsub.start()
         try:
             await self.shark_eventsub.listen_channel_ban(self.shark_id, self.on_ban)
             await self.shark_eventsub.listen_channel_unban(self.shark_id, self.on_unban)
             await self.shark_eventsub.listen_channel_unban_request_create(self.shark_id, self.shark_id, self.on_unban_request)
             await self.shark_eventsub.listen_channel_warning_send(self.shark_id, self.shark_id, self.on_warning)
 
-            await self.dys_eventsub.listen_channel_ban(self.dys_id, self.on_ban)
-            await self.dys_eventsub.listen_channel_unban(self.dys_id, self.on_unban)
-            await self.dys_eventsub.listen_channel_unban_request_create(self.dys_id, self.dys_id, self.on_unban_request)
-            await self.dys_eventsub.listen_channel_warning_send(self.dys_id, self.dys_id, self.on_warning)
+            # await self.dys_eventsub.listen_channel_ban(self.dys_id, self.on_ban)
+            # await self.dys_eventsub.listen_channel_unban(self.dys_id, self.on_unban)
+            # await self.dys_eventsub.listen_channel_unban_request_create(self.dys_id, self.dys_id, self.on_unban_request)
+            # await self.dys_eventsub.listen_channel_warning_send(self.dys_id, self.dys_id, self.on_warning)
+            self.chat = await Chat(self.twitch)
 
         except Exception as e:
             print(f"Error type: {e}")
@@ -176,6 +186,42 @@ class TwitchBot:
         await event.chat.join_room(self.target_channels)
         print("Joining channels")
 
+    async def get_follow_age(self, streamer_id: str, user_id: str, raw: bool):
+        assert self.shark_twitch
+        assert self.shark_id
+
+        #      if streamer_id == self.shark_id:
+        followers = await self.shark_twitch.get_channel_followers(self.shark_id, user_id)
+        #       else:
+        #            followers = await self.dys_twitch.get_channel_followers(self.dys_id, user_id)  # DO NOT CALL THIS YET
+
+        follower = followers.data[0]
+        follow_age = datetime.now(tz=utc) - follower.followed_at
+        if not raw:
+            return follow_age.total_seconds() % 24 // 3600
+        return follow_age.total_seconds()
+
+    async def on_message(self, msg: ChatMessage):
+        assert msg.room and self.shark_id
+        try:
+            if not await check_if_in_table(msg.user.name):
+                if msg.room.room_id != self.shark_id:  # for now
+                    return
+                follow_age = await self.get_follow_age(self.shark_id, msg.user.id, raw=True)
+                follow_start = datetime.now(tz=utc) - timedelta(seconds=follow_age)
+                await add_user(
+                    twitch_username=msg.user.name,
+                    eligible=False,
+                    follow_start=follow_start,
+                    num_of_msgs=1,
+                )
+            else:
+                if msg.room.room_id != self.shark_id:
+                    return
+                await add_to_num_of_msgs(twitch_username=msg.user.name)
+        except Exception as e:
+            print(f"Got an error {e}")
+
     async def close_bot(self):
         if self.shark_eventsub:
             await self.shark_eventsub.stop()
@@ -188,11 +234,17 @@ class TwitchBot:
         try:
             await self.setup()
             assert self.twitch, "Twitch is None"
-            assert self.dys_eventsub, "Dys eventsub is None"
+            # assert self.dys_eventsub, "Dys eventsub is None"
             assert self.shark_eventsub, "Shark eventsub is None"
-            assert self.dys_id, "Dys' id is None"
+            # assert self.dys_id, "Dys' id is None"
             assert self.shark_id, "Shark's ID is None"
             assert self.bot_id, "Bot id is None"
+            assert self.chat, "Chat is not set up"
+
+            self.chat.register_event(ChatEvent.READY, self.on_ready)
+            self.chat.register_event(ChatEvent.MESSAGE, self.on_message)
+
+            self.chat.start()
 
             await asyncio.Event().wait()
         except Exception as e:
