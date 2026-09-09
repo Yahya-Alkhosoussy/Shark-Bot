@@ -131,6 +131,7 @@ class MyBot(commands.Bot):
             AuthScope.CHANNEL_MODERATE,
             AuthScope.MODERATOR_READ_UNBAN_REQUESTS,
             AuthScope.MODERATOR_READ_WARNINGS,
+            AuthScope.MODERATOR_READ_FOLLOWERS,
         ]
 
         client_id = os.getenv("mod_log_id")
