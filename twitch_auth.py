@@ -11,7 +11,7 @@ load_dotenv()
 CLIENT_ID = getenv("mod_log_id")
 CLIENT_SECRET = getenv("mod_log_secret")
 REDIRECT_URL = "http://localhost:3000/callback"
-SCOPES = "moderation:read moderator:read:banned_users moderator:read:chat_messages"
+SCOPES = "channel:bot moderation:read moderator:read:banned_users moderator:read:chat_messages channel:moderate moderator:read:unban_requests moderator:read:warnings moderator:read:followers"
 
 
 @app.route("/login")
