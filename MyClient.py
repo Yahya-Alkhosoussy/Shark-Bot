@@ -323,7 +323,6 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             return
 
         if message.guild is None:
-            await message.reply("I do not respond to dms, please message me in a server where my commands work. Thank you!")
             return
 
         # leveling system messages
