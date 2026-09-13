@@ -2,9 +2,12 @@ import asyncio
 import io
 import logging
 import os
+import queue
 import shutil
 import subprocess
 import sys
+import threading
+import time
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
@@ -1626,6 +1629,101 @@ async def palworld(ctx: commands.Context):
     await config.send_discord_mod_log(
         f"Gave {ctx.author.name} access to the palworld server. platform name {ign.content}", bot, ctx.guild.id
     )
+
+
+@bot.group()
+async def playit(ctx: commands.Context):
+    pass
+
+
+PLAYIT_EXE = "playit.exe"
+WORKING_DIR = r"C:\Users\yahya"
+TIMEOUT_MARKERS = [
+    "timed out while waiting for playit service",  # exact message
+    "timed out",
+    "connection refused",
+    "etimedout",
+]
+STARTUP_GRACE_PERIOD = 10  # 10 second grace period
+RETRY_DELAY = 3  # 3 second delay between failed attempts
+
+
+def _stream_reader(pipe, q):
+    "Reads lines from subprocess pipe"
+    for line in iter(pipe.readline, ""):
+        q.put(line)
+    pipe.close()
+
+
+def _attempt_start():
+    print(f"\n[{datetime.now().strftime('%H:%M:%S')}] STARTING {PLAYIT_EXE}")
+
+    process = subprocess.Popen(
+        [PLAYIT_EXE],
+        cwd=WORKING_DIR,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
+
+    q = queue.Queue()
+    threading.Thread(target=_stream_reader, args=(process.stdout, q), daemon=True).start()
+
+    start = time.time()
+    while time.time() - start < STARTUP_GRACE_PERIOD:
+        try:
+            while True:
+                line = q.get_nowait()
+                logging.info("playit: %s", line.rstrip())
+                if any(marker in line.lower() for marker in TIMEOUT_MARKERS):
+                    logging.warning("Timeout indicator detected — killing and retrying.")
+                    process.kill()
+                    process.wait()
+                    return False, None
+        except queue.Empty:
+            pass
+
+        if process.poll() is not None:
+            logging.warning("playit.exe exited early (code %s) — treating as failure.", process.returncode)
+            return False, None
+
+        time.sleep(0.2)
+
+    if process.poll() is None:
+        logging.info("playit.exe is up and still running.")
+        return True, process
+    logging.warning("playit.exe exited (code %s) — treating as failure.", process.returncode)
+    return False, None
+
+
+_playit_process = None
+
+
+@playit.command(name="watch")
+async def playit_watch_down(ctx: commands.Context):
+
+    global _playit_process
+
+    if _playit_process is not None and _playit_process.poll() is None:
+        await ctx.send("it is already running")
+
+    await ctx.send("Attempting to start it. Will keep retrying upon failure")
+
+    attempts = 0
+    while True:
+        attempts += 1
+        success, process = await asyncio.to_thread(_attempt_start)
+
+        if success:
+            _playit_process = process
+            await ctx.send(f"Play it started (took {attempts}), starting up the palworld server")
+            await asyncio.to_thread(subprocess.run, ["powershell.exe", "-Command", "palworld"])
+            await ctx.send("Started the palworld server.")
+            return
+
+        logging.info("Attempt %s failed, retrying in %ss.", attempts, RETRY_DELAY)
+        await asyncio.sleep(RETRY_DELAY)
 
 
 # check for errors
