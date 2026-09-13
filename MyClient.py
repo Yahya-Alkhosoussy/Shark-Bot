@@ -1720,6 +1720,13 @@ async def playit_watch_down(ctx: commands.Context):
             await ctx.send(f"Play it started (took {attempts}), starting up the palworld server")
             await asyncio.to_thread(subprocess.run, ["powershell.exe", "-Command", "palworld"])
             await ctx.send("Started the palworld server.")
+            channel = bot.get_channel(1534815931568619582)
+            if isinstance(channel, discord.TextChannel):
+                role = channel.guild.get_role(1543988824584093809)
+                if isinstance(role, discord.Role):
+                    await channel.send(
+                        f"{role.mention} The palworld server should be up now. If it isn't please notify the spider"
+                    )
             return
 
         logging.info("Attempt %s failed, retrying in %ss.", attempts, RETRY_DELAY)
