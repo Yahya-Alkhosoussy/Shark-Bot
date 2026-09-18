@@ -140,7 +140,7 @@ def add_to_level(username: str, user_id: int, boost: bool, boost_amount: int):
 def check_for_username_change(username: str, user_id: int) -> bool:
     cur.execute("SELECT DISTINCT username FROM level WHERE user_id=?", (user_id,))
     result = cur.fetchall()
-    if len(result) > 1 or result[0] != username:
+    if len(result) > 1 and result[0][0] != username:
         return True
     return False
 
