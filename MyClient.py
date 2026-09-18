@@ -1733,6 +1733,17 @@ async def playit_watch_down(ctx: commands.Context):
         await asyncio.sleep(RETRY_DELAY)
 
 
+@bot.command(name="netMigrate")
+async def migrate_nets(ctx: commands.Context):
+    await ctx.send("Migrating nets...")
+    try:
+        sg.merge_nets_tables()
+    except Exception as e:
+        await ctx.send(f"Got an error: {e}")
+        return
+    await ctx.send("Nets migrated")
+
+
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):  # noqa: C901

@@ -148,7 +148,7 @@ def create_dex(user_id: int, username: str, shark_name: str, when_caught: str, n
     )
     # Check if row exists
     try:
-        row_count = cursor.execute(f"SELECT COUNT(*) FROM '{username} nets'").fetchone()[0]
+        row_count = cursor.execute("SELECT COUNT(*) FROM nets WHERE username=?", (username,)).fetchone()[0]
     except sqlite3.OperationalError:
         row_count = 0
     if row_count == 0:
@@ -570,7 +570,7 @@ def get_net_availability(username: str):
     all_nets = []
     available_nets = ["rope net"]
     try:
-        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets' ORDER BY time DESC LIMIT 1;"))
+        all_nets.extend(cursor.execute("SELECT * FROM nets WHERE username=? ORDER BY time DESC LIMIT 1;", (username,)))
     except sqlite3.OperationalError:
         all_nets.extend(cursor.execute("SELECT 'leather net', 'gold net', 'titanium net', 'net of doom' FROM nets"))
         all_nets.extend(available_nets)
@@ -685,8 +685,7 @@ def remove_net_use(username: str, net: str, net_uses: int):
 
 
 def remove_net(username: str, net: str):
-    cursor.execute(f"UPDATE '{username} nets' SET '{net}'=0")
-
+    cursor.execute(f"UPDATE nets SET '{net}'=0 WHERE username=?", (username,))
     connection.commit()
 
 
@@ -694,7 +693,7 @@ def is_net_available(username: str, net: str):
     nets_available: dict = {}
     all_nets = []
     try:
-        all_nets.extend(cursor.execute(f"SELECT * FROM '{username} nets'"))
+        all_nets.extend(cursor.execute("SELECT * FROM nets WHERE username=?", (username,)))
     except sqlite3.OperationalError:
         return False
     i = 0
@@ -791,7 +790,7 @@ def buy_net(username: str, net: int, user_id: int, amount: int):
         current_time = dt.datetime.now()
         time_now: str = f"{current_time.date()} {current_time.hour}"
         if not is_net_available(username, net_to_buy) and not bundle:
-            cursor.execute(f"UPDATE '{username} nets' SET '{net_to_buy}'=1, time='{time_now}'")
+            cursor.execute(f"UPDATE nets SET '{net_to_buy}'=1, time='{time_now}' WHERE username=?", (username,))
             existing = cursor.execute("SELECT COUNT(*) FROM dex WHERE net=? AND username=?", (net_to_buy, username)).fetchone()[
                 0
             ]
@@ -1325,5 +1324,40 @@ def add_80_net_uses_to_all():
             connection.commit()
         print(f"Did it for {name}")
 
+
+def merge_nets_tables():
+    # 1) list all user tables:
+    cursor.execute("""
+                    SELECT name
+                    FROM sqlite_master
+                    WHERE type='table' AND name NOT LIKE 'sqlite_%'
+                """)
+    table_names: list[str] = [row[0] for row in cursor.fetchall()]
+
+    name_and_id: list[tuple[str, int]] = cursor.execute("SELECT username, user_id FROM dex").fetchall()
+    USERNAME_TO_ID: dict[str, int] = {}
+    for name, id in name_and_id:
+        USERNAME_TO_ID[name] = id
+
+    # 2) keep only tables that follow your pattern
+    nets_tables = [t for t in table_names if t.endswith(" nets")]
+    for table in nets_tables:
+        username = table.removesuffix(" nets")
+        user_id = USERNAME_TO_ID.get(username)
+        if not user_id:
+            user_id = 0
+        rows = cursor.execute(f"SELECT * FROM '{table}'").fetchall()
+        for row in rows:
+            cursor.execute(
+                "INSERT OR IGNORE INTO nets"
+                " (username, user_id, 'rope net', 'leather net', 'gold net', 'titanium net', 'net of doom', time)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (username, user_id, *row),
+            )
+            connection.commit()
+
+
+migrate_old_dex_to_new_dex()
+merge_nets_tables()
 
 connection.commit()  # pushes changes to database
