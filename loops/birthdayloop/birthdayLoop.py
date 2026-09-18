@@ -221,14 +221,19 @@ class BirthdayLoop:
         return False
 
 
-async def add_birthday_to_sql(interaction: discord.Interaction, birthmonth: int, birthday: int):
+async def add_birthday_to_sql(interaction: discord.Interaction, birthmonth: int, birthday: int, twitch_username: str):
     try:
         birthday_datetime = dt.datetime.strptime(str(birthmonth) + "-" + str(birthday), r"%m-%d")
     except ValueError:
         raise BirthdateFormatError("Birthday format is incorrect", error_code=1005)
     normalised_date = str(birthday_datetime.date()).replace("1900-", "")
     try:
-        b.add_birthday(username=interaction.user.name, user_id=interaction.user.id, birthday=normalised_date)
+        b.add_birthday(
+            username=interaction.user.name,
+            user_id=interaction.user.id,
+            birthday=normalised_date,
+            twitch_username=twitch_username,
+        )
     except Exception as e:
         raise e
 

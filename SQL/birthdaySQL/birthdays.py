@@ -1,4 +1,5 @@
 import sqlite3
+from typing import Any
 
 from exceptions.exceptions import FormatError, ItemNotFound
 
@@ -6,7 +7,7 @@ conn = sqlite3.connect(r"databases/birthdays.db")
 cur = conn.cursor()
 
 cur.execute("""CREATE TABLE IF NOT EXISTS birthdays
-                    (id INTEGER PRIMARY KEY, name TEXT UNIQUE, discord_id BIGINT NOT NULL UNIQUE, birthday TEXT NOT NULL, custom_gif_index INTEGER)""")  # noqa: E501
+                    (id INTEGER PRIMARY KEY, name TEXT UNIQUE, discord_id BIGINT NOT NULL UNIQUE, birthday TEXT NOT NULL, custom_gif_index INTEGER, twitch_username TEXT)""")  # noqa: E501
 
 cur.execute("""CREATE TABLE IF NOT EXISTS birthday_gifs
                         (id INTEGER PRIMARY KEY, link TEXT UNIQUE, custom BOOL NOT NULL)""")
@@ -16,11 +17,20 @@ cur.execute("""CREATE TABLE IF NOT EXISTS birthday_messages
 conn.commit()
 
 
-def add_birthday(username: str, user_id: int, birthday: str):
+def add_to_birthdays_table(column_name: str, column_type: str, default_value: Any):
+    try:
+        cur.execute(f"ALTER TABLE birthdays ADD COLUMN {column_name} {column_type} DEFAULT {default_value}")
+    except sqlite3.OperationalError as e:
+        print(f"Warning, error {e}")
+    conn.commit()
+
+
+def add_birthday(username: str, user_id: int, birthday: str, twitch_username: str):
     try:
         cur.execute(
-            "INSERT OR IGNORE INTO birthdays (name, discord_id, birthday, custom_gif_index) VALUES (?, ?, ?, ?)",
-            (username, user_id, birthday, None),
+            "INSERT OR IGNORE INTO birthdays (name, discord_id, birthday, custom_gif_index, twitch_username)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (username, user_id, birthday, None, twitch_username),
         )
         conn.commit()
     except sqlite3.OperationalError as e:

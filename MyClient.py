@@ -41,7 +41,7 @@ from modApplication.ModQuestions import ModQuestions
 from moderation.tools import Moderation
 from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
-from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table
+from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table, add_to_birthdays_table
 from SQL.deletedSQL.deleted_messages import add_deleted_message
 from SQL.fishingSQL.baits import add_column_to_baits_db, add_column_to_fish_db, add_fish_caught, add_user_ids, get_baits
 from SQL.levellingSQL.levellingSQL import add_user_ids_to_table
@@ -638,14 +638,18 @@ bot.owner_id = 604366329302220820  # replace with own ID if replicating
 
 @bot.tree.command(name="add-birthday", description="Adds your birthday to wish you a happy birthday on that day")
 @discord.app_commands.describe(
-    birth_month="This is your birth month (i.e 2 for february, 6 for june etc.)", birthday="Your birth day"
+    birth_month="This is your birth month (i.e 2 for february, 6 for june etc.)",
+    birthday="Your birth day",
+    twitch_username="Your twitch username",
 )
 @discord.app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
 @discord.app_commands.allowed_installs(guilds=True, users=False)
-async def add_birthday(interaction: discord.Interaction, birth_month: int, birthday: int):
+async def add_birthday(interaction: discord.Interaction, birth_month: int, birthday: int, twitch_username: str):
     await interaction.response.send_message("Adding your birthday.")
     try:
-        await add_birthday_to_sql(interaction=interaction, birthmonth=birth_month, birthday=birthday)
+        await add_birthday_to_sql(
+            interaction=interaction, birthmonth=birth_month, birthday=birthday, twitch_username=twitch_username
+        )
     except (OperationalError, ex.BirthdateFormatError) as e:
         if isinstance(interaction.channel, discord.TextChannel):
             await interaction.channel.send(str(e))
@@ -1742,6 +1746,13 @@ async def migrate_nets(ctx: commands.Context):
         await ctx.send(f"Got an error: {e}")
         return
     await ctx.send("Nets migrated")
+
+
+@bot.command(name="birthdayAdd")
+async def add_col_to_birthday(ctx: commands.Context):
+    await ctx.send("Adding column")
+    add_to_birthdays_table("twitch_username", "TEXT", "")
+    await ctx.send("Column added")
 
 
 # check for errors
