@@ -570,7 +570,13 @@ def get_net_availability(username: str):
     all_nets = []
     available_nets = ["rope net"]
     try:
-        all_nets.extend(cursor.execute("SELECT * FROM nets WHERE username=? ORDER BY time DESC LIMIT 1;", (username,)))
+        all_nets.extend(
+            cursor.execute(
+                'SELECT "rope net", "leather net", "gold net", "titanium net", "net of doom" FROM nets WHERE username=? '
+                "ORDER BY time DESC LIMIT 1;",
+                (username,),
+            )
+        )
     except sqlite3.OperationalError:
         all_nets.extend(cursor.execute("SELECT 'leather net', 'gold net', 'titanium net', 'net of doom' FROM nets"))
         all_nets.extend(available_nets)
