@@ -1389,13 +1389,18 @@ def merge_nets_tables():
             connection.commit()
 
 
-def merge_fish_tables():
+def merge_fish_tables(delete: bool):
+
     cursor.execute("""
         SELECT name
         FROM sqlite_master
         WHERE type='table' AND name NOT LIKE 'sqlite_%'
     """)
     table_names: list[str] = [row[0] for row in cursor.fetchall()]
+
+    for table in table_names:
+        if table == "fish" and delete:
+            cursor.execute("DROP TABLE fish")
 
     name_and_id: list[tuple[str, int]] = cursor.execute("SELECT username, user_id FROM dex").fetchall()
     USERNAME_TO_ID: dict[str, tuple[int, str, str]] = {}
@@ -1420,9 +1425,12 @@ def merge_fish_tables():
                 "INSERT OR IGNORE INTO fish"
                 " (user_id, username, twitch_id, twitch_username, trash, common, shiny, legendary)"
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (username, user_id, twitch_id, twitch_name, *row),
+                (user_id, username, twitch_id, twitch_name, *row),
             )
             connection.commit()
+
+
+merge_fish_tables(False)
 
 
 connection.commit()  # pushes changes to database

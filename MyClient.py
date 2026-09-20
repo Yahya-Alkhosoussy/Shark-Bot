@@ -1756,9 +1756,9 @@ async def add_col_to_birthday(ctx: commands.Context):
 
 
 @bot.command(name="FishMerge")
-async def merge_fish(ctx: commands.Context):
+async def merge_fish(ctx: commands.Context, delete: bool):
     await ctx.send("Merging fish...")
-    sg.merge_fish_tables()
+    sg.merge_fish_tables(delete)
     await ctx.send("The fish have been merged")
 
 
