@@ -68,6 +68,21 @@ cursor.execute(
 """
 )
 
+cursor.execute(
+    """CREATE TABLE IF NOT EXISTS fish
+    (
+        id INTEGER PRIMARY KEY,
+        user_id INTEGER UNIQUE,
+        username TEXT,
+        twitch_id TEXT UNIQUE,
+        twitch_username TEXT UNIQUE,
+        trash INTEGER,
+        common INTEGER,
+        shiny INTEGER,
+        legendary INTEGER
+    )"""
+)
+
 connection.commit()
 
 
@@ -230,11 +245,17 @@ def migrate_old_dex_to_new_dex():
 # migrate_old_dex_to_new_dex()
 
 
-def fish_caught(username: str, rarity: str):
-    cursor.execute(f"""CREATE TABLE IF NOT EXISTS '{username} fish'
-                                (trash INTEGER, common INTEGER, shiny INTEGER, legendary INTEGER)""")
+def get_info(username: str) -> tuple[int, str, str]:
+    info = cursor.execute("SELECT user_id, twitch_id, twitch_user FROM dex WHERE username=?", (username,)).fetchone()
 
-    old = cursor.execute(f"SELECT * FROM '{username} fish'")
+    return info
+
+
+def fish_caught(username: str, rarity: str):
+
+    old: list[tuple[int, int, int, int]] = cursor.execute(
+        "SELECT trash, common, shiny, legendary FROM fish WHERE username=?", (username,)
+    ).fetchall()
 
     trash, common, shiny, legendary = [], [], [], []
 
@@ -249,32 +270,37 @@ def fish_caught(username: str, rarity: str):
             case "trash":
                 last = trash[-1]
                 last += 1
-                cursor.execute(f"UPDATE '{username} fish' SET trash = ?", (last,))
+                cursor.execute("UPDATE fish SET trash = ? WHERE username=?", (last, username))
             case "common":
                 last = common[-1]
                 last += 1
-                cursor.execute(f"UPDATE '{username} fish' SET common = ?", (last,))
+                cursor.execute("UPDATE fish SET common = ? WHERE username=?", (last, username))
             case "shiny":
                 last = shiny[-1]
                 last += 1
-                cursor.execute(f"UPDATE '{username} fish' SET shiny = ?", (last,))
+                cursor.execute("UPDATE fish SET shiny = ? WHERE username=?", (last, username))
             case "legendary":
                 last = legendary[-1]
                 last += 1
-                cursor.execute(f"UPDATE '{username} fish' SET legendary = ?", (last,))
+                cursor.execute("UPDATE fish SET legendary = ? WHERE username=?", (last, username))
     else:
-        row = (0, 0, 0, 0)
-        cursor.execute(f"INSERT INTO '{username} fish' VALUES (?, ?, ?, ?)", row)
+        info = get_info(username)
+        row = (info[0], username, info[1], info[2], 0, 0, 0, 0)
+        cursor.execute(
+            "INSERT INTO fish (user_id, username, twitch_id, twitch_username, trash, common, shiny, legendary)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            row,
+        )
         match rarity:
             case "trash":
-                row = (1, 0, 0, 0)
+                row = (1, 0, 0, 0, username)
             case "common":
-                row = (0, 1, 0, 0)
+                row = (0, 1, 0, 0, username)
             case "shiny":
-                row = (0, 0, 1, 0)
+                row = (0, 0, 1, 0, username)
             case "legendary":
-                row = (0, 0, 0, 1)
-        cursor.execute(f"UPDATE '{username} fish' SET trash = ?, common = ?, shiny = ?, legendary = ?", row)
+                row = (0, 0, 0, 1, username)
+        cursor.execute("UPDATE fish SET trash = ?, common = ?, shiny = ?, legendary = ? WHERE username=?", row)
     connection.commit()
 
 
@@ -1363,7 +1389,40 @@ def merge_nets_tables():
             connection.commit()
 
 
-migrate_old_dex_to_new_dex()
-merge_nets_tables()
+def merge_fish_tables():
+    cursor.execute("""
+        SELECT name
+        FROM sqlite_master
+        WHERE type='table' AND name NOT LIKE 'sqlite_%'
+    """)
+    table_names: list[str] = [row[0] for row in cursor.fetchall()]
+
+    name_and_id: list[tuple[str, int]] = cursor.execute("SELECT username, user_id FROM dex").fetchall()
+    USERNAME_TO_ID: dict[str, tuple[int, str, str]] = {}
+    twitch_name_and_id: list[tuple[str, str]] = cursor.execute("SELECT twitch_user, twitch_id FROM dex").fetchall()
+    for (name, id), (twitch_name, twitch_id) in zip(name_and_id, twitch_name_and_id):
+        USERNAME_TO_ID[name] = (id, twitch_name, twitch_id)
+
+    # 2) keep only tables that follow your pattern
+    nets_tables = [t for t in table_names if t.endswith(" fish")]
+    for table in nets_tables:
+        username = table.removesuffix(" fish")
+        user_info = USERNAME_TO_ID.get(username)
+        if not user_info:
+            user_id = 0
+            twitch_id = 0
+            twitch_name = None
+        else:
+            user_id, twitch_id, twitch_name = user_info
+        rows = cursor.execute(f"SELECT * FROM '{table}'").fetchall()
+        for row in rows:
+            cursor.execute(
+                "INSERT OR IGNORE INTO fish"
+                " (user_id, username, twitch_id, twitch_username, trash, common, shiny, legendary)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (username, user_id, twitch_id, twitch_name, *row),
+            )
+            connection.commit()
+
 
 connection.commit()  # pushes changes to database
