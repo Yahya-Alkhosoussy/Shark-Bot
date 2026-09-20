@@ -1432,7 +1432,7 @@ def merge_fish_tables(delete: bool):
             twitch_id = 0
             twitch_name = None
         else:
-            user_id, twitch_id, twitch_name = user_info
+            user_id, twitch_name, twitch_id = user_info
         rows = cursor.execute(f"SELECT * FROM '{table}'").fetchall()
         for row in rows:
             cursor.execute(
