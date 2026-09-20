@@ -1401,6 +1401,20 @@ def merge_fish_tables(delete: bool):
     for table in table_names:
         if table == "fish" and delete:
             cursor.execute("DROP TABLE fish")
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS fish
+                (
+                    id INTEGER PRIMARY KEY,
+                    user_id INTEGER UNIQUE,
+                    username TEXT,
+                    twitch_id TEXT UNIQUE,
+                    twitch_username TEXT UNIQUE,
+                    trash INTEGER,
+                    common INTEGER,
+                    shiny INTEGER,
+                    legendary INTEGER
+                )"""
+            )
 
     name_and_id: list[tuple[str, int]] = cursor.execute("SELECT username, user_id FROM dex").fetchall()
     USERNAME_TO_ID: dict[str, tuple[int, str, str]] = {}
@@ -1428,9 +1442,6 @@ def merge_fish_tables(delete: bool):
                 (user_id, username, twitch_id, twitch_name, *row),
             )
             connection.commit()
-
-
-merge_fish_tables(False)
 
 
 connection.commit()  # pushes changes to database
