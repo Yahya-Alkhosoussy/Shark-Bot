@@ -1755,6 +1755,13 @@ async def add_col_to_birthday(ctx: commands.Context):
     await ctx.send("Column added")
 
 
+@bot.command(name="FishMerge")
+async def merge_fish(ctx: commands.Context):
+    await ctx.send("Merging fish...")
+    sg.merge_fish_tables()
+    await ctx.send("The fish have been merged")
+
+
 # check for errors
 @bot.event
 async def on_command_error(ctx: commands.Context, error):  # noqa: C901
