@@ -251,7 +251,19 @@ def get_info(username: str) -> tuple[int, str, str]:
     return info
 
 
+def check_if_twitch_info_is_in_table(username: str):
+    info = cursor.execute("SELECT twitch_id, twitch_username FROM fish WHERE username=?", (username,)).fetchone()
+    if info[0] is None or info[1] is None:
+        user_id = cursor.execute("SELECT user_id FROM fish WHERE username=?", (username,)).fetchone()[0]
+        info = cursor.execute("SELECT twitch_id, twitch_user FROM dex WHERE user_id=?", (user_id,)).fetchone()
+        cursor.execute("UPDATE fish SET twitch_id=?, twitch_username=? WHERE user_id=?", (info[0], info[1], user_id))
+        connection.commit()
+    return True
+
+
 def fish_caught(username: str, rarity: str):
+
+    check_if_twitch_info_is_in_table(username)
 
     old: list[tuple[int, int, int, int]] = cursor.execute(
         "SELECT trash, common, shiny, legendary FROM fish WHERE username=?", (username,)
