@@ -621,8 +621,6 @@ def get_net_availability(username: str):
 
     net_uses: int = 0
     net_uses_list: list[int] = []
-    about_to_break = []
-    broken = []
     i = 0
     try:
         for nets in all_nets[0]:
@@ -637,16 +635,8 @@ def get_net_availability(username: str):
                             (username,),
                         ):
                             net_uses = row[0]
-                        if net_uses % 5 != 1 or net_uses % 5 != 0:
+                        if net_uses > 0:
                             available_nets.append("leather net")
-                        elif net_uses % 5 == 1:
-                            available_nets.append("leather net")
-                            about_to_break.append("leather net")
-                        elif net_uses % 5 == 0:
-                            broken.append("leather net")
-                            available_nets.append("leather net")
-                        else:
-                            broken.append("leather net")
                         net_uses_list.append(net_uses)
 
                     case NetTypes.GOLD_NET.value:
@@ -654,16 +644,8 @@ def get_net_availability(username: str):
                             "SELECT net_uses FROM dex WHERE net='gold net' AND username=? ORDER BY id DESC LIMIT 1", (username,)
                         ):
                             net_uses = row[0]
-                        if net_uses % 5 != 1 or net_uses % 5 != 0:
+                        if net_uses > 0:
                             available_nets.append("gold net")
-                        elif net_uses % 5 == 1:
-                            available_nets.append("gold net")
-                            about_to_break.append("gold net")
-                        elif net_uses % 5 != 0:
-                            broken.append("gold net")
-                            available_nets.append("gold net")
-                        else:
-                            broken.append("gold net")
                         net_uses_list.append(net_uses)
 
                     case NetTypes.TITANIUM_NET.value:
@@ -672,16 +654,8 @@ def get_net_availability(username: str):
                             (username,),
                         ):
                             net_uses = row[0]
-                        if net_uses % 5 != 1 or net_uses % 5 != 0:
+                        if net_uses > 0:
                             available_nets.append("titanium net")
-                        elif net_uses % 5 == 1:
-                            available_nets.append("titanium net")
-                            about_to_break.append("titanium net")
-                        elif net_uses % 5 != 0:
-                            broken.append("titanium net")
-                            available_nets.append("titanium net")
-                        else:
-                            broken.append("titanium net")
                         net_uses_list.append(net_uses)
 
                     case NetTypes.NET_OF_DOOM.value:
@@ -690,23 +664,15 @@ def get_net_availability(username: str):
                             (username,),
                         ):
                             net_uses = row[0]
-                        if net_uses % 5 != 1 or net_uses % 5 != 0:
+                        if net_uses > 0:
                             available_nets.append("net of doom")
-                        elif net_uses % 5 == 1:
-                            available_nets.append("net of doom")
-                            about_to_break.append("net of doom")
-                        elif net_uses % 5 != 0:
-                            broken.append("net of doom")
-                            available_nets.append("net of doom")
-                        else:
-                            broken.append("net of doom")
                         net_uses_list.append(net_uses)
 
                 i += 1
     except sqlite3.OperationalError:
         pass
 
-    return available_nets, about_to_break, broken, net_uses_list
+    return available_nets, net_uses_list
 
 
 def get_net_uses(user_id: int, net: str) -> int:

@@ -32,7 +32,7 @@ class Fishing:
         config = FishingConfig(Path(r"fishing/fishing.yaml"))
         user = message.author
 
-        owned_nets, about_to_break, broken, net_uses = sg.get_net_availability(str(user))
+        owned_nets, net_uses = sg.get_net_availability(str(user))
 
         await message.reply(
             "Which net do you want to use?🎣 Type `!net name` to use it or send `cancel` to cancel! If you do not own any nets send `!none` to use a basic net. (You have 30 seconds to send one of the two)"  # noqa: E501

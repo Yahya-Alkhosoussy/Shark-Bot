@@ -442,7 +442,7 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
 
         if message.content.startswith(prefix + "my nets"):
             sg.check_for_username_change(message.author.name, message.author.id)
-            nets, about_to_break, _, net_uses = sg.get_net_availability(str(user))
+            nets, net_uses = sg.get_net_availability(str(user))
             total_net_uses = [0]
             total_net_uses.extend(net_uses)
             send = "Here's your available nets: \n"
@@ -451,10 +451,6 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                 send += f"{i}. {net}{f': {net_use} uses left.' if net != 'rope net' else ''} \n"
                 i += 1
             i = 1
-            if about_to_break:
-                send += "Here are your nets that are about to break: \n"
-                for atb in about_to_break:
-                    send += f"{i}. {atb} \n"
 
             await message.reply(send)
             handled = True
@@ -808,7 +804,7 @@ def get_fish_result(username: str, user_id: int, size: str, fish_list: list[tupl
 )
 async def fish_multiple(interaction: discord.Interaction, net: str, bait: str, amount: int):
     await interaction.response.send_message(f"Attempting to fish {amount} times...")
-    available_nets, _, _, _ = sg.get_net_availability(interaction.user.name)
+    available_nets, _ = sg.get_net_availability(interaction.user.name)
     user = interaction.user
     channel = interaction.channel
     assert isinstance(channel, discord.TextChannel)
