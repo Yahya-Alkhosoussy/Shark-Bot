@@ -344,25 +344,6 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
                 await message.reply(f"Had issues buying bait. Error: {str(e)}")
             handled = True
 
-        if message.content.startswith(prefix + "my baits"):
-            sg.check_for_username_change(message.author.name, message.author.id)
-            bait_names, uses = get_baits(username=message.author.name)
-            if not bait_names:
-                await message.reply("You do not own any baits")
-                return
-            send = "Here are the baits you own:\n"
-            i = 0
-            for bait in bait_names:
-                i += 1
-                send += f"{i}. {bait} - {uses[i - 1]} use{'s' if uses[i - 1] > 1 else ''} \n"
-            await message.reply(send)
-            handled = True
-
-        if message.content.startswith(prefix + "my fish"):
-            sg.check_for_username_change(message.author.name, message.author.id)
-            await self.fishing.get_fish(message=message)
-            handled = True
-
         if message.content.startswith(prefix + "get dex"):
             sg.check_for_username_change(message.author.name, message.author.id)
             basic_dex = sg.get_basic_dex(user.id)
@@ -438,28 +419,6 @@ coins balance: {item[sharks_index.COINS.value]} 🪙
                     await user.send(msg)
             else:
                 await user.send("You have not caught a shark so you have no dex, go catch sharks!")
-            handled = True
-
-        if message.content.startswith(prefix + "my nets"):
-            sg.check_for_username_change(message.author.name, message.author.id)
-            nets, net_uses = sg.get_net_availability(str(user))
-            total_net_uses = [0]
-            total_net_uses.extend(net_uses)
-            send = "Here's your available nets: \n"
-            i = 1
-            for net, net_use in zip(nets, total_net_uses):
-                send += f"{i}. {net}{f': {net_use} uses left.' if net != 'rope net' else ''} \n"
-                i += 1
-            i = 1
-
-            await message.reply(send)
-            handled = True
-
-        if message.content.startswith(prefix + "coins"):
-            sg.check_for_username_change(message.author.name, message.author.id)
-            coins = 0 if sg.check_currency(user.id) is None else sg.check_currency(user.id)
-
-            await message.reply(f"You have {coins} coins!")
             handled = True
 
         if message.content.startswith(prefix + "buy net"):
@@ -1756,6 +1715,56 @@ async def merge_fish(ctx: commands.Context, delete: bool):
     await ctx.send("Merging fish...")
     sg.merge_fish_tables(delete)
     await ctx.send("The fish have been merged")
+
+
+@bot.group()
+async def my(ctx: commands.Context):
+    pass
+
+
+@my.command(name="baits", aliases=["bait", "Baits", "Bait"])
+async def my_baits(ctx: commands.Context):
+    sg.check_for_username_change(ctx.author.name, ctx.author.id)
+    baits, uses = get_baits(ctx.author.name)
+    if not baits:
+        await ctx.reply("You do not own any baits")
+        return
+    send = "Here are the baits you own: \n"
+    i = 0
+    for bait in baits:
+        i += 1
+        send += f"{i}. {bait} - {uses[i - 1]} use{'s' if uses[i - 1] > 1 else ''}\n"
+    await ctx.reply(send)
+
+
+@my.command(name="fish", aliases=["Fish"])
+async def my_fish(ctx: commands.Context):
+    sg.check_for_username_change(ctx.author.name, ctx.author.id)
+    await bot.fishing.get_fish(message=ctx.message)
+
+
+@my.command(name="nets", aliases=["net", "Net", "Nets"])
+async def my_nets(ctx: commands.Context):
+    sg.check_for_username_change(ctx.author.name, ctx.author.id)
+    nets, net_uses = sg.get_net_availability(ctx.author.name)
+    total_net_uses = [0]
+    total_net_uses.extend(net_uses)
+    send = "Here are your available nets: \n"
+    i = 1
+    for net, net_use in zip(nets, total_net_uses):
+        send += f"{i}. {net}{f': {net_use} uses left.' if net != 'rope net' else ''} \n"
+        i += 1
+
+    await ctx.reply(send)
+
+
+@bot.command(name="coins", aliases=["coin", "Coins", "Coin"])
+async def get_coin_count(ctx: commands.Context):
+    sg.check_for_username_change(ctx.author.name, ctx.author.id)
+    check = sg.check_currency(ctx.author.id)
+    coins = 0 if check is None else check
+
+    await ctx.reply(f"You have {coins} coin{'s' if coins > 1 else ''}!")
 
 
 # check for errors
