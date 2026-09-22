@@ -158,6 +158,51 @@ class MyBot(commands.Bot):
         if not task.cancelled() and task.exception():
             print(f"Twitch bot crashed: {task.exception()}")
 
+    async def shark_server_tasks(self, guild: discord.Guild, guild_name: str):
+        logging.info(f"activating the loops for {guild_name}")
+        sg.setup_net_shop()
+        self.birthday_loops.start_for(guild.id)
+        self.tiktok_loop.start_for(guild.id)
+        self.clipping_loop.start_for(guild.id)
+        self.twitch_loop.start_for(guild.id)
+        self.youtube_loop.start_for(guild.id)
+        shark_message_id = config.shark_message_id
+        shark_channel_id = config.get_channel_id(guild_name, channel="game")
+        shark_channel = self.get_channel(shark_channel_id)
+        if not isinstance(shark_channel, discord.TextChannel):
+            print("channel is in an incorrect format")
+            return
+        done = False
+        try:
+            shark_message = await shark_channel.fetch_message(shark_message_id)
+        except Exception:
+            self.shark_loops.start_for(guild.id)
+            done = True
+
+        if not done:
+            shark_message = await shark_channel.fetch_message(shark_message_id)  # known not to error but possibly unbound
+            if not isinstance(shark_message, discord.Message):
+                print("message is not the right type: ", type(shark_message))
+                return
+            dt = timedelta(minutes=30)
+            now = datetime.now(timezone.utc)
+            delta = now - shark_message.created_at
+            if delta >= dt:
+                self.shark_loops.start_for(guild.id)
+            else:
+                remaining = dt - delta
+                asyncio.create_task(self.start_shark_game_after_delay(guild_id=guild.id, remaining=remaining))
+
+    # Set up app commands
+    async def setup_guild(self, guild: discord.Guild):
+        self.tree.copy_global_to(guild=guild)
+        await self.tree.sync(guild=guild)
+        try:
+            await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
+        except ValueError as e:
+            logging.error(f"Got an error in reaction handler: {e}")
+        print(f"Tree set up for {guild.name}")
+
     # ======= ON RUN =======
     async def on_ready(self):
         assert self.user is not None
@@ -166,18 +211,8 @@ class MyBot(commands.Bot):
         print("----------------------------------------------")
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
 
-        # Set up app commands
-        async def setup_guild(guild):
-            self.tree.copy_global_to(guild=guild)
-            await self.tree.sync(guild=guild)
-            try:
-                await self.reaction_handler.ensure_react_roles_message_internal(guild=guild)
-            except ValueError as e:
-                logging.error(f"Got an error in reaction handler: {e}")
-            print(f"Tree set up for {guild.name}")
-
         # runs parallel with the other loop
-        await asyncio.gather(*[setup_guild(guild) for guild in self.guilds], self.tree.sync())
+        await asyncio.gather(*[self.setup_guild(guild) for guild in self.guilds], self.tree.sync())
 
         for guild in self.guilds:
             try:
@@ -187,41 +222,7 @@ class MyBot(commands.Bot):
                 continue
 
             if guild_name == "shark squad":
-                logging.info(f"activating the loops for {guild_name}")
-                sg.setup_net_shop()
-                self.birthday_loops.start_for(guild.id)
-                self.tiktok_loop.start_for(guild.id)
-                self.clipping_loop.start_for(guild.id)
-                self.twitch_loop.start_for(guild.id)
-                self.youtube_loop.start_for(guild.id)
-                shark_message_id = config.shark_message_id
-                shark_channel_id = config.get_channel_id(guild_name, channel="game")
-                shark_channel = self.get_channel(shark_channel_id)
-                if not isinstance(shark_channel, discord.TextChannel):
-                    print("channel is in an incorrect format")
-                    return
-                done = False
-                try:
-                    shark_message = await shark_channel.fetch_message(shark_message_id)
-                except Exception:
-                    self.shark_loops.start_for(guild.id)
-                    done = True
-
-                if not done:
-                    shark_message = await shark_channel.fetch_message(
-                        shark_message_id
-                    )  # known not to error but possibly unbound
-                    if not isinstance(shark_message, discord.Message):
-                        print("message is not the right type: ", type(shark_message))
-                        return
-                    dt = timedelta(minutes=30)
-                    now = datetime.now(timezone.utc)
-                    delta = now - shark_message.created_at
-                    if delta >= dt:
-                        self.shark_loops.start_for(guild.id)
-                    else:
-                        remaining = dt - delta
-                        asyncio.create_task(self.start_shark_game_after_delay(guild_id=guild.id, remaining=remaining))
+                await self.shark_server_tasks(guild, guild_name)
 
             await self.ticket_system.setup_hook()
             channel_id = config.get_channel_id(guild_name=guild_name, channel="mod app")
