@@ -47,6 +47,15 @@ async def check_if_user_in_ban_list(member: Member | User):
             return False
 
 
+async def get_banned_member(member: Member | User) -> tuple[str, str]:
+    async with connect(db_path) as conn:
+        async with conn.execute("SELECT reason, initial_server_ban FROM ban_list WHERE discord_id=?", (member.id,)) as cur:
+            result = await cur.fetchone()
+            if result is None:
+                raise ValueError(f"Could not find user with id {member.id}")
+            return result[0], result[1]
+
+
 async def set_as_unbanned(member: Member | User):
     async with connect(db_path) as conn:
         await conn.execute("UPDATE ban_list SET status='unbanned' WHERE discord_id=?", (member.id,))
