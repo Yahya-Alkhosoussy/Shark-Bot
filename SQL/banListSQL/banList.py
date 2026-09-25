@@ -4,7 +4,7 @@ from pathlib import Path
 from aiosqlite import connect
 from discord import Member, User
 
-from utils.ban_list import Servers
+from utils.ban_list import BannedMember, Servers, Statuses
 
 db_path = Path("databases/shared ban list.db")
 
@@ -60,6 +60,24 @@ async def set_as_unbanned(member: Member | User):
     async with connect(db_path) as conn:
         await conn.execute("UPDATE ban_list SET status='unbanned' WHERE discord_id=?", (member.id,))
         await conn.commit()
+
+
+async def get_banned_members() -> list[BannedMember]:
+    async with connect(db_path) as conn:
+        async with conn.execute("SELECT discord_username, discord_id, reason, status, initial_server_ban FROM ban_list") as cur:
+            results = await cur.fetchall()
+            to_return: list[BannedMember] = []
+            for result in results:
+                to_return.append(
+                    BannedMember(
+                        username=result[0],
+                        user_id=result[1],
+                        reason_for_ban=result[2],
+                        status=Statuses(result[3]),
+                        initial_server_ban=Servers(result[4]),
+                    )
+                )
+    return to_return
 
 
 run(init_db())
