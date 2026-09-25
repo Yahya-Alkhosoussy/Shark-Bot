@@ -30,7 +30,7 @@ async def add_to_ban_list(member: Member | User, ban_reason: str = ""):
         await conn.execute(
             "INSERT OR IGNORE INTO ban_list (discord_id, discord_username, reason, status, initial_server_ban)"
             " VALUES (?, ?, ?, ?, ?)",
-            (member.id, member.name, ban_reason, "banned", Servers.SHARKOCALYPSE.value),
+            (member.id, member.name, ban_reason, Statuses.BANNED.value, Servers.SHARKOCALYPSE.value),
         )
         await conn.commit()
 
@@ -41,8 +41,8 @@ async def check_if_user_in_ban_list(member: Member | User):
             result = await cur.fetchone()
             if result is None:
                 return False
-            status = result[0]
-            if status == "banned":
+            status = Statuses(result[0])
+            if status == Statuses.BANNED:
                 return True
             return False
 
