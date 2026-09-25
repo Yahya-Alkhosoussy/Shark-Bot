@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import StrEnum
 
 
@@ -5,3 +6,17 @@ class Servers(StrEnum):
     SHARKOCALYPSE = "shark's cult"
     DAVEX = "davex's graveyard"
     SHARKTROCITY = "The noctunal cavern"
+
+
+class Statuses(StrEnum):
+    BANNED = "banned"
+    UNBANNED = "unbanned"
+
+
+@dataclass()
+class BannedMember:
+    username: str
+    user_id: int
+    reason_for_ban: str
+    status: Statuses
+    initial_server_ban: Servers
