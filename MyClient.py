@@ -41,6 +41,7 @@ from modApplication.ModQuestions import ModQuestions
 from moderation.tools import Moderation
 from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
+from SQL.banListSQL.banList import check_if_user_in_ban_list, get_banned_member
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table, add_to_birthdays_table
 from SQL.deletedSQL.deleted_messages import add_deleted_message
 from SQL.fishingSQL.baits import add_column_to_baits_db, add_column_to_fish_db, add_fish_caught, add_user_ids, get_baits
@@ -248,6 +249,36 @@ class MyBot(commands.Bot):
                         self._custom_ticket_setup_done[key] = True
                         ticket_config.saveConfig(TICKET_CONFIG_PATH)
 
+    async def __shared_ban_list_actions(self, member: discord.Member, guild: discord.Guild):
+        await config.send_discord_mod_log(
+            f"Detected someone who joined who is in the shared ban list! User {member.name}. More details:",
+            self,
+            guild.id,
+        )
+        reason, initial_server = await get_banned_member(member)
+        await config.send_discord_mod_log(
+            f"{member.name} had been banned from {initial_server} for {reason}. Should I go ahead and ban them?"
+            "(Reply with `!confirm` to ban them or `!deny` to not ban them within 2 days.)",
+            self,
+            guild.id,
+        )
+
+        def check(m: discord.Message):
+            guild_name = config.guilds[guild.id]
+            return (m.content == "!confirm" or m.content == "!deny") and (m.channel.id == config.channels["log"][guild_name])
+
+        try:
+            reply = await self.wait_for("message", check=check, timeout=2 * 24 * 60 * 60)  # 48 hours
+        except asyncio.TimeoutError:
+            await config.send_discord_mod_log(f"Got no reply. {member.name} will not be banned.", self, guild.id)
+            return
+        if reply.content == "!deny":
+            await config.send_discord_mod_log(f"Request denied successfully. {member.name} will not be banned.", self, guild.id)
+            return
+        await config.send_discord_mod_log(f"Request to ban {member.name} acknowledged. Starting ban process...", self, guild.id)
+        await member.ban(reason=reason)
+        await config.send_discord_mod_log(f"{member.name} successfully banned.", self, guild.id)
+
     # ======= ANNOUNCE ARRIVAL =======
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
@@ -280,6 +311,9 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
             if chatting_channel and isinstance(chatting_channel, discord.TextChannel):
                 await chatting_channel.send(message)
             await self.leveling_loop.add_users(user=member)
+            is_in_banlist = await check_if_user_in_ban_list(member)
+            if is_in_banlist:
+                await self.__shared_ban_list_actions(member, guild)
 
     # ======= ANNOUNCE DEPARTURE =======
     # async def on_member_remove(self, member: discord.Member):
