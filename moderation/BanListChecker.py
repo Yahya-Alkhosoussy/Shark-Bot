@@ -76,6 +76,7 @@ class BanListChecker:
                 banned_user_ids = [ban.user.id for ban in bans]
                 if member.user_id not in banned_user_ids:
                     await self.handle_ban_request(member, guild)
+                self.membersLookedAt.append(member)
 
         loop = tasks.loop(hours=8, reconnect=True)(_tick)
 
