@@ -38,6 +38,7 @@ from loops.sharkGameLoop.sharkGameLoop import SharkLoops, sg
 from loops.twitchliveloop.TwitchLiveLoop import TwitchLiveLoop
 from modApplication.ApplicationSystem import ApplicationSystem
 from modApplication.ModQuestions import ModQuestions
+from moderation.BanListChecker import BanListChecker
 from moderation.tools import Moderation
 from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
@@ -112,6 +113,7 @@ class MyBot(commands.Bot):
         self.updating_store = False
         self.loop_processing = False
         self.twitch_bot: asyncio.Task | None = None
+        self.ban_list_checker = BanListChecker(self, config)
 
     async def setup_hook(self):
         await self.add_cog(Moderation(self, config))
@@ -167,6 +169,7 @@ class MyBot(commands.Bot):
         self.clipping_loop.start_for(guild.id)
         self.twitch_loop.start_for(guild.id)
         self.youtube_loop.start_for(guild.id)
+        self.ban_list_checker.start_for(guild.id)
         shark_message_id = config.shark_message_id
         shark_channel_id = config.get_channel_id(guild_name, channel="game")
         shark_channel = self.get_channel(shark_channel_id)
