@@ -57,6 +57,9 @@ async def get_banned_member(member: Member | User) -> tuple[str, str]:
 
 
 async def set_as_unbanned(member: Member | User):
+    _, init_server = await get_banned_member(member)
+    if init_server != Servers.SHARKOCALYPSE.value:
+        return
     async with connect(db_path) as conn:
         await conn.execute("UPDATE ban_list SET status='unbanned' WHERE discord_id=?", (member.id,))
         await conn.commit()
