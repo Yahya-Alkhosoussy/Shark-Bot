@@ -130,8 +130,9 @@ The following are mod exclusive actions:
 
     async def __send_ban_list_request(self, guild: discord.Guild, user: discord.Member, reason: str = ""):
         def check(m: discord.Message):
+            guild_name = self.config.guilds[guild.id]
             return (m.content == "!confirm" or m.content == "!deny") and (
-                m.channel.id == 1445843102337208493 or m.channel.id == self.config.channels["log"][guild.id]
+                m.channel.id == 1445843102337208493 or m.channel.id == self.config.channels["log"][guild_name]
             )
 
         await self.config.send_discord_mod_log(
