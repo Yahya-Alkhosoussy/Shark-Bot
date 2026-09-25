@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 
 from exceptions.exceptions import ItemNotFound
+from SQL.banListSQL.banList import add_to_ban_list, set_as_unbanned
 from SQL.deletedSQL.deleted_messages import get_deleted_messages as get_messages
 from SQL.deletedSQL.deleted_messages import get_user_id
 from utils.checks import is_mod
@@ -127,6 +128,51 @@ The following are mod exclusive actions:
             if entry.target.id == user.id:
                 return entry
 
+    async def __send_ban_list_request(self, guild: discord.Guild, user: discord.Member, reason: str = ""):
+        def check(m: discord.Message):
+            return (m.content == "!confirm" or m.content == "!deny") and (
+                m.channel.id == 1445843102337208493 or m.channel.id == self.config.channels["log"][guild.id]
+            )
+
+        await self.config.send_discord_mod_log(
+            log_message=f"Ban found. Do you want the ban of user {user.name} to be added to the shared banlist?\n"
+            "(Respond with `!confirm` to add to the shared ban list or `!deny` to not add it to the shared ban list"
+            " within 48 hours please!)",
+            bot=self.bot,
+            guild_id=guild.id,
+        )
+        try:
+            trial: discord.Message = await self.bot.wait_for("message", check=check, timeout=2 * 24 * 60 * 60)
+        except asyncio.TimeoutError:
+            await self.config.send_discord_mod_log(
+                log_message="Timed out. Will not add the ban to the banlist.",
+                bot=self.bot,
+                guild_id=guild.id,
+            )
+            return
+        if trial.content == "!deny":
+            await self.config.send_discord_mod_log(
+                f"User {user.name} has not been added to the shared ban list.",
+                self.bot,
+                guild.id,
+            )
+            return
+        try:
+            await add_to_ban_list(user, reason)
+        except Exception as e:
+            await self.config.send_discord_mod_log(
+                f"Encountered an error while adding to the ban list: {e}",
+                self.bot,
+                guild.id,
+            )
+            return
+        await self.config.send_discord_mod_log(
+            f"User {user.name} has been added to the share ban list.",
+            self.bot,
+            guild.id,
+        )
+        return
+
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: discord.Member):
         ban_log: discord.AuditLogEntry | None = await self.get_entry(guild, discord.AuditLogAction.ban, user)
@@ -149,6 +195,8 @@ The following are mod exclusive actions:
             guild_id=guild.id,
         )
 
+        await self.__send_ban_list_request(guild, user, ban_log.reason if ban_log.reason else "No reason was given")
+
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: discord.Member):
         unban_log = await self.get_entry(guild, discord.AuditLogAction.unban, user)
@@ -170,6 +218,8 @@ The following are mod exclusive actions:
             bot=self.bot,
             guild_id=guild.id,
         )
+
+        await set_as_unbanned(user)
 
     @commands.Cog.listener()
     async def on_member_remove(self, user: discord.Member):
