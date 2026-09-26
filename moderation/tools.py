@@ -139,7 +139,7 @@ The following are mod exclusive actions:
         await self.config.send_discord_mod_log(
             log_message=f"Ban found. Do you want the ban of user {user.name} to be added to the shared banlist?\n"
             "(Respond with `!confirm` to add to the shared ban list or `!deny` to not add it to the shared ban list"
-            " within 48 hours please!)",
+            " Reply within 48 hours please!)",
             bot=self.bot,
             guild_id=guild.id,
         )
