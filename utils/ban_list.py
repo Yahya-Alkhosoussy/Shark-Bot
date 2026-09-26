@@ -15,8 +15,8 @@ class Statuses(StrEnum):
 
 @dataclass()
 class BannedMember:
-    username: str
-    user_id: int
+    name: str
+    id: int
     reason_for_ban: str
     status: Statuses
     initial_server_ban: Servers
