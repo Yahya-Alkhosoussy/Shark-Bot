@@ -262,7 +262,7 @@ class MyBot(commands.Bot):
         await config.send_discord_mod_log(
             f"{member.name} had been banned from {banned_member.initial_server_ban} for {banned_member.reason_for_ban}. "
             "Should I go ahead and ban them?"
-            "(Reply with `!confirm` to ban them or `!deny` to not ban them within 2 days.)",
+            "(Reply with `!confirm` to ban them or `!deny` to not ban them. Please reply within 2 days.)",
             self,
             guild.id,
         )
