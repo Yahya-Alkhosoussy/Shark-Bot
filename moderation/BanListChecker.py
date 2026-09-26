@@ -119,7 +119,10 @@ class BanListChecker:
                 if member.status == Statuses.UNBANNED and member.id in banned_user_ids:
                     await self.handle_unban_request(member, guild)
 
-                if member.id not in banned_user_ids and member.status == Statuses.BANNED:
+                guild_member = await guild.query_members(user_ids=[member.id])  # check if the person is in the guild
+                # no use in sending a ban request if the person isn't in the guild to begin with.
+
+                if member.id not in banned_user_ids and member.status == Statuses.BANNED and guild_member:
                     await self.handle_ban_request(member, guild)
                 self.membersLookedAt[member] = member.status
 
