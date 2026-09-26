@@ -258,9 +258,10 @@ class MyBot(commands.Bot):
             self,
             guild.id,
         )
-        reason, initial_server = await get_banned_member(member)
+        banned_member = await get_banned_member(member)
         await config.send_discord_mod_log(
-            f"{member.name} had been banned from {initial_server} for {reason}. Should I go ahead and ban them?"
+            f"{member.name} had been banned from {banned_member.initial_server_ban} for {banned_member.reason_for_ban}. "
+            "Should I go ahead and ban them?"
             "(Reply with `!confirm` to ban them or `!deny` to not ban them within 2 days.)",
             self,
             guild.id,
@@ -279,7 +280,7 @@ class MyBot(commands.Bot):
             await config.send_discord_mod_log(f"Request denied successfully. {member.name} will not be banned.", self, guild.id)
             return
         await config.send_discord_mod_log(f"Request to ban {member.name} acknowledged. Starting ban process...", self, guild.id)
-        await member.ban(reason=reason)
+        await member.ban(reason=banned_member.reason_for_ban)
         await config.send_discord_mod_log(f"{member.name} successfully banned.", self, guild.id)
 
     # ======= ANNOUNCE ARRIVAL =======
