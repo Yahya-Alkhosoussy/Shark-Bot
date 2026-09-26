@@ -80,8 +80,9 @@ class Moderation(commands.Cog):
         if to_send != "":
             list_to_send.append(to_send)
 
+        await ctx.send("Here is all that you requested")
+
         for message in list_to_send:
-            await ctx.send("Here is all that you requested")
             await ctx.send(message)
         await self.send_images(ctx, image_paths)
 
