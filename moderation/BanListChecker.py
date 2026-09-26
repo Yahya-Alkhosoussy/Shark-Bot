@@ -13,7 +13,7 @@ class BanListChecker:
     def __init__(self, bot: commands.Bot, config: AppConfig):
         self.bot = bot
         self.config = config
-        self.membersLookedAt: list[BannedMember] = []
+        self.membersLookedAt: dict[BannedMember, Statuses] = {}
         self._loops: dict[int, tasks.Loop] = {}  # Guild_id --> Loop
 
     def is_running(self, guild_id: int) -> bool:
@@ -107,7 +107,8 @@ class BanListChecker:
         async def _tick():
             banned_members = await get_banned_members()
             for member in banned_members:
-                if member in self.membersLookedAt:
+                if member in self.membersLookedAt and self.membersLookedAt[member] == member.status:
+                    # if the member was looked at and the cached status is the same as the current status, no need to look at it
                     continue
 
                 guild = self.bot.get_guild(guild_id)
@@ -120,7 +121,7 @@ class BanListChecker:
 
                 if member.id not in banned_user_ids and member.status == Statuses.BANNED:
                     await self.handle_ban_request(member, guild)
-                self.membersLookedAt.append(member)
+                self.membersLookedAt[member] = member.status
 
         loop = tasks.loop(hours=8, reconnect=True)(_tick)
 
