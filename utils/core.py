@@ -2,6 +2,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from os.path import getmtime
@@ -56,13 +57,11 @@ class DiscordNamedObj(ABC, tuple, Generic[DiscordNamedObjType]):
     ) -> core_schema.CoreSchema:
         return core_schema.no_info_after_validator_function(
             cls._validate,
-            core_schema.tuple_schema(
-                [
-                    core_schema.is_instance_schema(DiscordNamedObjTypes),
-                    core_schema.str_schema(),
-                    core_schema.int_schema(),
-                ]
-            ),
+            core_schema.tuple_schema([
+                core_schema.is_instance_schema(DiscordNamedObjTypes),
+                core_schema.str_schema(),
+                core_schema.int_schema(),
+            ]),
         )
 
     @classmethod
@@ -411,9 +410,9 @@ class AppConfig(BaseConfig):
                 case "channels":
                     if confvalue and isinstance(confvalue, dict):
                         self.channels = {
-                            key: ChannelSet(
-                                [Channel(channelName=subkey, channelId=subvalue) for subkey, subvalue in value.items()]
-                            )
+                            key: ChannelSet([
+                                Channel(channelName=subkey, channelId=subvalue) for subkey, subvalue in value.items()
+                            ])
                             for key, value in confvalue.items()
                         }
                 case "birthday message":
@@ -492,6 +491,7 @@ class AppConfig(BaseConfig):
 def get_full_path():
     if sys.platform == "win32":
         import winreg
+
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment") as key:
             system_path, _ = winreg.QueryValueEx(key, "Path")
 
@@ -518,8 +518,8 @@ def get_full_path():
             "/usr/local/sbin",
             "/usr/sbin",
             "/sbin",
-            os.path.expanduser("~/.local/bin"), # Pip installs live here usually on linux
-            os.path.expanduser("~/Library/Python/bin"), # Pip installs usually live here on MacOS
+            os.path.expanduser("~/.local/bin"),  # Pip installs live here usually on linux
+            os.path.expanduser("~/Library/Python/bin"),  # Pip installs usually live here on MacOS
         ]
         all_paths += extra_paths
 
@@ -531,3 +531,10 @@ def get_full_path():
             deduped.append(p)
 
     return separator.join(deduped)
+
+
+@dataclass()
+class CustomCommand:
+    name: str
+    reply: str
+    aliases: list[str] | None
