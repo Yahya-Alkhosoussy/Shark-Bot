@@ -538,3 +538,4 @@ class CustomCommand:
     name: str
     reply: str
     aliases: list[str] | None
+    mod_only: bool
