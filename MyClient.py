@@ -378,6 +378,10 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.content in self.custom_commands:
             command = self.custom_commands[message.content]
+
+            if not command.active:
+                return
+
             if (
                 command.mod_only
                 and isinstance(message.author, discord.Member)

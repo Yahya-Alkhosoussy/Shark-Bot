@@ -539,3 +539,4 @@ class CustomCommand:
     reply: str
     aliases: list[str] | None
     mod_only: bool
+    active: bool
