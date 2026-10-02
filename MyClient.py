@@ -365,7 +365,15 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
     async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
         await self.reaction_handler.on_raw_reaction_remove_internal(payload=payload)
 
+    async def update_commands(self):
+        for command in await get_custom_commands():
+            self.custom_commands[command.name] = command
+            if command.aliases:
+                for alias in command.aliases:
+                    self.custom_commands[alias] = command
+
     async def on_message(self, message: discord.Message) -> None:
+        await self.update_commands()
         user = message.author
         handled = False
 
@@ -392,6 +400,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
                 await message.reply(command.reply)
             else:
                 await message.reply("You cannot use this command")
+            handled = True
 
         # leveling system messages
         if len(message.content) >= 10 and config.guilds[message.guild.id] == "shark squad":
