@@ -44,6 +44,7 @@ from socialMedia.tiktok import TikTokLoop
 from socialMedia.youtube import YoutubeLoop
 from SQL.banListSQL.banList import check_if_user_in_ban_list, get_banned_member
 from SQL.birthdaySQL.birthdays import add_birthday_message, add_gif_to_table, add_to_birthdays_table
+from SQL.customCommandsSQL.customCommands import get_custom_commands
 from SQL.deletedSQL.deleted_messages import add_deleted_message
 from SQL.fishingSQL.baits import add_column_to_baits_db, add_column_to_fish_db, add_fish_caught, add_user_ids, get_baits
 from SQL.levellingSQL.levellingSQL import add_user_ids_to_table
@@ -52,7 +53,7 @@ from SQL.rolesSQL.roles import add_message_ids_to_role_sets_table, fill_emoji_ma
 from SQL.socialMedia.twitchLive import add_user as add_twitch_live_user
 from ticketingSystem.Ticket_System import TicketSystem
 from utils.checks import is_mod, is_palworld_member
-from utils.core import AppConfig, get_full_path
+from utils.core import AppConfig, CustomCommand, get_full_path
 from utils.fishing import FishingConfig
 from utils.pullingFromTwitch import get_user_id, user_exists
 from utils.ticketing import TicketingConfig
@@ -114,6 +115,8 @@ class MyBot(commands.Bot):
         self.loop_processing = False
         self.twitch_bot: asyncio.Task | None = None
         self.ban_list_checker = BanListChecker(self, config)
+
+        self.custom_commands: dict[str, CustomCommand] = {}  # name/alias to command
 
     async def setup_hook(self):
         await self.add_cog(Moderation(self, config))
@@ -252,6 +255,12 @@ class MyBot(commands.Bot):
                         self._custom_ticket_setup_done[key] = True
                         ticket_config.saveConfig(TICKET_CONFIG_PATH)
 
+        for command in await get_custom_commands():
+            self.custom_commands[command.name] = command
+            if command.aliases:
+                for alias in command.aliases:
+                    self.custom_commands[alias] = command
+
     async def __shared_ban_list_actions(self, member: discord.Member, guild: discord.Guild):
         await config.send_discord_mod_log(
             f"Detected someone who joined who is in the shared ban list! User {member.name}. More details:",
@@ -366,6 +375,19 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
 
         if message.guild is None:
             return
+
+        if message.content in self.custom_commands:
+            command = self.custom_commands[message.content]
+            if (
+                command.mod_only
+                and isinstance(message.author, discord.Member)
+                and config.check_for_mod_role(message.author.roles)
+            ):
+                await message.reply(command.reply)
+            elif not command.mod_only:
+                await message.reply(command.reply)
+            else:
+                await message.reply("You cannot use this command")
 
         # leveling system messages
         if len(message.content) >= 10 and config.guilds[message.guild.id] == "shark squad":
