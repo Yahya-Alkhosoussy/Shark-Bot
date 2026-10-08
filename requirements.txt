@@ -22,3 +22,4 @@ yt_dlp
 ffmpeg
 twitchAPI
 aiosqlite
+flask
