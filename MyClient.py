@@ -1912,7 +1912,7 @@ async def main():
     token = os.getenv("token")
     assert token, "No token found in envvars. Impossible to continue."
 
-    config = uvicorn.Config(app, "0.0.0.0", 1000)
+    config = uvicorn.Config(app, "0.0.0.0", 9000)
     server = uvicorn.Server(config)
 
     await asyncio.gather(bot.start(token=token), server.serve(), return_exceptions=True)
