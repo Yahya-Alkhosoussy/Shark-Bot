@@ -17,8 +17,10 @@ from zoneinfo import ZoneInfo
 
 import aiohttp
 import discord
+import uvicorn
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
+from fastapi import FastAPI
 from pydantic import ValidationError
 from twitchAPI.type import AuthScope
 
@@ -1893,7 +1895,25 @@ async def on_command_error(ctx: commands.Context, error):  # noqa: C901
             return
 
 
-if __name__ == "__main__":
+app = FastAPI()
+
+
+@app.post("/api/v1/update_react_roles")
+async def _update_react_roles(guild_id: int):
+    guild = bot.get_guild(guild_id)
+    if guild is not None:
+        await bot.ensure_react_roles_message(guild)
+
+
+async def main():
     token = os.getenv("token")
     assert token, "No token found in envvars. Impossible to continue."
-    bot.run(token=token, log_handler=handler)
+
+    config = uvicorn.Config(app, "0.0.0.0", 1000)
+    server = uvicorn.Server(config)
+
+    await asyncio.gather(bot.start(token=token), server.serve(), return_exceptions=True)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
