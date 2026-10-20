@@ -23,3 +23,5 @@ ffmpeg
 twitchAPI
 aiosqlite
 flask
+fastapi
+uvicorn
