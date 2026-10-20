@@ -20,7 +20,7 @@ import discord
 import uvicorn
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
-from fastapi import FastAPI
+from fastapi import BackgroundTasks, FastAPI
 from pydantic import ValidationError
 from twitchAPI.type import AuthScope
 
@@ -1898,11 +1898,14 @@ async def on_command_error(ctx: commands.Context, error):  # noqa: C901
 app = FastAPI()
 
 
-@app.post("/api/v1/update_react_roles")
-async def _update_react_roles(guild_id: int):
+@app.post("/api/v1/update_react_roles/{guild_id}")
+async def _update_react_roles(guild_id: int, background_tasks: BackgroundTasks):
+    print("Ping gotten! Updating react roles")
+    print("React roles updated!")
     guild = bot.get_guild(guild_id)
     if guild is not None:
-        await bot.ensure_react_roles_message(guild)
+        background_tasks.add_task(bot.ensure_react_roles_message, guild)
+    return {"status", "ok"}
 
 
 async def main():
