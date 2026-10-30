@@ -33,6 +33,9 @@ class TwitchLiveLoop:
                 except ResponseException as e:
                     logging.error(f"Got an error while pulling up a twitch request: {str(e)}")
                     continue
+                except KeyError as e:
+                    logging.error(f"Got an error while trying to get a twitch access token: {e}")
+                    continue
 
                 if saved_live_status != new_live_status and (not saved_live_status):
                     live_link = f"https://www.twitch.tv/{user}"
