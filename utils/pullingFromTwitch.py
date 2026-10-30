@@ -98,7 +98,14 @@ async def twitch_request(url: str, params: dict, user: str | None):
             )
 
             token_json: dict = await token_r.json()
-            access_token = token_json["access_token"]
+            try:
+                access_token = token_json["access_token"]
+            except KeyError:
+                error_msg = token_json.get("error_description") or token_json.get("message") or "unknown"
+                raise KeyError(
+                    f"Could not find access_token. Error: {error_msg}. Code: {token_json.get('error')}."
+                    f" Token_status: {token_r.status}"
+                )
             headers = {"Client-ID": getenv("twitch_client_id"), "Authorization": f"Bearer {access_token}"}
             r = await sesh.get(url, params=params, headers=headers)
             if r.status == 401 and user is not None:
