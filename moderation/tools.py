@@ -4,6 +4,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import discord
+from aiosqlite import connect
 from discord.ext import commands
 
 from exceptions.exceptions import ItemNotFound
@@ -269,3 +270,26 @@ The following are mod exclusive actions:
                 bot=self.bot,
                 guild_id=after.guild.id,
             )
+
+    @commands.command("subs")
+    async def get_gifted_subs(self, ctx: commands.Context):
+        file = Path(__file__).parent.parent.parent / "Sharkxxbot" / "databases" / "gifted_subs.db"
+        if not file.exists():
+            await ctx.reply("Could not find database file.")
+            return
+        async with connect(file) as conn:
+            cur = await conn.execute("SELECT name, gifted_count FROM gifted WHERE twitch_id IS NOT NULL")
+            gifted = await cur.fetchall()
+
+        messages = []
+        message = "Here are the gifted subs on twitch: (Name: Gifted amount)"
+        for gift in gifted:
+            if len(message) + len(f"{gift[0]}: {gift[1]}\n") > 2000:
+                messages.append(message)
+                message = f"{gift[0]}: {gift[1]}\n"
+                continue
+            message += f"{gift[0]}: {gift[1]}\n"
+        messages.append(message)
+
+        for msg in messages:
+            await ctx.send(msg)
