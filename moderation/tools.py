@@ -282,7 +282,7 @@ The following are mod exclusive actions:
             gifted = await cur.fetchall()
 
         messages = []
-        message = "Here are the gifted subs on twitch: (Name: Gifted amount)"
+        message = "Here are the gifted subs on twitch: (Name: Gifted amount)\n"
         for gift in gifted:
             if len(message) + len(f"{gift[0]}: {gift[1]}\n") > 2000:
                 messages.append(message)
