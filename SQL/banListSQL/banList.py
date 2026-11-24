@@ -4,7 +4,7 @@ from pathlib import Path
 from aiosqlite import connect
 from discord import Member, User
 
-from utils.ban_list import BannedMember, Servers, Statuses
+from utils.ban_list import BannedMember, Channels, Servers, Statuses, TwitchUser
 
 db_path = Path("databases/shared ban list.db")
 
@@ -20,6 +20,17 @@ async def init_db():
                 reason TEXT,
                 status TEXT,
                 initial_server_ban TEXT
+            )"""
+        )
+        await conn.execute(
+            """CREATE TABLE IF NOT EXISTS twitch_ban_list
+            (
+                id INTEGER PRIMARY KEY,
+                twitch_id TEXT UNIQUE,
+                twitch_username TEXT,
+                reason TEXT,
+                status TEXT,
+                initial_channel_ban TEXT
             )"""
         )
         await conn.commit()
@@ -83,6 +94,29 @@ async def get_banned_members() -> list[BannedMember]:
                     )
                 )
     return to_return
+
+
+async def add_to_twitch_ban_list(user: TwitchUser):
+    async with connect(db_path) as conn:
+        await conn.execute(
+            "INSERT OR IGNORE INTO twitch_ban_list (twitch_id, twitch_username, reason, status, initial_channel_ban)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (user.id, user.display, user.reason_for_ban, user.status.value, Channels.SHARKOCALYPSE.value),
+        )
+        await conn.commit()
+
+
+async def get_twitch_ban_list() -> list[TwitchUser]:
+    async with connect(db_path) as conn:
+        cursor = await conn.execute(
+            "SELECT twitch_id, twitch_username, reason, status, initial_channel_ban FROM twitch_ban_list"
+        )
+        results = await cursor.fetchall()
+        _list: list[TwitchUser] = []
+        for result in results:
+            _list.append(TwitchUser(result[1], result[0], result[2], Statuses(result[3]), Channels(result[4])))
+
+    return _list
 
 
 run(init_db())
