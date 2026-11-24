@@ -13,11 +13,11 @@ from utils.checks import is_mod
 from utils.core import AppConfig
 
 if TYPE_CHECKING:
-    from MyClient import MyBot
+    from MyBot import Bot
 
 
 class FishingCog(commands.Cog):
-    def __init__(self, bot: "MyBot", config: AppConfig):
+    def __init__(self, bot: "Bot", config: AppConfig):
         self.bot = bot
         self.config = config
 
