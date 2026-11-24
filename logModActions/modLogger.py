@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 import asyncio
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import TYPE_CHECKING
 
+import discord
 from discord.ext import commands
 from pytz import utc
 from twitchAPI.chat import Chat, ChatEvent, ChatMessage, EventData
@@ -18,11 +22,15 @@ from twitchAPI.twitch import Twitch
 from twitchAPI.type import AuthScope
 
 from SQL.palworld.serverEligibility import add_to_num_of_msgs, add_user, check_if_in_table
+from utils.ban_list import TwitchUser
 from utils.core import AppConfig
+
+if TYPE_CHECKING:
+    from MyBot import Bot
 
 
 class ModLogger(commands.Cog):
-    def __init__(self, bot: commands.Bot, config: AppConfig):
+    def __init__(self, bot: Bot, config: AppConfig):
         self.bot = bot
         self.config = config
 
@@ -67,6 +75,49 @@ class ModLogger(commands.Cog):
             bot=self.bot,
             guild_id=1273776575266951268,
         )
+
+    async def ban_list_update(self, user: TwitchUser):
+        await self.config.send_discord_mod_log(
+            log_message=f"[TWITCH SHARED BAN LIST UPDATE] Ban was detected on {user.initial_channel_ban.value}'s twitch."
+            "Here are the details: \n"
+            f"Banned person: {user.display} \nReason: {user.reason_for_ban} \nDo you want me to ban them for this channel?"
+            " You have 2 days to respond. `!yes` to ban or `!ignore` to ignore this ban.",
+            bot=self.bot,
+            guild_id=1273776575266951268,
+        )
+
+        def check(m: discord.Message):
+            log_channel = self.config.channels["log"][self.config.guilds[1273776575266951268]]
+            return (m.content.lower() == "!yes" or m.content.lower() == "!ignore") and m.channel.id == log_channel
+
+        try:
+            message: discord.Message = await self.bot.wait_for("message", check=check, timeout=2 * 24 * 60 * 60)
+        except asyncio.TimeoutError:
+            await self.config.send_discord_mod_log(
+                "Timed out, I will ignore this ban.", bot=self.bot, guild_id=1273776575266951268
+            )
+            return
+        if message.content == "!ignore":
+            await self.config.send_discord_mod_log(
+                f"Thank you for letting me know to ignore this. {user.display} will not be banned on twitch.",
+                bot=self.bot,
+                guild_id=1273776575266951268,
+            )
+            return
+
+        await self.config.send_discord_mod_log(
+            f"Thank you for answering. I will be banning {user.display} on twitch.", bot=self.bot, guild_id=1273776575266951268
+        )
+
+        twitch_bot = self.bot.twitch
+
+        if twitch_bot is None:
+            await self.config.send_discord_mod_log(
+                "An error occured while trying to ban the user. Error: Twitch bot instance is None. Let Spider know!",
+                bot=self.bot,
+                guild_id=1273776575266951268,
+            )
+            return
 
 
 class TwitchBot:
@@ -221,6 +272,14 @@ class TwitchBot:
                 await add_to_num_of_msgs(twitch_username=msg.user.name)
         except Exception as e:
             print(f"Got an error {e}")
+
+    async def ban_user(self, user: TwitchUser):
+        assert self.twitch, "Twitch is None"
+        assert self.shark_id and self.bot_id
+        twitch_user = await first(self.twitch.get_users(user_ids=[user.id]))
+        if twitch_user is None:
+            raise LookupError("Could not find user on twitch.")
+        await self.twitch.ban_user(self.shark_id, self.bot_id, twitch_user.id, user.reason_for_ban)
 
     async def close_bot(self):
         if self.shark_eventsub:
