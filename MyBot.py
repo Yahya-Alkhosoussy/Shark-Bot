@@ -17,10 +17,8 @@ from zoneinfo import ZoneInfo
 
 import aiohttp
 import discord
-import uvicorn
 from discord.ext import commands
 from dotenv import load_dotenv, set_key
-from fastapi import BackgroundTasks, FastAPI
 from pydantic import ValidationError
 from twitchAPI.type import AuthScope
 
@@ -96,7 +94,7 @@ class sharks_index(Enum):
 
 
 # ======= BOT =======
-class MyBot(commands.Bot):
+class Bot(commands.Bot):
     def __init__(self, intents: discord.Intents, **kwargs):
         super().__init__(command_prefix=prefix, intents=intents, **kwargs)
         self.shark_loops = SharkLoops(self, config)
@@ -116,6 +114,7 @@ class MyBot(commands.Bot):
         self.updating_store = False
         self.loop_processing = False
         self.twitch_bot: asyncio.Task | None = None
+        self.twitch: TwitchBot | None = None
         self.ban_list_checker = BanListChecker(self, config)
 
         self.custom_commands: dict[str, CustomCommand] = {}  # name/alias to command
@@ -143,6 +142,7 @@ class MyBot(commands.Bot):
             AuthScope.MODERATOR_READ_UNBAN_REQUESTS,
             AuthScope.MODERATOR_READ_WARNINGS,
             AuthScope.MODERATOR_READ_FOLLOWERS,
+            AuthScope.MODERATOR_MANAGE_BANNED_USERS,
         ]
 
         client_id = os.getenv("mod_log_id")
@@ -150,7 +150,7 @@ class MyBot(commands.Bot):
 
         assert client_id and client_secret
 
-        twitch_bot = TwitchBot(
+        self.twitch = TwitchBot(
             client_id,
             client_secret,
             scopes,
@@ -159,7 +159,7 @@ class MyBot(commands.Bot):
         )
 
         print("About to run the twitch bot")
-        self.twitch_bot = asyncio.create_task(twitch_bot.run())
+        self.twitch_bot = asyncio.create_task(self.twitch.run())
         self.twitch_bot.add_done_callback(self._log_twitch_failure)
 
     def _log_twitch_failure(self, task: asyncio.Task):
@@ -386,7 +386,7 @@ Chat, explore, and let your fins grow — your journey through the glittering oc
         if message.guild is None:
             return
 
-        if message.content in self.custom_commands:
+        if message.content.split()[0] in self.custom_commands:  # get the first message
             command = self.custom_commands[message.content]
 
             if not command.active:
@@ -663,7 +663,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 intents.message_content = True
-bot = MyBot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=True))
+bot = Bot(intents=intents, allowed_mentions=discord.AllowedMentions(everyone=True))
 bot.owner_id = 604366329302220820  # replace with own ID if replicating
 
 
@@ -1893,30 +1893,3 @@ async def on_command_error(ctx: commands.Context, error):  # noqa: C901
                     f"{user} tried using command {ctx.command} but is missing something. Error: {str(error)}"
                 )
             return
-
-
-app = FastAPI()
-
-
-@app.post("/api/v1/update_react_roles/{guild_id}")
-async def _update_react_roles(guild_id: int, background_tasks: BackgroundTasks):
-    print("Ping gotten! Updating react roles")
-    print("React roles updated!")
-    guild = bot.get_guild(guild_id)
-    if guild is not None:
-        background_tasks.add_task(bot.ensure_react_roles_message, guild)
-    return {"status", "ok"}
-
-
-async def main():
-    token = os.getenv("token")
-    assert token, "No token found in envvars. Impossible to continue."
-
-    config = uvicorn.Config(app, "0.0.0.0", 9000)
-    server = uvicorn.Server(config)
-
-    await asyncio.gather(bot.start(token=token), server.serve(), return_exceptions=True)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
