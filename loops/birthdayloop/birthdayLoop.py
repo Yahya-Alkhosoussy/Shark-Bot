@@ -28,6 +28,57 @@ class BirthdayLoop:
         loop = self._loops.get(guild_id)
         return bool(loop and loop.is_running())
 
+    async def send_birthday_msg(self, channel: discord.TextChannel, current_month: int):
+        match current_month:
+            case 1:
+                await channel.send("Happy Birthday to <@&1335413563627409429>")
+                logging.info("Said happy birthday to Jan babies!")
+                self.config.mark_reminder_as_done("January")
+            case 2:
+                await channel.send("Happy Birthday to <@&1335415340049371188>")
+                logging.info("Said happy birthday to Feb babies!")
+                self.config.mark_reminder_as_done("February")
+            case 3:
+                await channel.send("Happy Birthday to <@&1335416311089463378>")
+                logging.info("Said happy birthday to March babies!")
+                self.config.mark_reminder_as_done("March")
+            case 4:
+                await channel.send("Happy Birthday to <@&1335416850615504957>")
+                logging.info("Said happy birthday to April babies!")
+                self.config.mark_reminder_as_done("April")
+            case 5:
+                await channel.send("Happy Birthday to <@&1335417252270571560>")
+                logging.info("Said happy birthday to May babies!")
+                self.config.mark_reminder_as_done("May")
+            case 6:
+                await channel.send("Happy Birthday to <@&1335417579832873072>")  #
+                logging.info("Said happy birthday to June babies!")
+                self.config.mark_reminder_as_done("June")
+            case 7:
+                await channel.send("Happy Birthday to <@&1335417607825784864>")
+                logging.info("Said happy birthday to July babies!")
+                self.config.mark_reminder_as_done("July")
+            case 8:
+                await channel.send("Happy Birthday to <@&1335417655309369375>")
+                logging.info("Said happy birthday to August babies!")
+                self.config.mark_reminder_as_done("August")
+            case 9:
+                await channel.send("Happy Birthday to <@&1335417694228316172>")
+                logging.info("Said happy birthday to September babies!")
+                self.config.mark_reminder_as_done("September")
+            case 10:
+                await channel.send("Happy Birthday to <@&1335417733281480774>")
+                logging.info("Said happy birthday to October babies!")
+                self.config.mark_reminder_as_done("October")
+            case 11:
+                await channel.send("Happy Birthday to <@&1335417768404848640>")
+                logging.info("Said happy birthday to November babies!")
+                self.config.mark_reminder_as_done("November")
+            case 12:
+                await channel.send("Happy Birthday to <@&1335417794799341670>")
+                logging.info("Said happy birthday to December babies!")
+                self.config.mark_reminder_as_done("December")
+
     def start_for(self, guild_id: int):
         if self.is_running(guild_id):
             return
@@ -53,100 +104,24 @@ class BirthdayLoop:
 
             if str(current_date) in firsts and not birthday_messages[month]:
                 current_month = current_date.month
-                match current_month:
-                    case 1:
-                        await channel.send("Happy Birthday to <@&1335413563627409429>")
-                        logging.info("Said happy birthday to Jan babies!")
-                        if self.config.mark_reminder_as_done("January"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 2:
-                        await channel.send("Happy Birthday to <@&1335415340049371188>")
-                        logging.info("Said happy birthday to Feb babies!")
-                        if self.config.mark_reminder_as_done("February"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 3:
-                        await channel.send("Happy Birthday to <@&1335416311089463378>")
-                        logging.info("Said happy birthday to March babies!")
-                        if self.config.mark_reminder_as_done("March"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 4:
-                        await channel.send("Happy Birthday to <@&1335416850615504957>")
-                        logging.info("Said happy birthday to April babies!")
-                        if self.config.mark_reminder_as_done("April"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 5:
-                        await channel.send("Happy Birthday to <@&1335417252270571560>")
-                        logging.info("Said happy birthday to May babies!")
-                        if self.config.mark_reminder_as_done("May"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 6:
-                        await channel.send("Happy Birthday to <@&1335417579832873072>")  #
-                        logging.info("Said happy birthday to June babies!")
-                        if self.config.mark_reminder_as_done("June"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 7:
-                        await channel.send("Happy Birthday to <@&1335417607825784864>")
-                        logging.info("Said happy birthday to July babies!")
-                        if self.config.mark_reminder_as_done("July"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 8:
-                        await channel.send("Happy Birthday to <@&1335417655309369375>")
-                        logging.info("Said happy birthday to August babies!")
-                        if self.config.mark_reminder_as_done("August"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 9:
-                        await channel.send("Happy Birthday to <@&1335417694228316172>")
-                        logging.info("Said happy birthday to September babies!")
-                        if self.config.mark_reminder_as_done("September"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 10:
-                        await channel.send("Happy Birthday to <@&1335417733281480774>")
-                        logging.info("Said happy birthday to October babies!")
-                        if self.config.mark_reminder_as_done("October"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 11:
-                        await channel.send("Happy Birthday to <@&1335417768404848640>")
-                        logging.info("Said happy birthday to November babies!")
-                        if self.config.mark_reminder_as_done("November"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
-                    case 12:
-                        await channel.send("Happy Birthday to <@&1335417794799341670>")
-                        logging.info("Said happy birthday to December babies!")
-                        if self.config.mark_reminder_as_done("December"):
-                            logging.info(f"Saved YAML config successfully and marked {month} that is under reminders as done.")
-                        else:
-                            logging.warning(f"{month} was not found in loaded config")
+                await self.send_birthday_msg(channel, current_month)
 
             user_ids, birthdays = b.get_birthdays()
             current_date = str(current_date).replace(str(current_year) + "-", "")
-            birthdays_today: list[discord.User] = []
+            birthdays_today: list[discord.Member] = []
+            guild = self.client.get_guild(guild_id)
+            if guild is None:
+                return
+
+            members = [member async for member in guild.fetch_members()]
+
             for user_id, birthday in zip(user_ids, birthdays):
                 if birthday != current_date:
                     continue
 
-                user = await self.client.fetch_user(user_id)
+                user = guild.get_member(user_id)
+                if not user or user not in members:
+                    continue
                 birthdays_today.append(user)
 
             if len(birthdays_today) == 1:
